@@ -1,0 +1,25 @@
+{
+  "name": "test-app-04",
+  "version": "1.0.0",
+  "description": "test",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix ./web/frontend run dev\" \"npm --prefix ./web run dev\"",
+    "build:client": "npm --prefix ./web/frontend run build",
+    "build:server": "npm --prefix ./web run build",
+    "build:app": "npm run build:client && npm run build:server",
+    "start:client": "npm --prefix ./web/frontend start",
+    "start:server": "npm --prefix ./web start"
+  },
+  "author": "tusha",
+  "license": "ISC",
+  "dependencies": {
+    "@iconify/react": "^5.0.1",
+    "@mui/material": "^5.16.1",
+    "@mui/x-data-grid": "^7.10.0",
+    "bootstrap": "^5.3.3",
+    "concurrently": "^8.2.2",
+    "react-feather": "^2.0.10",
+    "theme-colors": "^0.1.0"
+  }
+}

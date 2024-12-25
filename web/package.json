@@ -1,0 +1,28 @@
+{
+  "name": "test-app-web-04",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "braces": "^3.0.3",
+    "detect-libc": "^1.0.3",
+    "esbuild": "^0.19.8",
+    "fill-range": "^7.1.1",
+    "is-extglob": "^2.1.1",
+    "is-glob": "^4.0.3",
+    "is-number": "^7.0.0",
+    "micromatch": "^4.0.7",
+    "node-addon-api": "^7.1.0",
+    "picomatch": "^2.3.1",
+    "to-regex-range": "^5.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "./main",
+    "build": "go build main.go",
+    "dev": "./bin/air -c .air.toml",
+    "devintel": "air -c .air.toml"
+  },
+  "author": "tusha",
+  "license": "ISC",
+  "description": ""
+}
