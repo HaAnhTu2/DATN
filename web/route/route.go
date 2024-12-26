@@ -12,7 +12,7 @@ import (
 )
 
 func Route(r *gin.Engine, DB *mongo.Database) {
-	//All routes will be added here
+	// Kết nối DB
 	client := db.ConnectDB()
 	ProductRepo := reponsitory.NewProductRepo(client.Database(os.Getenv("DB_NAME")))
 	productController := controller.NewProductController(ProductRepo, DB)
@@ -23,34 +23,51 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	OrderRepo := reponsitory.NewOrderRepo(client.Database(os.Getenv("DB_NAME")))
 	orderController := controller.NewOrderController(OrderRepo, DB)
 
+	// Middleware xác thực
 	authMiddleware := middleware.AuthMiddleware
-	r.POST("api/login", userController.Login)
-	r.POST("user/signup", userController.SignUp)
-	r.DELETE("api/logout", userController.Logout)
-	auth := r.Group("/")
-	auth.Use(authMiddleware)
-	{
-		auth.GET("/api/users", userController.GetUserByToken)
-		auth.PUT("/api/user/update/:id", userController.UpdateUser)
-		auth.DELETE("/api/user/delete/:id", userController.DeleteUser)
 
-		auth.POST("/api/product/create", productController.CreateProduct)
-		auth.PUT("/api/product/update/:id", productController.UpdateProduct)
-		auth.DELETE("/api/product/delete/:id", productController.DeleteProduct)
-
-		auth.GET("/cart/:id", cartController.GetItemFromCart)
-		auth.POST("/cart/:userID/add/:id", cartController.AddToCart)
-		auth.PUT("/cart/:userID/update/:id", cartController.UpdateCartItem)
-		auth.DELETE("/cart/:userID/remove/:id", cartController.RemoveCartItem)
-		auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
-
-	}
-	r.POST("/api/user/create", userController.CreateUser)
+	// Route không cần xác thực
+	r.POST("/api/login", userController.Login)
+	r.POST("/api/signup", userController.SignUp)
+	// r.POST("/api/user/create", userController.CreateUser)
 	r.GET("/api/user/get", userController.GetAllUser)
 	r.GET("/api/user/get/:id", userController.GetByID)
-	r.GET("image/:imageId", userController.ServeImage)
+	r.GET("/api/user/serve-image/:imageId", userController.ServeImage)
 
-	r.GET("/api/product/get", productController.GetAllProduct)
-	r.GET("/api/product/get/:id", productController.GetByID)
-	r.GET("image2/:imageId", productController.ServeImageProduct)
+	// Nhóm route có xác thực
+	auth := r.Group("/api")
+	auth.Use(authMiddleware)
+	{
+		// User routes
+		auth.GET("/users", userController.GetUserByToken)
+		auth.PUT("/user/update/:id", userController.UpdateUser)
+		auth.DELETE("/user/delete/:id", userController.DeleteUser)
+
+		// Product routes
+		auth.POST("/product/create", productController.CreateProduct)
+		auth.PUT("/product/update/:id", productController.UpdateProduct)
+		auth.DELETE("/product/delete/:id", productController.DeleteProduct)
+		auth.GET("/product/get", productController.GetAllProduct)
+		auth.GET("/product/get/:id", productController.GetByID)
+		auth.GET("/product/image/:imageId", productController.ServeImageProduct)
+
+		// Cart routes
+		auth.GET("/cart/:id", cartController.GetItemFromCart)
+		auth.POST("/cart/add/:userID/:id", cartController.AddToCart)
+		auth.PUT("/cart/update/:userID/:id", cartController.UpdateCartItem)
+		auth.DELETE("/cart/remove/:userID/:id", cartController.RemoveCartItem)
+
+		// Order routes
+		auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
+
+		// Logout route
+		auth.DELETE("/logout", userController.Logout)
+	}
+
+	// Lấy ảnh từ đường dẫn
+	r.GET("/image/:id", userController.ServeImage)
+	r.GET("/image2/:id", productController.ServeImageProduct)
+	r.GET("/product/get", productController.GetAllProduct)
+	r.GET("/product/get/:id", productController.GetByID)
+	r.GET("/product/image/:id", productController.ServeImageProduct)
 }

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import CreateFormUser from "../../components/sections/dashboard/user/Create";
+import Signup from "../../components/authentication/Signup";
 import { User } from "../../type/user";
 
-const CreateUserPage: React.FC = () => {
+const SignupPage: React.FC = () => {
     const [, setUsers] = useState<User[]>([]);
     const [message, setMessage] = useState('')
     return (
@@ -10,7 +10,7 @@ const CreateUserPage: React.FC = () => {
             <header className="container">
                 <div className="row">
                     <div className="col-md-12">
-                        <CreateFormUser setUsers={setUsers} setMessage={setMessage} />
+                        <Signup setUsers={setUsers} setMessage={setMessage} />
                         {message && <p>{message}</p>}
                     </div>
                 </div>
@@ -19,4 +19,4 @@ const CreateUserPage: React.FC = () => {
     )
 }
 
-export default CreateUserPage;
+export default SignupPage;

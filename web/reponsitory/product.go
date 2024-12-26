@@ -11,7 +11,6 @@ import (
 
 type ProductRepo interface {
 	FindByID(ctx context.Context, id string) (model.Product, error)
-	// FindByName(ctx context.Context, name string) (model.Product, error)
 	FindByType(ctx context.Context, producttype string) ([]model.ProductResponse, error)
 	GetAll(ctx context.Context) ([]model.ProductResponse, error)
 	Create(ctx context.Context, product model.Product) (model.Product, error)

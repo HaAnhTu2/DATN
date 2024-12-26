@@ -6,8 +6,8 @@ import { Button } from 'react-bootstrap';
 import logo from '../assets/img/logo.png';
 
 const Header: React.FC = () => {
-  const [, setError] = useState('');
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -26,9 +26,9 @@ const Header: React.FC = () => {
     };
     fetchUser();
   }, []);
-  const navigate = useNavigate();
+
   const handleCartClick = () => {
-    if (!user) {
+    if (!user?.id) {
       console.error('User not found. Redirecting to login.');
       navigate('/login');
       return;
@@ -50,99 +50,69 @@ const Header: React.FC = () => {
 
   const isLoggedIn = Boolean(user);
 
-  let menu;
-
-  if (!isLoggedIn) {
-    menu = (
-      <ul>
-        <li>
-          <Link to="/login" className="login-link">Login</Link>
-        </li>
-        <li>
-          <Link to="/signup" className="signup-link">Register</Link>
-        </li>
-      </ul>
-    );
-  } else {
-    menu = (
-      <ul>
-        <div className="dropdown">
-          <button className="dropbtn">
-            <i className="fa fa-user-o"></i> {user?.email || 'User'}
-          </button>
-          <div className="dropdown-content">
-            <Link to="/profile">Profile</Link>
-            <Link to="/orders">My Orders</Link>
-            <Link to="/login" onClick={handleLogout}>Logout</Link>
+  return (
+    <>
+      <header>
+        <div id="top-header">
+          <div className="container">
+            <ul className="header-links pull-left">
+              <li><a href="#"><i className="fa fa-phone"></i> +123-45-67-89</a></li>
+              <li><a href="#"><i className="fa fa-envelope-o"></i> Tusha123@email.com</a></li>
+              <li><a href="#"><i className="fa fa-map-marker"></i> Tây Tựu, Bắc Từ Liêm, Hà Nội</a></li>
+            </ul>
+            <ul className="header-links pull-right">
+              {isLoggedIn ? (
+                <>
+                  <li><a href="#"><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
+                  <li><Link to={`/cart/${user.id}`}><i className="fa fa-shopping-cart"></i> Cart</Link></li>
+                  <li><Link to="/login" onClick={handleLogout}><i className="fa fa-sign-out"></i> Logout</Link></li>
+                </>
+              ) : (
+                <>
+                  <li><Link to="/login" className="login-link">Login</Link></li>
+                  <li><Link to="/signup" className="signup-link">Sign Up</Link></li>
+                </>
+              )}
+            </ul>
           </div>
         </div>
-      </ul>
-    );
 
-  }
-  return <>
-    <header>
-      <div id="top-header">
-        <div className="container">
-          <ul className="header-links pull-left">
-            <li><a href="#"><i className="fa fa-phone"></i> +123-45-67-89</a></li>
-            <li><a href="#"><i className="fa fa-envelope-o"></i> Tusha123@email.com</a></li>
-            <li><a href="#"><i className="fa fa-map-marker"></i> Tây Tựu, Bắc Từ Liêm, Hà Nội</a></li>
-          </ul>
-          <ul className="header-links pull-right">
-            {isLoggedIn ? (
-              <>
-                <li><a href="#"><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
-                <li><Link to="/cart"><i className="fa fa-shopping-cart"></i> Cart</Link></li>
-                <li><Link to="/login" onClick={handleLogout}><i className="fa fa-sign-out"></i> Logout</Link></li>
-              </>
-            ) : (
-              <>
-                <li><Link to="/login" className="login-link">Login</Link></li>
-                <li><Link to="/signup" className="signup-link">Sign Up</Link></li>
-              </>
-            )}
-          </ul>
-
-        </div>
-      </div>
-
-      <div id="header">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-3">
-              <div className="header-logo">
-                <Link to="/" className="logo">
-                  <img src={logo} alt="logo" />
-                </Link>
+        <div id="header">
+          <div className="container">
+            <div className="row">
+              <div className="col-md-3">
+                <div className="header-logo">
+                  <Link to="/" className="logo">
+                    <img src={logo} alt="logo" />
+                  </Link>
+                </div>
               </div>
-            </div>
 
-            <div className="col-md-6">
-            </div>
-            <div className="col-md-3 clearfix">
-              <div className="header-ctn">
-                <div className="dropdown">
-                  <Button onClick={() => handleCartClick(user?.id)} className="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+              <div className="col-md-6">
+                {/* You can add more content here */}
+              </div>
+
+              <div className="col-md-3 clearfix">
+                <div className="header-ctn">
+                  <Button onClick={handleCartClick} className="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                     <i className="fa fa-shopping-cart"></i>
                     <span>Your Cart</span>
                   </Button>
-                </div>
 
-                <div className="menu-toggle">
-                  <a href="#">
-                    <i className="fa fa-bars"></i>
-                    <span>Menu</span>
-                  </a>
+                  <div className="menu-toggle">
+                    <a href="#">
+                      <i className="fa fa-bars"></i>
+                      <span>Menu</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
-
-  </>
-}
+      </header>
+    </>
+  );
+};
 
 export default Header;

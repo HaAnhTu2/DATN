@@ -21,6 +21,7 @@ var (
 )
 
 type CartRepo interface {
+	GetCart(ctx context.Context, userID string) ([]model.LineItem, error)
 	AddProductToCart(ctx context.Context, productID primitive.ObjectID, userID string, quantity int) error
 	UpdateCartItem(ctx context.Context, productID primitive.ObjectID, userID string, cartquantity int) error
 	RemoveCartItem(ctx context.Context, productID primitive.ObjectID, userID string) error
@@ -34,19 +35,41 @@ func NewCartRepo(db *mongo.Database) CartRepo {
 	return &CartRepoI{db: db}
 }
 
+func (c *CartRepoI) GetCart(ctx context.Context, userID string) ([]model.LineItem, error) {
+	// Validate user ID
+	userObjectID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		log.Println("Invalid user ID:", err)
+		return nil, ErrUserIDIsNotValid
+	}
+
+	// Tìm giỏ hàng của người dùng
+	var cart model.Cart
+	err = c.db.Collection("carts").FindOne(ctx, bson.M{"_id": userObjectID}).Decode(&cart)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Printf("Cart for user %s not found", userID)
+			return nil, err
+		}
+		log.Printf("Error fetching cart for user %s: %v", userID, err)
+		return nil, err
+	}
+
+	// Trả về danh sách các sản phẩm trong giỏ hàng
+	return cart.LineItems, nil
+}
+
 func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.ObjectID, userID string, cartquantity int) error {
 	if cartquantity <= 0 {
 		log.Println("Invalid quantity:", cartquantity)
 		return errors.New("quantity must be greater than zero")
 	}
-
 	// Validate user ID
 	userObjectID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		log.Println("Invalid user ID:", err)
 		return ErrUserIDIsNotValid
 	}
-
 	// Check if product exists
 	var product model.Product
 	err = c.db.Collection("products").FindOne(ctx, bson.M{"_id": productID}).Decode(&product)
@@ -54,7 +77,6 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 		log.Printf("Product with ID %s not found: %v", productID.Hex(), err)
 		return ErrCantFindProduct
 	}
-
 	// Ensure the cart exists for the user
 	_, err = c.db.Collection("carts").UpdateOne(
 		ctx,
@@ -72,7 +94,6 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 		log.Printf("Error ensuring cart document exists: %v", err)
 		return ErrCantUpdateCart
 	}
-
 	// Try to update the quantity of an existing product in the cart
 	filter := bson.M{"_id": userObjectID, "line_items.product_id": productID}
 	update := bson.M{
@@ -86,7 +107,6 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 		log.Println("Error updating cart:", err)
 		return ErrCantUpdateCart
 	}
-
 	// If no existing product was updated, add a new product to the cart
 	if result.ModifiedCount == 0 {
 		newLineItem := model.LineItem{
@@ -111,7 +131,6 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 }
 
 func (c *CartRepoI) UpdateCartItem(ctx context.Context, productID primitive.ObjectID, userID string, cartquantity int) error {
-	// Check if product exists
 	var product model.Product
 	err := c.db.Collection("products").FindOne(ctx, bson.M{"_id": productID}).Decode(&product)
 	if err != nil {

@@ -13,7 +13,7 @@ const Navigation: React.FC = () => {
 						<li><Link to="/update/user">Edit User</Link></li>
 						<li><Link to="/create/product">Create Product</Link></li>
 						<li><Link to="/update/product">Edit Product</Link></li>
-						<li><Link className="nav-link" to="/signin">Signin</Link></li>
+						<li><Link className="nav-link" to="/signup">Signup</Link></li>
 						<li><Link className="nav-link" to="/login">Login</Link></li>
 					</ul>
 				</div>

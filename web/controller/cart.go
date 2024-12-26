@@ -43,9 +43,7 @@ func (ca *CartController) AddToCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	// Lấy giá trị cartquantity
 	cartquantity := request.CartQuantity
-
 	productID, err := primitive.ObjectIDFromHex(productQueryID)
 	if err != nil {
 		log.Println(err)
@@ -72,19 +70,13 @@ func (ca *CartController) GetItemFromCart(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-
-	// Chuyển đổi userID sang ObjectID
 	userOID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ObjectID format"})
 		return
 	}
-
-	// Tạo context với timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-
-	// Tìm giỏ hàng dựa trên userID
 	var cart model.Cart
 	err = ca.DB.Collection("carts").FindOne(ctx, bson.M{"_id": userOID}).Decode(&cart)
 	if err != nil {
@@ -92,14 +84,10 @@ func (ca *CartController) GetItemFromCart(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cart not found"})
 		return
 	}
-
-	// Tính tổng giá trị giỏ hàng
 	var total float64
 	for _, item := range cart.LineItems {
 		total += item.Subtotal
 	}
-
-	// Trả về kết quả
 	c.JSON(http.StatusOK, gin.H{
 		"total":     total,
 		"lineItems": cart.LineItems,
@@ -125,7 +113,6 @@ func (ca *CartController) UpdateCartItem(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	// Lấy giá trị cartquantity
 	cartquantity := request.CartQuantity
 
 	if cartquantity <= 0 {

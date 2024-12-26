@@ -1,10 +1,8 @@
 package controller
 
 import (
-	// "DoAnToiNghiep/controller"
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
-	generate "DoAnToiNghiep/tokens"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -139,8 +137,8 @@ func (u *UserController) GetByID(c *gin.Context) {
 
 func (u *UserController) CreateUser(c *gin.Context) {
 	user := model.User{
-		First_Name:  c.Request.FormValue("firstname"),
-		Last_Name:   c.Request.FormValue("lastname"),
+		First_Name:  c.Request.FormValue("first_name"),
+		Last_Name:   c.Request.FormValue("last_name"),
 		Email:       c.Request.FormValue("email"),
 		Password:    c.Request.FormValue("password"),
 		Address:     c.Request.FormValue("address"),
@@ -213,18 +211,19 @@ func (u *UserController) CreateUser(c *gin.Context) {
 func (u *UserController) SignUp(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	var user = model.User{
-		First_Name:  c.Request.FormValue("firstname"),
-		Last_Name:   c.Request.FormValue("lastname"),
-		Email:       c.Request.FormValue("email"),
-		Password:    c.Request.FormValue("password"),
-		Address:     c.Request.FormValue("address"),
-		PhoneNumber: c.Request.FormValue("phone_number"),
-		Role:        c.Request.FormValue("role"),
-	}
-	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
-		return
+
+	var user model.User
+	if c.ContentType() == "application/json" {
+		if err := c.ShouldBindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON body: " + err.Error()})
+			return
+		}
+	} else {
+		user.First_Name = c.PostForm("first_name")
+		user.Last_Name = c.PostForm("last_name")
+		user.Email = c.PostForm("email")
+		user.Password = c.PostForm("password")
+		user.PhoneNumber = c.PostForm("phone_number")
 	}
 	validationErr := Validate.Struct(user)
 	if validationErr != nil {
@@ -255,31 +254,19 @@ func (u *UserController) SignUp(c *gin.Context) {
 	user.Updated_At = time.Now()
 	user.ID = primitive.NewObjectID()
 	user.User_ID = user.ID.Hex()
-	token, refreshtoken, err := generate.TokenGenerator(user.Email, user.First_Name, user.Last_Name, user.User_ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating tokens"})
-		return
-	}
-	user.Token = token
-	user.Refresh_Token = refreshtoken
 	if user.Role == "" {
 		defaultRole := "User"
+		// defaultRole := "Admin"
 		user.Role = defaultRole
 	}
-	_, inserterr := u.DB.Collection("users").InsertOne(ctx, user)
-	if inserterr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + inserterr.Error()})
+	_, err = u.DB.Collection("users").InsertOne(ctx, user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Successfully Signed Up!!",
-		"user": gin.H{
-			"id":         user.ID,
-			"email":      user.Email,
-			"first_name": user.First_Name,
-			"last_name":  user.Last_Name,
-			"role":       user.Role,
-		},
+		"user":    user,
 	})
 }
 func (u *UserController) GetUserByToken(c *gin.Context) {
@@ -341,6 +328,9 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 			"first_name": user.First_Name,
 			"last_name":  user.Last_Name,
 			"email":      user.Email,
+			"Role":       user.Role,
+			"address":    user.Address,
+			"phone":      user.PhoneNumber,
 		},
 	})
 }
@@ -375,20 +365,18 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
-	// if name := c.PostForm("name"); name != "" {
-	// 	user.Name = name
-	// }
-	if firstname := c.PostForm("firstname"); firstname != "" {
-		user.First_Name = firstname
+	if first_name := c.PostForm("first_name"); first_name != "" {
+		user.First_Name = first_name
 	}
-	if lastname := c.PostForm("lastname"); lastname != "" {
+	if lastname := c.PostForm("last_name"); lastname != "" {
 		user.Last_Name = lastname
 	}
 	if email := c.PostForm("email"); email != "" {
 		user.Email = email
 	}
 	if password := c.PostForm("password"); password != "" {
-		user.Password = password
+		hashpassword := HashPassword(password)
+		user.Password = hashpassword
 	}
 	if address := c.PostForm("address"); address != "" {
 		user.Address = address

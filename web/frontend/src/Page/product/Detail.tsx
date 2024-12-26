@@ -10,7 +10,7 @@ const DetailProductPage: React.FC = () => {
     return (
         <div className="App">
             <header className="App-header">
-                <ProductDetail setDetailProduct={setDetailProduct}/>
+                <ProductDetail setDetailProduct={setDetailProduct} />
             </header>
         </div>
     );

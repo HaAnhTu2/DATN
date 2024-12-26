@@ -1,9 +1,19 @@
 import axios from 'axios';
-import { User } from '../type/user';
+import { Signup, User } from '../type/user';
 
 export const getUsers = async (): Promise<User[]> => {
     const response = await axios.get('/api/user/get')
     return response.data.users;
+};
+
+export const signup = async (newUser: FormData): Promise<Signup> => {
+    try {
+        const response = await axios.post('/api/signup', newUser, {
+        });
+        return response.data as Signup;
+    } catch (error) {
+        throw new Error('Error creating user');
+    }
 };
 
 export const createUser = async (newUser: FormData): Promise<User> => {

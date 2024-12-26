@@ -23,11 +23,11 @@ type SignedDetails struct {
 var SECRET_KEY = os.Getenv("SECRET_KEY")
 
 // Tạo JWT và Refresh Token
-func TokenGenerator(email, firstname, lastname, uid string) (string, string, error) {
+func TokenGenerator(email, first_name, last_name, uid string) (string, string, error) {
 	claims := &SignedDetails{
 		Email:     email,
-		FirstName: firstname,
-		LastName:  lastname,
+		FirstName: first_name,
+		LastName:  last_name,
 		Uid:       uid,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),

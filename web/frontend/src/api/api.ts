@@ -17,7 +17,16 @@ export const login = async (email: string, password: string): Promise<string> =>
 
 export const logout = async (): Promise<void> => {
     try {
-        await axios.delete('api/logout');
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Token not found');
+        }
+        const logout = await axios.delete('api/logout', {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`,
+            }
+        });
         localStorage.removeItem('token');
     } catch (error) {
         throw new Error('Error logging out');

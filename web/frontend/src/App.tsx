@@ -20,6 +20,7 @@ import "../src/assets/css/slick-theme.css";
 import "../src/assets/css/slick.css";
 import "../src/assets/css/style.css";
 import CartPage from './Page/order/CartPage';
+import SignupPage from './Page/authentication/Signup';
 
 function App() {
   return (
@@ -35,8 +36,9 @@ function App() {
           <Route path="/create/product" element={<CreateProductPage />} />
           <Route path="/update/product" element={<UpdateProductPage />} />
           <Route path="/product/:id" element={<DetailProductPage />} />
+          <Route path="/cart/:id" element={<CartPage />} />
           <Route path="/update/user" element={<UpdateUserPage />} />
-          <Route path="/signin" element={<CreateUserPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<Logout />} />
         </Routes>

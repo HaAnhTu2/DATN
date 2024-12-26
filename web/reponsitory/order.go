@@ -2,17 +2,21 @@ package reponsitory
 
 import (
 	"DoAnToiNghiep/model"
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
+	"image/png"
 	"log"
 
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/code128"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type OrderRepo interface {
-	CreateOrder(ctx context.Context, order model.Order) (model.Order, error)
 	CreateOrderFromCart(ctx context.Context, userID string) (*model.Order, error)
 }
 
@@ -24,16 +28,7 @@ func NewOrderRepo(db *mongo.Database) OrderRepo {
 	return &OrderRepoI{DB: db}
 }
 
-// Create a new order
-func (o *OrderRepoI) CreateOrder(ctx context.Context, order model.Order) (model.Order, error) {
-	result, err := o.DB.Collection("orders").InsertOne(ctx, order)
-	if err != nil {
-		return model.Order{}, err
-	}
-	order.ID = result.InsertedID.(primitive.ObjectID)
-	return order, nil
-}
-
+// Create a order
 func (o *OrderRepoI) CreateOrderFromCart(ctx context.Context, userID string) (*model.Order, error) {
 	// Validate user ID
 	userObjectID, err := primitive.ObjectIDFromHex(userID)
@@ -54,12 +49,34 @@ func (o *OrderRepoI) CreateOrderFromCart(ctx context.Context, userID string) (*m
 		log.Println("Cart is empty")
 		return nil, errors.New("cart is empty")
 	}
+	// Tạo barcode cho đơn hàng
+	barcodeData := userID + primitive.NewObjectID().Hex()
+
+	barcodeImage, err := code128.Encode(barcodeData)
+	if err != nil {
+		log.Printf("Error creating barcode: %v", err)
+		return nil, err
+	}
+	scaledBarcode, err := barcode.Scale(barcodeImage, 300, 150)
+	if err != nil {
+		log.Printf("Error scaling barcode: %v", err)
+		return nil, errors.New("failed to scale barcode")
+	}
+
+	// Convert barcode image to base64 string
+	var buffer bytes.Buffer
+	if err := png.Encode(&buffer, scaledBarcode); err != nil {
+		log.Printf("Error saving barcode image: %v", err)
+		return nil, errors.New("failed to save barcode image")
+	}
+	base64String := base64.StdEncoding.EncodeToString(buffer.Bytes())
 
 	// Tạo đơn hàng mới
 	order := model.Order{
-		ID:        primitive.NewObjectID(),
-		UserID:    userID,
-		LineItems: cart.LineItems,
+		ID:           primitive.NewObjectID(),
+		UserID:       userID,
+		LineItems:    cart.LineItems,
+		BarcodeOrder: base64String,
 	}
 	_, err = o.DB.Collection("orders").InsertOne(ctx, order)
 	if err != nil {

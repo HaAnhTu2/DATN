@@ -56,7 +56,7 @@ const UserHome: React.FC<UserHomeProps> = () => {
                                     {product.productimage_url ? (
                                         <Card.Img src={`http://localhost:3000/image2/${product.productimage_url}`}
                                             alt={product.productname}
-                                            />
+                                        />
                                     ) : (
                                         "No Image"
                                     )}

@@ -42,20 +42,6 @@ func (p *ProductController) GetAllProduct(c *gin.Context) {
 	})
 }
 
-// func (p *ProductController) GetNameProduct(c *gin.Context) {
-// 	productname := strings.TrimPrefix(c.Request.URL.Path, "/product/")
-// 	products, err := p.ProductRepo.FindByName(context.Background(), productname)
-// 	if err != nil {
-// 		c.JSON(http.StatusNotFound, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"products": products,
-// 	})
-// }
-
 func (p *ProductController) GetByID(c *gin.Context) {
 	productid := c.Param("id")
 	product, err := p.ProductRepo.FindByID(c.Request.Context(), productid)

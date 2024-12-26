@@ -79,8 +79,7 @@ func (u *UserRepoI) GetAll(ctx context.Context) ([]model.UserResponse, error) {
 
 	for _, item := range items {
 		users = append(users, model.UserResponse{
-			Id: item.ID.Hex(),
-			// Name: item.Name,
+			Id:         item.ID.Hex(),
 			First_Name: item.First_Name,
 			Last_Name:  item.Last_Name,
 			Email:      item.Email,
@@ -100,9 +99,8 @@ func (u *UserRepoI) Create(ctx context.Context, user model.User) (model.User, er
 func (u *UserRepoI) Update(ctx context.Context, user model.User) (model.User, error) {
 	result, err := u.db.Collection("users").UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
 		"$set": bson.M{
-			// "name": user.Name,
-			"firstname":     user.First_Name,
-			"lastname":      user.Last_Name,
+			"first_name":    user.First_Name,
+			"last_name":     user.Last_Name,
 			"email":         user.Email,
 			"password":      user.Password,
 			"address":       user.Address,
@@ -133,17 +131,6 @@ func (u *UserRepoI) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// func (u *UserRepoI) SaveToken(user *model.User) (string, error) {
-// 	secret := os.Getenv("SECRET_KEY")
-// 	expired_At := time.Now().Add(15 * time.Minute)
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.MapClaims{
-// 		"sub": user.Email,
-// 		"exp": expired_At.Unix(),
-// 	})
-// 	log.Print("token", token)
-
-//		return token.SignedString([]byte(secret))
-//	}
 func (u *UserRepoI) SaveToken(user *model.User) (string, error) {
 	// Lấy secret key từ biến môi trường
 	secret := os.Getenv("SECRET_KEY")
@@ -152,22 +139,18 @@ func (u *UserRepoI) SaveToken(user *model.User) (string, error) {
 	}
 
 	// Thiết lập thời gian hết hạn của token
-	expiredAt := time.Now().Add(15 * time.Minute)
+	expiredAt := time.Now().Add(15 * time.Hour)
 
 	claims := &jwt.MapClaims{
-		"sub": user.Email,       // Đặt email của người dùng vào payload
-		"exp": expiredAt.Unix(), // Đặt thời gian hết hạn cho token
+		"sub": user.Email,
+		"exp": expiredAt.Unix(),
 	}
-
 	// Tạo JWT token với các claims trên
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	// Ký token bằng secret key
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign the token: %v", err)
 	}
-
-	// Trả về token đã ký
 	return tokenString, nil
 }

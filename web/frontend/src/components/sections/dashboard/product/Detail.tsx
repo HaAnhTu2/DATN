@@ -56,63 +56,34 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ setDetailProduct }) => {
         fetchUser();
     }, []);
 
-    // const handleAddToCart = async () => {
-    //     if (!product || !user) {
-    //         console.error('Product not found');
-    //         return;
-    //     }
+    const handleAddToCart = async () => {
+        if (!product || !user) {
+            console.error('Product or user not found');
+            return;
+        }
 
-    //     const cart: Cart = {
-    //         id: user.id,               // ID của giỏ hàng
-    //         cart_id: user.id,        // ID giỏ hàng của người dùng (có thể lấy từ trạng thái hoặc API)
-    //         line_items: [
-    //             {
-    //                 id: product._id,
-    //                 product_id: product._id,
-    //                 productname: product.productname,
-    //                 cartquantity: 1,
-    //                 price: product.price,
-    //                 subtotal: product.price * 1, // subtotal tính từ quantity * price
-    //             }
-    //         ]
-    //     };
-        
+        const cart: Cart = {
+            id: user.id,
+            cart_id: user.id,
+            line_items: [
+                {
+                    id: product._id,
+                    product_id: product._id,
+                    productname: product.productname,
+                    cartquantity: 1,
+                    price: product.price,
+                    subtotal: product.price * 1,
+                },
+            ],
+        };
 
-    //     try {
-    //         const addedItem = await addToCart(cart);
-    //         alert(`Added ${addedItem} to cart successfully!`);
-    //     } catch (error) {
-    //         console.error('Error adding item to cart:', error);
-    //     }
-    // };
-const handleAddToCart = async () => {
-    if (!product || !user) {
-        console.error('Product or user not found');
-        return;
-    }
-
-    const cart: Cart = {
-        id: user.id, // ID người dùng (userID)
-        cart_id: user.id, // ID giỏ hàng
-        line_items: [
-            {
-                id: product._id,
-                product_id: product._id,
-                productname: product.productname,
-                cartquantity: 1, // Số lượng sản phẩm
-                price: product.price,
-                subtotal: product.price * 1, // Tính subtotal
-            },
-        ],
+        try {
+            const addedItems = await addToCart(cart);
+            alert(`Added ${addedItems.length} item(s) to cart successfully!`);
+        } catch (error) {
+            console.error('Error adding item to cart:', error);
+        }
     };
-
-    try {
-        const addedItems = await addToCart(cart);
-        alert(`Added ${addedItems.length} item(s) to cart successfully!`);
-    } catch (error) {
-        console.error('Error adding item to cart:', error);
-    }
-};
 
     if (loading) {
         return <div>Loading...</div>;
