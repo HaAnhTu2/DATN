@@ -42,7 +42,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ setDetailProduct }) => {
         }
 
         const cartItem: CartItem = {
-            id: product._id,
+            id: product.id,
+            userid:"676c0dd7099f147d0ae9b509",
             productname: product.productname,
             brand:product.brand,
             price: product.price,

@@ -35,7 +35,8 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.PUT("/api/product/update/:id", productController.UpdateProduct)
 		auth.DELETE("/api/product/delete/:id", productController.DeleteProduct)
 
-		auth.POST("/addtocart", cartController.AddToCart)
+		// auth.POST("/api/cart/addtocart/:id", cartController.AddToCart)
+		auth.POST("/cart/:userID/add/:id", cartController.AddToCart)
 
 	}
 	r.POST("/api/user/create", userController.CreateUser)

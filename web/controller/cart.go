@@ -23,13 +23,13 @@ func NewCartController(CartRepo reponsitory.CartRepo, db *mongo.Database) *CartC
 		DB: db}
 }
 func (ca *CartController) AddToCart(c *gin.Context) {
-	productQueryID := c.Query("id")
+	productQueryID := c.Param("id")
 	if productQueryID == "" {
 		log.Println("product id is empty")
 		_ = c.AbortWithError(http.StatusBadRequest, errors.New("product id is empty"))
 		return
 	}
-	userQueryID := c.Query("userID")
+	userQueryID := c.Param("userID")
 	if userQueryID == "" {
 		log.Println("user id is empty")
 		_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
@@ -48,7 +48,7 @@ func (ca *CartController) AddToCart(c *gin.Context) {
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err)
 	}
-	log.Print(ca.CartRepo.AddProductToCart(ctx, productID, userQueryID, quantity))
+	// log.Print(ca.CartRepo.AddProductToCart(ctx, productID, userQueryID, quantity))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

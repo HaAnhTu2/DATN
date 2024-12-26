@@ -9,7 +9,7 @@ export const addToCart = async (cartItem: CartItem): Promise<CartItem> => {
         if (!token) {
             throw new Error('Token not found');
         }
-        const response = await axios.post('/api/cart/addtocart', cartItem, {
+        const response = await axios.post(`/cart/${cartItem.userid}/add/${cartItem.id}`, cartItem, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
@@ -17,7 +17,9 @@ export const addToCart = async (cartItem: CartItem): Promise<CartItem> => {
         });
         return response.data as CartItem;
     } catch (error) {
+        console.log(error);
         throw new Error('Error adding item to cart');
+        
     }
 };
 

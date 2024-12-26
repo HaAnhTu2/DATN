@@ -11,7 +11,7 @@ type LineItem struct {
 }
 
 type Cart struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	CartID    string             `bson:"cart_id" json:"cart_id"`
 	LineItems []LineItem         `bson:"line_items" json:"line_items"`
 }

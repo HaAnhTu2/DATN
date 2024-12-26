@@ -52,6 +52,8 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 		log.Printf("Product with ID %s not found: %v", productID.Hex(), err)
 		return ErrCantFindProduct
 	}
+
+	// Ensure the cart exists for the user
 	_, err = c.db.Collection("carts").UpdateOne(
 		ctx,
 		bson.M{"_id": userObjectID},
@@ -69,49 +71,28 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 		return ErrCantUpdateCart
 	}
 
-	// Update the cart: Increment quantity if item exists
+	// Try to update the quantity of an existing product in the cart
 	filter := bson.M{"_id": userObjectID, "line_items.product_id": productID}
 	update := bson.M{
-		"$inc": bson.M{"line_items.$.quantity": quantity, "line_items.$.subtotal": product.Price * quantity},
+		"$inc": bson.M{
+			"line_items.$.quantity": quantity,
+			"line_items.$.subtotal": product.Price * quantity,
+		},
 	}
 	result, err := c.db.Collection("carts").UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Println("Error updating cart:", err)
 		return ErrCantUpdateCart
 	}
-	if result.ModifiedCount == 0 && result.UpsertedCount == 0 {
-		log.Printf("No document was updated or inserted: %+v", result)
-		return errors.New("update operation did not modify any document")
-	}
 
-	// Add new item if no existing line item was updated
-	// if result.ModifiedCount == 0 {
-	// 	update = bson.M{
-	// 		"$push": bson.M{
-	// 			"line_items": bson.M{
-	// 				"product_id": productID,
-	// 				"name":       product.ProductName,
-	// 				"price":      product.Price,
-	// 				"quantity":   quantity,
-	// 				"subtotal":   product.Price * quantity,
-	// 				"id":         product.ID,
-	// 			},
-	// 		},
-	// 	}
-	// 	log.Printf("Adding new item to cart: %+v", update)
-	// 	_, err = c.db.Collection("carts").UpdateOne(ctx, bson.M{"_id": userObjectID}, update)
-	// 	if err != nil {
-	// 		log.Println("Error adding new item to cart:", err)
-	// 		return ErrCantUpdateCart
-	// 	}
-	// }
+	// If no existing product was updated, add a new product to the cart
 	if result.ModifiedCount == 0 {
 		newLineItem := model.LineItem{
 			ID:        primitive.NewObjectID().Hex(),
 			ProductID: productID.Hex(),
 			Quantity:  quantity,
 			Price:     product.Price,
-			Subtotal:  4, //quantity * product.Price,
+			Subtotal:  float64(product.Price) * float64(product.Quantity),
 		}
 		pushUpdate := bson.M{
 			"$push": bson.M{"line_items": newLineItem},
@@ -122,11 +103,6 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 			return ErrCantUpdateCart
 		}
 	}
-
-	log.Printf("User ID: %s", userID)
-	log.Printf("Product ID: %s", productID.Hex())
-	log.Printf("Filter: %+v", filter)
-	log.Printf("Update: %+v", update)
 
 	log.Printf("Successfully added product %s to user %s's cart", productID.Hex(), userID)
 	return nil

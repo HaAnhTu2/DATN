@@ -13,7 +13,7 @@ type LoginRequest struct {
 }
 
 type User struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
 	First_Name    string             `bson:"firstname" json:"firstname"`
 	Last_Name     string             `bson:"lastname" json:"lastname"`
 	Email         string             `bson:"email,unique" json:"email"`

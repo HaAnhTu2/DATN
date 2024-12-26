@@ -337,11 +337,9 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 
 	// Xác minh token và parse claims
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		// Trả về secret key để xác minh token
 		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
 
-	// Kiểm tra lỗi hoặc tính hợp lệ của token
 	if err != nil || !token.Valid {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 		return

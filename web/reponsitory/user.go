@@ -154,7 +154,6 @@ func (u *UserRepoI) SaveToken(user *model.User) (string, error) {
 	// Thiết lập thời gian hết hạn của token
 	expiredAt := time.Now().Add(15 * time.Minute)
 
-	// Tạo claims cho token (có thể sử dụng struct riêng nếu cần)
 	claims := &jwt.MapClaims{
 		"sub": user.Email,       // Đặt email của người dùng vào payload
 		"exp": expiredAt.Unix(), // Đặt thời gian hết hạn cho token
