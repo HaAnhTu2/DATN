@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"context"
 	"errors"
@@ -35,6 +36,15 @@ func (ca *CartController) AddToCart(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
 		return
 	}
+	var request model.LineItemRequest
+	if err := c.BindJSON(&request); err != nil {
+		log.Println("Invalid JSON body:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+	// Lấy giá trị cartquantity
+	cartquantity := request.CartQuantity
+
 	productID, err := primitive.ObjectIDFromHex(productQueryID)
 	if err != nil {
 		log.Println(err)
@@ -43,12 +53,10 @@ func (ca *CartController) AddToCart(c *gin.Context) {
 	}
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	quantity := 5
-	err = ca.CartRepo.AddProductToCart(ctx, productID, userQueryID, quantity)
+	err = ca.CartRepo.AddProductToCart(ctx, productID, userQueryID, cartquantity)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err)
 	}
-	// log.Print(ca.CartRepo.AddProductToCart(ctx, productID, userQueryID, quantity))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -32,9 +32,9 @@ func NewCartRepo(db *mongo.Database) CartRepo {
 	return &CartRepoI{db: db}
 }
 
-func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.ObjectID, userID string, quantity int) error {
-	if quantity <= 0 {
-		log.Println("Invalid quantity:", quantity)
+func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.ObjectID, userID string, cartquantity int) error {
+	if cartquantity <= 0 {
+		log.Println("Invalid quantity:", cartquantity)
 		return errors.New("quantity must be greater than zero")
 	}
 
@@ -75,8 +75,8 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 	filter := bson.M{"_id": userObjectID, "line_items.product_id": productID}
 	update := bson.M{
 		"$inc": bson.M{
-			"line_items.$.quantity": quantity,
-			"line_items.$.subtotal": product.Price * quantity,
+			"line_items.$.cartquantity": cartquantity,
+			"line_items.$.subtotal":     product.Price * cartquantity,
 		},
 	}
 	result, err := c.db.Collection("carts").UpdateOne(ctx, filter, update)
@@ -88,11 +88,11 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 	// If no existing product was updated, add a new product to the cart
 	if result.ModifiedCount == 0 {
 		newLineItem := model.LineItem{
-			ID:        primitive.NewObjectID().Hex(),
-			ProductID: productID.Hex(),
-			Quantity:  quantity,
-			Price:     product.Price,
-			Subtotal:  float64(product.Price) * float64(product.Quantity),
+			ID:           primitive.NewObjectID().Hex(),
+			ProductID:    productID.Hex(),
+			CartQuantity: cartquantity,
+			Price:        product.Price,
+			Subtotal:     float64(product.Price) * float64(cartquantity),
 		}
 		pushUpdate := bson.M{
 			"$push": bson.M{"line_items": newLineItem},

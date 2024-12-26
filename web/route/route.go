@@ -20,6 +20,9 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	userController := controller.NewUserController(UserRepo, DB)
 	CartRepo := reponsitory.NewCartRepo(client.Database(os.Getenv("DB_NAME")))
 	cartController := controller.NewCartController(CartRepo, DB)
+	OrderRepo := reponsitory.NewOrderRepo(client.Database(os.Getenv("DB_NAME")))
+	orderController := controller.NewOrderController(OrderRepo, DB)
+
 	authMiddleware := middleware.AuthMiddleware
 	r.POST("api/login", userController.Login)
 	r.POST("user/signup", userController.SignUp)
@@ -35,8 +38,8 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.PUT("/api/product/update/:id", productController.UpdateProduct)
 		auth.DELETE("/api/product/delete/:id", productController.DeleteProduct)
 
-		// auth.POST("/api/cart/addtocart/:id", cartController.AddToCart)
 		auth.POST("/cart/:userID/add/:id", cartController.AddToCart)
+		auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
 
 	}
 	r.POST("/api/user/create", userController.CreateUser)
