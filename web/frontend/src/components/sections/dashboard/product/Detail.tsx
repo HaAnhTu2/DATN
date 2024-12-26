@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getProductById } from '../../../../api/product';
+import { getUserByToken } from '../../../../api/api';
 import { addToCart } from '../../../../api/cart';
 import { Product } from '../../../../type/product';
-import { CartItem } from '../../../../type/order';
+import { User } from '../../../../type/user';
+import { Cart } from '../../../../type/cart';
 
 interface ProductDetailProps {
     setDetailProduct: (product: Product) => void;
@@ -12,6 +14,8 @@ interface ProductDetailProps {
 const ProductDetail: React.FC<ProductDetailProps> = ({ setDetailProduct }) => {
     const { id } = useParams<{ id: string }>();
     const [product, setProduct] = useState<Product | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -34,30 +38,81 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ setDetailProduct }) => {
         };
         fetchProduct();
     }, [id, setDetailProduct]);
+    useEffect(() => {
+        const fetchUser = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found');
+                return;
+            }
 
-    const handleAddToCart = async () => {
-        if (!product) {
-            console.error('Product not found');
-            return;
-        }
-
-        const cartItem: CartItem = {
-            id: product.id,
-            userid:"676c0dd7099f147d0ae9b509",
-            productname: product.productname,
-            brand:product.brand,
-            price: product.price,
-            producttype: product.type,
-            quantity: 1, 
+            try {
+                const fetchedUser = await getUserByToken(token);
+                setUser(fetchedUser.user);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
         };
+        fetchUser();
+    }, []);
 
-        try {
-            const addedItem = await addToCart(cartItem);
-            alert(`Added ${addedItem.productname} to cart successfully!`);
-        } catch (error) {
-            console.error('Error adding item to cart:', error);
-        }
+    // const handleAddToCart = async () => {
+    //     if (!product || !user) {
+    //         console.error('Product not found');
+    //         return;
+    //     }
+
+    //     const cart: Cart = {
+    //         id: user.id,               // ID của giỏ hàng
+    //         cart_id: user.id,        // ID giỏ hàng của người dùng (có thể lấy từ trạng thái hoặc API)
+    //         line_items: [
+    //             {
+    //                 id: product._id,
+    //                 product_id: product._id,
+    //                 productname: product.productname,
+    //                 cartquantity: 1,
+    //                 price: product.price,
+    //                 subtotal: product.price * 1, // subtotal tính từ quantity * price
+    //             }
+    //         ]
+    //     };
+        
+
+    //     try {
+    //         const addedItem = await addToCart(cart);
+    //         alert(`Added ${addedItem} to cart successfully!`);
+    //     } catch (error) {
+    //         console.error('Error adding item to cart:', error);
+    //     }
+    // };
+const handleAddToCart = async () => {
+    if (!product || !user) {
+        console.error('Product or user not found');
+        return;
+    }
+
+    const cart: Cart = {
+        id: user.id, // ID người dùng (userID)
+        cart_id: user.id, // ID giỏ hàng
+        line_items: [
+            {
+                id: product._id,
+                product_id: product._id,
+                productname: product.productname,
+                cartquantity: 1, // Số lượng sản phẩm
+                price: product.price,
+                subtotal: product.price * 1, // Tính subtotal
+            },
+        ],
     };
+
+    try {
+        const addedItems = await addToCart(cart);
+        alert(`Added ${addedItems.length} item(s) to cart successfully!`);
+    } catch (error) {
+        console.error('Error adding item to cart:', error);
+    }
+};
 
     if (loading) {
         return <div>Loading...</div>;
@@ -69,6 +124,13 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ setDetailProduct }) => {
 
     return (
         <div>
+            {user && (
+                <div>
+                    <h3>User Info</h3>
+                    <p>Name: {user.first_name} {user.last_name}</p>
+                    <p>Email: {user.email}</p>
+                </div>
+            )}
             {product ? (
                 <div className="row">
                     <div className="col-md-5 col-md-push-2">

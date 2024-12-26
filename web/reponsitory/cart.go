@@ -22,6 +22,8 @@ var (
 
 type CartRepo interface {
 	AddProductToCart(ctx context.Context, productID primitive.ObjectID, userID string, quantity int) error
+	UpdateCartItem(ctx context.Context, productID primitive.ObjectID, userID string, cartquantity int) error
+	RemoveCartItem(ctx context.Context, productID primitive.ObjectID, userID string) error
 }
 
 type CartRepoI struct {
@@ -105,5 +107,65 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 	}
 
 	log.Printf("Successfully added product %s to user %s's cart", productID.Hex(), userID)
+	return nil
+}
+
+func (c *CartRepoI) UpdateCartItem(ctx context.Context, productID primitive.ObjectID, userID string, cartquantity int) error {
+	// Check if product exists
+	var product model.Product
+	err := c.db.Collection("products").FindOne(ctx, bson.M{"_id": productID}).Decode(&product)
+	if err != nil {
+		log.Printf("Product with ID %s not found: %v", productID.Hex(), err)
+		return ErrCantFindProduct
+	}
+	productid := productID.Hex()
+	ouserID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": ouserID, "line_items.product_id": productid}
+	update := bson.M{
+		"$set": bson.M{
+			"line_items.$.cartquantity": cartquantity,
+			"line_items.$.subtotal":     float64(cartquantity * product.Price),
+		},
+	}
+	log.Print("update: ", update)
+	result, err := c.db.Collection("carts").UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("Error updating cart item: %v", err)
+		return ErrCantUpdateCart
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("cart item not found")
+	}
+	return nil
+}
+
+func (c *CartRepoI) RemoveCartItem(ctx context.Context, productID primitive.ObjectID, userID string) error {
+	// Check if product exists
+	var product model.Product
+	err := c.db.Collection("products").FindOne(ctx, bson.M{"_id": productID}).Decode(&product)
+	if err != nil {
+		log.Printf("Product with ID %s not found: %v", productID.Hex(), err)
+		return ErrCantFindProduct
+	}
+	productid := productID.Hex()
+	ouserID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": ouserID}
+	update := bson.M{
+		"$pull": bson.M{"line_items": bson.M{"product_id": productid}},
+	}
+	result, err := c.db.Collection("carts").UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("Error removing cart item: %v", err)
+		return ErrCantUpdateCart
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("cart item not found")
+	}
 	return nil
 }

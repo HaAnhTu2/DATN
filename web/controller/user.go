@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -59,44 +58,6 @@ func VerifyPassword(userpassword string, givenpassword string) (bool, string) {
 
 var Validate = validator.New()
 
-//	func (u *UserController) Login(c *gin.Context) {
-//		var auth model.LoginRequest
-//		if err := c.ShouldBind(&auth); err != nil {
-//			c.JSON(http.StatusBadRequest, gin.H{
-//				"error": err.Error(),
-//			})
-//			return
-//		}
-//		user, err := u.UserRepo.FindByEmail(c.Request.Context(), auth.Email)
-//		if err != nil {
-//			c.JSON(http.StatusUnauthorized, gin.H{
-//				"error": "Invalid credentials",
-//			})
-//			return
-//		}
-//		if auth.Email == user.Email && auth.Password == user.Password {
-//			token, err := u.UserRepo.SaveToken(&user)
-//			log.Print(token)
-//			if err != nil {
-//				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-//				return
-//			}
-//			cookie := http.Cookie{}
-//			cookie.Name = "Token"
-//			cookie.Value = token
-//			cookie.Expires = time.Now().Add(15 * time.Hour)
-//			http.SetCookie(c.Writer, &cookie)
-//			c.JSON(http.StatusOK, gin.H{
-//				"token": token,
-//				"user":  user,
-//			})
-//			log.Print(token)
-//		} else {
-//			c.JSON(http.StatusUnauthorized, gin.H{
-//				"error": "Invalid credentials",
-//			})
-//		}
-//	}
 func (u *UserController) Login(c *gin.Context) {
 	var auth model.LoginRequest
 	if err := c.ShouldBind(&auth); err != nil {
@@ -333,7 +294,7 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 	// Khai báo struct claims để lưu thông tin giải mã từ token
-	claims := &model.SignedDetails{}
+	claims := jwt.MapClaims{}
 
 	// Xác minh token và parse claims
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
@@ -346,8 +307,12 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 	}
 
 	// Lấy email từ claims
-	userEmail := claims.Email
-	fmt.Println("User email from token:", userEmail)
+	email, ok := claims["sub"].(string)
+	if !ok {
+		log.Println("Email not found or invalid in claims")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email not found in token"})
+		return
+	}
 
 	// Tạo context với timeout
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -356,7 +321,7 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 	var user model.User
 
 	// Tạo bộ lọc tìm kiếm người dùng theo email
-	filter := bson.M{"email": userEmail}
+	filter := bson.M{"email": email}
 
 	// Tìm người dùng trong cơ sở dữ liệu
 	err = u.DB.Collection("users").FindOne(ctx, filter).Decode(&user)

@@ -23,5 +23,14 @@ export const logout = async (): Promise<void> => {
         throw new Error('Error logging out');
     }
   };
+// API lấy thông tin người dùng từ token
+export const getUserByToken = async (token: string) => {
+    const response = await axios.get('/api/users', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
 
 

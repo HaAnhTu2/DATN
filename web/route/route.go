@@ -30,7 +30,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	auth := r.Group("/")
 	auth.Use(authMiddleware)
 	{
-		auth.GET("/users", userController.GetUserByToken)
+		auth.GET("/api/users", userController.GetUserByToken)
 		auth.PUT("/api/user/update/:id", userController.UpdateUser)
 		auth.DELETE("/api/user/delete/:id", userController.DeleteUser)
 
@@ -38,7 +38,10 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.PUT("/api/product/update/:id", productController.UpdateProduct)
 		auth.DELETE("/api/product/delete/:id", productController.DeleteProduct)
 
+		auth.GET("/cart/:id", cartController.GetItemFromCart)
 		auth.POST("/cart/:userID/add/:id", cartController.AddToCart)
+		auth.PUT("/cart/:userID/update/:id", cartController.UpdateCartItem)
+		auth.DELETE("/cart/:userID/remove/:id", cartController.RemoveCartItem)
 		auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
 
 	}

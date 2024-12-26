@@ -32,7 +32,7 @@ const ProductList:React.FC<ProductListProps>=({setFormProduct})=>{
     const handleDeleteProduct =async (id: string)=>{
         try{
             await deleteProduct(id)
-            setProducts(products.filter(product=>product.id!=id))
+            setProducts(products.filter(product=>product._id!=id))
         }catch(error){
             console.error('error deleting user:',error);
         }
@@ -56,7 +56,7 @@ const ProductList:React.FC<ProductListProps>=({setFormProduct})=>{
                 </thead>
                 <tbody >
                     {products.map(product=>(
-                        <tr key={product.id}>
+                        <tr key={product._id}>
                             <td>{product.productname}</td>
                             <td>{product.brand}</td>
                             <td>{product.quantity}</td>
@@ -73,7 +73,7 @@ const ProductList:React.FC<ProductListProps>=({setFormProduct})=>{
                             <td>{product.description}</td>
                             <td>
                                 <button type="submit" className="btn btn-outline-dark" onClick={()=> handleUpdateProduct(product)}>Edit</button>
-                                <button type="submit" className="btn btn-outline-dark" onClick={()=> handleDeleteProduct(product.id)}>Delete</button>
+                                <button type="submit" className="btn btn-outline-dark" onClick={()=> handleDeleteProduct(product._id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
