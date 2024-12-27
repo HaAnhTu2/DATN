@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from "react";
+import ProductDetail from "../../components/sections/user/ProductDetail";
+import { Product } from "../../types/product";
 
-const ProductDetailPage = () => {
-  return (
-    <div>
-      <h1>Chi tiết Sản phẩm</h1>
-      <p>Thông tin chi tiết về sản phẩm</p>
-      {/* Hiển thị hình ảnh, mô tả, giá sản phẩm */}
-    </div>
-  );
+const DetailProductPage: React.FC = () => {
+    const [, setDetailProduct] = useState<Product | null>(null);
+
+    return (
+        <div className="App">
+            <header className="App-header">
+                <ProductDetail setDetailProduct={setDetailProduct} />
+            </header>
+        </div>
+    );
 };
 
-export default ProductDetailPage;
+export default DetailProductPage;

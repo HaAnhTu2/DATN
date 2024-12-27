@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Signup, User } from '../type/user';
+import { Signup, User } from '../types/user';
 
 export const getUsers = async (): Promise<User[]> => {
     const response = await axios.get('/api/user/get')

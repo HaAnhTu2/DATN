@@ -1,26 +1,23 @@
-// src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './Page/authentication/AuthContext';
-import CreateUserPage from './Page/user/Create';
-import HomePage from './Page/HomePage';
-import UserHomePage from './Page/home/UserHomePage';
-import UpdateUserPage from './Page/user/UpdateUser';
-import LoginPage from './Page/authentication/Login';
-import CreateProductPage from './Page/product/Create';
-import UpdateProductPage from './Page/product/Update';
-import Logout from './components/authentication/logout';
-import DetailProductPage from './Page/product/Detail';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Navigation from './components/Navigation';
+
 import "../src/assets/css/bootstrap.min.css";
 import "../src/assets/css/font-awesome.min.css";
 import "../src/assets/css/nouislider.min.css";
 import "../src/assets/css/slick-theme.css";
 import "../src/assets/css/slick.css";
 import "../src/assets/css/style.css";
-import CartPage from './Page/order/CartPage';
-import SignupPage from './Page/authentication/Signup';
+import UserHomePage from './pages/user/HomePage';
+import Navigation from './components/layout/Navigation';
+import { AuthProvider } from './pages/auth/AuthContext';
+import Header from './components/layout/Header';
+import CartPage from './pages/user/CartPage';
+import SignupPage from './pages/auth/SignupPage';
+import LoginPage from './pages/auth/LoginPage';
+import ProductManagementPage from './pages/admin/ProductManagementPage';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import Footer from './components/layout/Footer';
+import DetailProductPage from './pages/user/ProductDetailPage';
+
 
 function App() {
   return (
@@ -31,15 +28,15 @@ function App() {
         <Routes>
           <Route path="/" element={<UserHomePage />} />
           <Route path="/home" element={<UserHomePage />} />
-          <Route path="/create/user" element={<CreateUserPage />} />
-          <Route path="/create/product" element={<CreateProductPage />} />
-          <Route path="/update/product" element={<UpdateProductPage />} />
+          {/* <Route path="/create/user" element={<CreateUserPage />} /> */}
+          {/* <Route path="/create/product" element={<CreateProductPage />} /> */}
+          <Route path="/update/product" element={<ProductManagementPage />} />
           <Route path="/product/:id" element={<DetailProductPage />} />
           <Route path="/cart/:id" element={<CartPage />} />
-          <Route path="/update/user" element={<UpdateUserPage />} />
+          <Route path="/update/user" element={<UserManagementPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/logout" element={<Logout />} />
+          {/* <Route path="/logout" element={<Logout />} /> */}
         </Routes>
         <Footer />
       </Router>

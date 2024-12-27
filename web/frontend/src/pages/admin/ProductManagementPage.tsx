@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useState } from "react";
+import { Product } from "../../types/product";
+import UpdateFormProduct from "../../components/form/product/Update";
+import ProductManagement from "../../components/sections/admin/ProductManagement";
 
-const ProductManagementPage = () => {
-  return (
-    <div>
-      <h1>Quản lý Sản phẩm</h1>
-      <p>Thêm, sửa, xóa sản phẩm trong cửa hàng</p>
-      {/* Thêm bảng hiển thị sản phẩm và các chức năng */}
-    </div>
-  );
-};
+const ProductManagementPage: React.FC = () => {
+    const [, setProducts] = useState<Product[]>([]);
+    const [message, setMessage] = useState('');
+    const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
+    const handleSetFormProduct = (product: Product) => {
+        setProductToEdit(product);
+    };
+    return (
+        <div className="section">
+            <header className="container">
+                <div className="row">
+                    <div className="col-md-12">
+                        {productToEdit ? (
+                            <UpdateFormProduct setProducts={setProducts}
+                                setMessage={setMessage}
+                                productToEdit={productToEdit} />
+                        ) : (
+                            <p>{message}</p>
+                        )}
+                        <div><ProductManagement setFormProduct={handleSetFormProduct} /></div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    )
+}
 
 export default ProductManagementPage;

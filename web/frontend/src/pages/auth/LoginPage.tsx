@@ -11,7 +11,6 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = () => {
     login();
-    // Redirect or show success message here
   };
   return (
     <div className="section">

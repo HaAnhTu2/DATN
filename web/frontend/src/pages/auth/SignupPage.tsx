@@ -1,43 +1,22 @@
-import React, { useState } from 'react';
-import Input from '../../components/form/Input';
-import Button from '../../components/form/Button';
+import React, { useState } from "react";
+import Signup from "../../components/sections/auth/Signup";
+import { User } from "../../types/user";
 
 const SignupPage: React.FC = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [error, setError] = useState({ email: '', password: '' });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = () => {
-        if (!formData.email) {
-            setError({ ...error, email: 'Email is required' });
-        }
-        // Logic xử lý đăng ký
-    };
-
+    const [, setUsers] = useState<User[]>([]);
+    const [message, setMessage] = useState('')
     return (
-        <div>
-            <h1>Signup</h1>
-            <form>
-                <Input
-                    label="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={error.email}
-                />
-                <Input
-                    label="Password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    error={error.password}
-                />
-                <Button label="Sign Up" onClick={handleSubmit} />
-            </form>
+        <div className="section">
+            <header className="container">
+                <div className="row">
+                    <div className="col-md-12">
+                        <Signup setUsers={setUsers} setMessage={setMessage} />
+                        {message && <p>{message}</p>}
+                    </div>
+                </div>
+            </header>
         </div>
-    );
-};
+    )
+}
 
 export default SignupPage;
