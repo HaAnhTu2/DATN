@@ -28,7 +28,7 @@ const Header: React.FC = () => {
   }, []);
 
   const handleCartClick = () => {
-    if (!user?.id) {
+    if (!user) {
       console.error('User not found. Redirecting to login.');
       navigate('/login');
       return;

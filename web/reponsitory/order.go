@@ -9,8 +9,8 @@ import (
 	"image/png"
 	"log"
 
-	"github.com/boombuler/barcode"
-	"github.com/boombuler/barcode/code128"
+	"github.com/makiuchi-d/gozxing"
+	"github.com/makiuchi-d/gozxing/oned"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -52,20 +52,16 @@ func (o *OrderRepoI) CreateOrderFromCart(ctx context.Context, userID string) (*m
 	// Tạo barcode cho đơn hàng
 	barcodeData := userID + primitive.NewObjectID().Hex()
 
-	barcodeImage, err := code128.Encode(barcodeData)
+	writer := oned.NewCode128Writer()
+	// with the writer, we can start encoding!
+	barcodeImage, err := writer.Encode(barcodeData, gozxing.BarcodeFormat_CODE_128, 250, 50, nil)
 	if err != nil {
 		log.Printf("Error creating barcode: %v", err)
-		return nil, err
+		return nil, errors.New("failed to create barcode")
 	}
-	scaledBarcode, err := barcode.Scale(barcodeImage, 300, 150)
-	if err != nil {
-		log.Printf("Error scaling barcode: %v", err)
-		return nil, errors.New("failed to scale barcode")
-	}
-
 	// Convert barcode image to base64 string
 	var buffer bytes.Buffer
-	if err := png.Encode(&buffer, scaledBarcode); err != nil {
+	if err := png.Encode(&buffer, barcodeImage); err != nil {
 		log.Printf("Error saving barcode image: %v", err)
 		return nil, errors.New("failed to save barcode image")
 	}

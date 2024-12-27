@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CartItem } from "../../../type/cart";
-import { Row, Card, Table } from 'react-bootstrap';
+import { Row, Card, Table, Button } from 'react-bootstrap';
 
 interface CartListProps {
     userId: string;
@@ -8,29 +8,30 @@ interface CartListProps {
 }
 
 const CartList: React.FC<CartListProps> = ({ cartItems }) => {
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [items, setItems] = useState(cartItems);
 
     const handleRemoveProduct = async (productId: string) => {
+        setLoading(true);
         try {
+            setItems(prevItems => prevItems.filter(item => item.id !== productId));
         } catch (error) {
             console.error('Error removing product:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
     return (
-        <Row className="mt-6">
-            <Card className="h-100">
-                <div className="bg-white py-4">
+        <Row className="mt-4">
+            <Card className="h-100 w-100">
+                <div className="bg-white py-3 px-4">
                     <h4 className="mb-0">Shopping Cart</h4>
                 </div>
                 <Table responsive className="text-nowrap">
                     <thead className="table-light">
                         <tr>
-                            <th>Product ID</th>
+                            <th>Product Name</th>
                             <th>Quantity</th>
                             <th>Price</th>
                             <th>Subtotal</th>
@@ -38,19 +39,21 @@ const CartList: React.FC<CartListProps> = ({ cartItems }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {cartItems.map(item => (
+                        {items.map(item => (
                             <tr key={item.id}>
-                                <td>{item.product_id}</td>
+                                <td>{item.productname || "Unknown"}</td>
                                 <td>{item.cartquantity}</td>
-                                <td>${item.price}</td>
-                                <td>${item.subtotal}</td>
+                                <td>${item.price.toFixed(2)}</td>
+                                <td>${(item.cartquantity * item.price).toFixed(2)}</td>
                                 <td>
-                                    <button
-                                        className="btn btn-outline-dark"
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        disabled={loading}
                                         onClick={() => handleRemoveProduct(item.id)}
                                     >
-                                        Remove
-                                    </button>
+                                        {loading ? 'Removing...' : 'Remove'}
+                                    </Button>
                                 </td>
                             </tr>
                         ))}

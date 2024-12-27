@@ -112,6 +112,7 @@ func (c *CartRepoI) AddProductToCart(ctx context.Context, productID primitive.Ob
 		newLineItem := model.LineItem{
 			ID:           primitive.NewObjectID().Hex(),
 			ProductID:    productID.Hex(),
+			ProductName:  product.ProductName,
 			CartQuantity: cartquantity,
 			Price:        product.Price,
 			Subtotal:     float64(product.Price) * float64(cartquantity),

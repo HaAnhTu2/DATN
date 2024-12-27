@@ -29,8 +29,7 @@ function App() {
         <Header />
         <Navigation />
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/listcart" element={<CartPage />} />
+          <Route path="/" element={<UserHomePage />} />
           <Route path="/home" element={<UserHomePage />} />
           <Route path="/create/user" element={<CreateUserPage />} />
           <Route path="/create/product" element={<CreateProductPage />} />

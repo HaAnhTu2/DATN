@@ -1,54 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { getCartItems } from "../../api/cart";
 import { CartItem } from "../../type/cart";
-import CartList from "../../components/sections/order/Cart";  // Đảm bảo đường dẫn đúng với cấu trúc của bạn
+import CartList from "../../components/sections/order/Cart";
 import { getUserByToken } from "../../api/api";
 import { User } from "../../type/user";
 
 const CartPage: React.FC = () => {
     const [cart, setCart] = useState<{ lineItems: CartItem[], total: number } | null>(null);
     const [user, setUser] = useState<User | null>(null);
-
-    // Kiểm tra nếu không có người dùng thì không hiển thị trang
-    if (!user._id) {
-        console.error('User not found');
-        return <div>Loading user...</div>;
-    }
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUser = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                console.error('No token found');
+                setError('No token found. Please log in.');
+                setLoading(false);
                 return;
             }
 
             try {
                 const fetchedUser = await getUserByToken(token);
                 setUser(fetchedUser.user);
-            } catch (error) {
-                console.error('Error fetching user:', error);
+            } catch (err) {
+                console.error('Error fetching user:', err);
+                setError('Failed to fetch user information.');
             }
         };
         fetchUser();
     }, []);
 
     useEffect(() => {
-        if (user?._id) {
+        if (user) {
             const fetchCart = async () => {
                 try {
-                    const fetchedCartItems = await getCartItems(user._id);
+                    const fetchedCartItems = await getCartItems(user.id);
                     setCart(fetchedCartItems);
-                } catch (error) {
-                    console.error("Failed to fetch cart:", error);
+                } catch (err) {
+                    console.error("Failed to fetch cart:", err);
+                    setError('Failed to fetch cart items.');
+                } finally {
+                    setLoading(false);
                 }
             };
             fetchCart();
         }
     }, [user]);
 
-    if (!cart) {
-        return <div>Loading cart...</div>;
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+    if (!cart || !user) {
+        return <div>No cart items available.</div>;
     }
 
     return (
@@ -56,8 +65,8 @@ const CartPage: React.FC = () => {
             <header className="container">
                 <div className="row">
                     <div className="col-md-12">
-                        {/* Truyền giỏ hàng vào CartList */}
-                        <CartList userId={user._id} cartItems={cart.lineItems} />
+                        <p>User: {user.email}</p>
+                        <CartList userId={user.id} cartItems={cart.lineItems} />
                     </div>
                 </div>
             </header>

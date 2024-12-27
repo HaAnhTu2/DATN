@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Row, Card, Table, Button, Alert } from 'react-bootstrap';
 import { getProducts, deleteProduct } from "../../../../api/product";
 import { Product } from "../../../../type/product";
+import { useNavigate } from "react-router-dom";
 
 interface ProductListProps {
     setFormProduct: (product: Product) => void;
@@ -10,8 +11,10 @@ interface ProductListProps {
 const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [showNotification, setShowNotification] = useState(false);  // Trạng thái thông báo
+    const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -34,6 +37,9 @@ const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
             </div>
         );
     }
+    const handleCartClick = () => {
+        navigate(`/create/product`);
+    };
 
     const handleUpdateProduct = (product: Product) => {
         setFormProduct(product);
@@ -57,6 +63,9 @@ const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
         <div>
             <Row className="mb-4">
                 <h4 className="mb-0">Product List</h4>
+                <Button onClick={handleCartClick}>
+                    <span>Create Product</span>
+                </Button>
             </Row>
             {showNotification && (
                 <Alert variant="success" onClose={() => setShowNotification(false)} dismissible>

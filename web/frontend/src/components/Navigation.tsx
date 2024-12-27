@@ -1,24 +1,49 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getUserByToken } from '../api/api';
+import { User } from '../type/user';
 
 const Navigation: React.FC = () => {
-	return <>
-		<nav id="navigation">
-			<div className="container">
-				<div id="responsive-nav">
-					<ul className="main-nav nav navbar-nav">
-						<li className="active"><Link to="/">Home</Link></li>
-						<li><Link to="/home">UserHome</Link></li>
-						<li><Link to="/create/user">Create User</Link></li>
-						<li><Link to="/update/user">Edit User</Link></li>
-						<li><Link to="/create/product">Create Product</Link></li>
-						<li><Link to="/update/product">Edit Product</Link></li>
-						<li><Link className="nav-link" to="/signup">Signup</Link></li>
-						<li><Link className="nav-link" to="/login">Login</Link></li>
-					</ul>
-				</div>
-			</div>
-		</nav>
-	</>
-}
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    useEffect(() => {
+        const fetchUser = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found');
+                return;
+            }
+
+            try {
+                const fetchedUser = await getUserByToken(token);
+                setUser(fetchedUser.user);
+            } catch (error) {
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUser();
+    }, [navigate]);
+
+    return (
+        <nav id="navigation">
+            <div className="container">
+                <div id="responsive-nav">
+                    <ul className="main-nav nav navbar-nav">
+                        <li><Link to="/home">UserHome</Link></li>
+                        {user?.Role === 'admin' && (
+                            <>
+                                <li><Link to="/update/user">User Management</Link></li>
+                                <li><Link to="/update/product">Product Management</Link></li>
+                            </>
+                        )}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    );
+};
+
 export default Navigation;

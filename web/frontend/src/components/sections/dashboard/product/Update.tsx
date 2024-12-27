@@ -34,7 +34,7 @@ const UpdateFormProduct: React.FC<UpdateFormProductProps> = ({ setProducts, setM
             await updateProduct(productToEdit._id, updatedProduct);
             setProducts(prevProducts =>
                 prevProducts.map(product => (product._id === productToEdit._id ? updatedProduct : product)))
-            setMessage('product updated successfully')
+                alert(`Updated ${productToEdit.productname} item(s) to successfully!`);
         } catch (error) {
             setMessage('error updating product')
         }

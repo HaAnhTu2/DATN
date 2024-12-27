@@ -53,7 +53,7 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
                 <div className="card shadow-lg border-0 rounded-lg">
                     <div className="p-5">
                         <form onSubmit={handleCreateUser}>
-                            <h4>SingIn</h4>
+                            <h4>SignUp</h4>
                             <div className="col-md-12">
                                 <label className="form-label">FirstName: </label>
                                 <input type="text" value={first_name} onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} className="form-control" />

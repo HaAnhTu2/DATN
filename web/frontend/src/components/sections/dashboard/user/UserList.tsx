@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { deleteUser, getUsers } from "../../../../api/user";
 import { User } from "../../../../type/user";
-import { Row, Card, Table } from 'react-bootstrap';
+import { Row, Card, Table, Button } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 
 interface UserListProps {
     setFormUser: (user: User) => void;
@@ -10,6 +11,8 @@ interface UserListProps {
 const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setloading] = useState(true);
+       const navigate = useNavigate();
+    
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -26,6 +29,9 @@ const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
     if (loading) {
         return <div>Loading...</div>;
     }
+    const handleCreateClick = () => {
+        navigate(`/create/user`);
+    };
     const handleUpdateUser = (user: User) => {
         setFormUser(user);
     };
@@ -42,6 +48,9 @@ const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
             <Card className="h-100">
                 <div className="bg-white  py-4">
                     <h4 className="mb-0">User</h4>
+                    <Button onClick={handleCreateClick}>
+                    <span>Create User</span>
+                </Button>
                 </div>
                 <Table responsive className="text-nowrap">
                     <thead className="table-light">

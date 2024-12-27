@@ -33,7 +33,7 @@ const UpdateFormUser: React.FC<UpdateFormUserProps> = ({ setUsers, setMessage, u
     const handleUpdateUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const updatedUser = { ...userToEdit, name, email, password, address, phone_number, role, image };
+            const updatedUser = { ...userToEdit, first_name, last_name, email, password, address, phone_number, role, image };
             await updateUser(userToEdit._id, updatedUser);
             setUsers(prevUsers =>
                 prevUsers.map(user => (user._id === userToEdit._id ? updatedUser : user)));
@@ -82,9 +82,9 @@ const UpdateFormUser: React.FC<UpdateFormUserProps> = ({ setUsers, setMessage, u
                 <label>Role: </label><br />
                 <select value={role} onChange={handleRoleChange} className="form-select">
                     <option value="">Select a role</option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                    <option value="guest">Guest</option>
+                    <option value="Admin">Admin</option>
+                    <option value="User">User</option>
+                    <option value="Guest">Guest</option>
                 </select>
             </div>
             <div>

@@ -74,7 +74,7 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
                 <div className="card shadow-lg border-0 rounded-lg">
                     <div className="p-5">
                         <form onSubmit={handleCreateUser}>
-                            <h4>SingIn</h4>
+                            <h4>Create</h4>
                             <div className="col-md-12">
                                 <label className="form-label">FirstName: </label>
                                 <input type="text" value={first_name} onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} className="form-control" />
@@ -95,9 +95,9 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
                                 <label className="form-label">Role: </label>
                                 <select value={role} onChange={handleRoleChange} className="form-select">
                                     <option value="">Select a role</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                    <option value="guest">Guest</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="User">User</option>
+                                    <option value="Guest">Guest</option>
                                 </select>
                             </div>
                             <div className="col-md-12">
