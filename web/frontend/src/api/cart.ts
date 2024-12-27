@@ -59,7 +59,7 @@ export const removeItemFromCart = async (userId: string, productId: string): Pro
         }
 
         // Gửi yêu cầu tới API để xóa sản phẩm khỏi giỏ hàng
-        await axios.delete(`/api/cart/remove/${userId}/${productId}`, {
+        await axios.delete(`/api/cart/delete/${userId}/${productId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,

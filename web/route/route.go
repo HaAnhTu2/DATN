@@ -55,7 +55,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.GET("/cart/:id", cartController.GetItemFromCart)
 		auth.POST("/cart/add/:userID/:id", cartController.AddToCart)
 		auth.PUT("/cart/update/:userID/:id", cartController.UpdateCartItem)
-		auth.DELETE("/cart/remove/:userID/:id", cartController.RemoveCartItem)
+		auth.DELETE("/cart/delete/:userID/:id", cartController.RemoveCartItem)
 
 		// Order routes
 		auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
