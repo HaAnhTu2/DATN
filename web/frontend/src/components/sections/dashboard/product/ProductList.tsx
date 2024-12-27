@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Row, Card, Table, Button, Alert } from 'react-bootstrap';
+import { Form, Row, Card, Table, Button, Alert } from 'react-bootstrap';
 import { getProducts, deleteProduct } from "../../../../api/product";
 import { Product } from "../../../../type/product";
 import { useNavigate } from "react-router-dom";
+
 
 interface ProductListProps {
     setFormProduct: (product: Product) => void;
@@ -13,6 +14,7 @@ const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
     const [loading, setLoading] = useState(true);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
+    const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
 
 
@@ -37,10 +39,15 @@ const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
             </div>
         );
     }
-    const handleCartClick = () => {
+    const handleCreateClick = () => {
         navigate(`/create/product`);
     };
-
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
+    };
+    const filteredProducts = products.filter(product =>
+        product.productname.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     const handleUpdateProduct = (product: Product) => {
         setFormProduct(product);
     };
@@ -63,7 +70,13 @@ const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
         <div>
             <Row className="mb-4">
                 <h4 className="mb-0">Product List</h4>
-                <Button onClick={handleCartClick}>
+                <div>
+                    {/* Search Form */}
+                    <Form className="d-flex align-items-center" style={{ margin: '10px' }}>
+                        <Form.Control type="search" placeholder="Search" value={searchTerm} onChange={handleSearch} />
+                    </Form>
+                </div>
+                <Button onClick={handleCreateClick}>
                     <span>Create Product</span>
                 </Button>
             </Row>
@@ -87,7 +100,7 @@ const ProductList: React.FC<ProductListProps> = ({ setFormProduct }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map(product => (
+                            {filteredProducts.map(product => (
                                 <tr key={product._id}>
                                     <td>{product.productname}</td>
                                     <td>{product.brand}</td>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { deleteUser, getUsers } from "../../../../api/user";
 import { User } from "../../../../type/user";
-import { Row, Card, Table, Button } from 'react-bootstrap';
+import { Row, Card, Table, Button, Form } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 
 interface UserListProps {
@@ -11,8 +11,9 @@ interface UserListProps {
 const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setloading] = useState(true);
-       const navigate = useNavigate();
-    
+    const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -32,6 +33,12 @@ const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
     const handleCreateClick = () => {
         navigate(`/create/user`);
     };
+    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(event.target.value);
+    };
+    const filteredUsers = users.filter(user =>
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     const handleUpdateUser = (user: User) => {
         setFormUser(user);
     };
@@ -48,9 +55,13 @@ const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
             <Card className="h-100">
                 <div className="bg-white  py-4">
                     <h4 className="mb-0">User</h4>
+                    {/* Search Form */}
+                    <Form className="d-flex align-items-center" style={{ margin: '10px' }}>
+                        <Form.Control type="search" placeholder="Search" value={searchTerm} onChange={handleSearch} />
+                    </Form>
                     <Button onClick={handleCreateClick}>
-                    <span>Create User</span>
-                </Button>
+                        <span>Create User</span>
+                    </Button>
                 </div>
                 <Table responsive className="text-nowrap">
                     <thead className="table-light">
@@ -63,7 +74,7 @@ const UserList: React.FC<UserListProps> = ({ setFormUser }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(user => (
+                        {filteredUsers.map(user => (
                             <tr key={user._id}>
                                 <td>{user.first_name}</td>
                                 <td>{user.last_name}</td>
