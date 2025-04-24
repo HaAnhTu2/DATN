@@ -32,7 +32,7 @@ export const addToCart = async (cart: Cart): Promise<CartItem[]> => {
                         },
                     }
                 );
-                return response.data; // Trả về sản phẩm đã được thêm vào giỏ hàng
+                return response.data;
             } catch (error) {
                 console.error(`Error adding product ${cartItem.product_id} to cart:`, error);
                 throw new Error(`Error adding product ${cartItem.product_id} to cart`);
@@ -40,6 +40,47 @@ export const addToCart = async (cart: Cart): Promise<CartItem[]> => {
         });
         const addedItems = await Promise.all(addItemPromises);
         return addedItems;
+    } catch (error) {
+        console.error('Error adding items to cart:', error);
+        throw new Error('Error adding items to cart');
+    }
+};
+
+// Thêm sản phẩm vào giỏ hàng
+export const updateToCart = async (cart: Cart): Promise<CartItem[]> => {
+    try {
+        // Lấy token từ localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Token not found');
+        }
+
+        if (!cart.id || !cart.cart_id || !cart.line_items || cart.line_items.length === 0) {
+            throw new Error('Invalid cart or cart items are missing');
+        }
+
+        const updateItemPromises = cart.line_items.map(async (cartItem) => {
+            try {
+                const response = await axios.post(
+                    `/api/cart/update/${cart.id}/${cartItem.product_id}`,
+                    {
+                        cartquantity: cartItem.cartquantity,
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                return response.data;
+            } catch (error) {
+                console.error(`Error adding product ${cartItem.product_id} to cart:`, error);
+                throw new Error(`Error adding product ${cartItem.product_id} to cart`);
+            }
+        });
+        const updatedItems = await Promise.all(updateItemPromises);
+        return updatedItems;
     } catch (error) {
         console.error('Error adding items to cart:', error);
         throw new Error('Error adding items to cart');
@@ -87,42 +128,5 @@ export const getCartItems = async (userId: string): Promise<{ lineItems: CartIte
         return response.data;
     } catch (error) {
         throw new Error('Error fetching cart items');
-    }
-};
-
-// Thanh toán giỏ hàng
-export const checkoutCart = async (userId: string): Promise<Order> => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Token not found');
-        }
-        const response = await axios.post(`/api/cart/cartcheckout/${userId}`, null, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data as Order;
-    } catch (error) {
-        throw new Error('Error checking out cart');
-    }
-};
-
-// Mua ngay một sản phẩm (instant buy)
-export const instantBuy = async (cartItem: CartItem): Promise<Order> => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Token not found');
-        }
-        const response = await axios.post('/api/cart/instantbuy', cartItem, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data as Order;
-    } catch (error) {
-        throw new Error('Error performing instant buy');
     }
 };

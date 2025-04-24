@@ -95,13 +95,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ setDetailProduct }) => {
 
     return (
         <div>
-            {user && (
-                <div>
-                    <h3>User Info</h3>
-                    <p>Name: {user.first_name} {user.last_name}</p>
-                    <p>Email: {user.email}</p>
-                </div>
-            )}
             {product ? (
                 <div className="row">
                     <div className="col-md-5 col-md-push-2">
