@@ -2,15 +2,10 @@ package reponsitory
 
 import (
 	"DoAnToiNghiep/model"
-	"bytes"
 	"context"
-	"encoding/base64"
 	"errors"
-	"image/png"
 	"log"
 
-	"github.com/makiuchi-d/gozxing"
-	"github.com/makiuchi-d/gozxing/oned"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -45,34 +40,11 @@ func (o *OrderRepoI) CreateOrderFromCart(ctx context.Context, userID string) (*m
 		return nil, errors.New("cart not found")
 	}
 
-	if len(cart.LineItems) == 0 {
-		log.Println("Cart is empty")
-		return nil, errors.New("cart is empty")
-	}
-	// Tạo barcode cho đơn hàng
-	barcodeData := userID + primitive.NewObjectID().Hex()
-
-	writer := oned.NewCode128Writer()
-	// with the writer, we can start encoding!
-	barcodeImage, err := writer.Encode(barcodeData, gozxing.BarcodeFormat_CODE_128, 250, 50, nil)
-	if err != nil {
-		log.Printf("Error creating barcode: %v", err)
-		return nil, errors.New("failed to create barcode")
-	}
-	// Convert barcode image to base64 string
-	var buffer bytes.Buffer
-	if err := png.Encode(&buffer, barcodeImage); err != nil {
-		log.Printf("Error saving barcode image: %v", err)
-		return nil, errors.New("failed to save barcode image")
-	}
-	base64String := base64.StdEncoding.EncodeToString(buffer.Bytes())
-
 	// Tạo đơn hàng mới
 	order := model.Order{
-		ID:           primitive.NewObjectID(),
-		UserID:       userID,
-		LineItems:    cart.LineItems,
-		BarcodeOrder: base64String,
+		ID:        primitive.NewObjectID(),
+		UserID:    userID,
+		LineItems: cart.LineItems,
 	}
 	_, err = o.DB.Collection("orders").InsertOne(ctx, order)
 	if err != nil {
