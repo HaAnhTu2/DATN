@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Feedback struct {
+type Feedback_DanhGiaSanPham struct {
 	ID_User     string    `bson:"id_user,omitempty" json:"id_user,omitempty"`
 	ID_Product  string    `bson:"id_product,omitempty" json:"id_product,omitempty"`
 	Rate        string    `bson:"rate" json:"rate"`

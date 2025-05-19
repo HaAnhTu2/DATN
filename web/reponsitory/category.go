@@ -3,6 +3,7 @@ package reponsitory
 import (
 	"DoAnToiNghiep/model"
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -10,6 +11,7 @@ import (
 )
 
 type CategoryRepo interface {
+	FindByID(ctx context.Context, id string) (model.Category_LoaiSanPham, error)
 	Create(ctx context.Context, category model.Category_LoaiSanPham) (model.Category_LoaiSanPham, error)
 	Update(ctx context.Context, user model.Category_LoaiSanPham) (model.Category_LoaiSanPham, error)
 	Delete(ctx context.Context, id string) error
@@ -20,6 +22,22 @@ type CategoryRepoI struct {
 
 func NewCategoryRepo(db *mongo.Database) CategoryRepo {
 	return &CategoryRepoI{db: db}
+}
+
+func (u *CategoryRepoI) FindByID(ctx context.Context, id string) (model.Category_LoaiSanPham, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return model.Category_LoaiSanPham{}, errors.New("invalid category ID")
+	}
+	var category model.Category_LoaiSanPham
+	err = u.db.Collection("category").FindOne(ctx, bson.M{"_id": objID}).Decode(&category)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Category_LoaiSanPham{}, errors.New("category not found")
+		}
+		return model.Category_LoaiSanPham{}, err
+	}
+	return category, nil
 }
 
 func (c *CategoryRepoI) Create(ctx context.Context, category model.Category_LoaiSanPham) (model.Category_LoaiSanPham, error) {

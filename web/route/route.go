@@ -22,6 +22,14 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	cartController := controller.NewCartController(CartRepo, DB)
 	OrderRepo := reponsitory.NewOrderRepo(client.Database(os.Getenv("DB_NAME")))
 	orderController := controller.NewOrderController(OrderRepo, DB)
+	CategoryRepo := reponsitory.NewCategoryRepo(client.Database(os.Getenv("DB_NAME")))
+	categoryController := controller.NewCategoryController(CategoryRepo, DB)
+	FeedbackRepo := reponsitory.NewFeedbackRepo(client.Database(os.Getenv("DB_NAME")))
+	feedbackController := controller.NewFeedbackController(FeedbackRepo, DB)
+	ProducerRepo := reponsitory.NewProducerRepo(client.Database(os.Getenv("DB_NAME")))
+	producerController := controller.NewProducerController(ProducerRepo)
+	VoucherRepo := reponsitory.NewVoucherRepo(client.Database(os.Getenv("DB_NAME")))
+	voucherController := controller.NewVoucherController(VoucherRepo)
 
 	// Middleware xác thực
 	authMiddleware := middleware.AuthMiddleware
@@ -33,6 +41,9 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/user/get", userController.GetAllUser)
 	r.GET("/api/user/get/:id", userController.GetByID)
 	r.GET("/api/user/serve-image/:imageId", userController.ServeImage)
+	r.GET("/product/get", productController.GetAllProduct)
+	r.GET("/product/get/:id", productController.GetByID)
+	r.GET("/product/image/:imageId", productController.ServeImageProduct)
 
 	// Nhóm route có xác thực
 	auth := r.Group("/api")
@@ -47,9 +58,26 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.POST("/product/create", productController.CreateProduct)
 		auth.PUT("/product/update/:id", productController.UpdateProduct)
 		auth.DELETE("/product/delete/:id", productController.DeleteProduct)
-		auth.GET("/product/get", productController.GetAllProduct)
-		auth.GET("/product/get/:id", productController.GetByID)
-		auth.GET("/product/image/:imageId", productController.ServeImageProduct)
+
+		// Category routes
+		auth.POST("/category/create", categoryController.CreateCategory)
+		auth.PUT("/category/update/:category_id", categoryController.UpdateCategory)
+		auth.DELETE("/category/delete/:category_id", categoryController.DeleteCategory)
+
+		// Feedback routes
+		auth.POST("/feedback/create", feedbackController.CreateFeedback)
+		auth.PUT("/feedback/update", feedbackController.UpdateFeedback)
+		auth.DELETE("/feedback/delete/:id_user/:id_product", feedbackController.DeleteFeedback)
+
+		// Producer routes
+		auth.POST("/producer/create", producerController.CreateProducer)
+		auth.PUT("/producer/update/:producer_id", producerController.UpdateProducer)
+		auth.DELETE("/producer/delete/:producer_id", producerController.DeleteProducer)
+
+		// Voucher routes
+		auth.POST("/voucher/create", voucherController.CreateVoucher)
+		auth.PUT("/voucher/update/:voucher_id", voucherController.UpdateVoucher)
+		auth.DELETE("/voucher/delete/:voucher_id", voucherController.DeleteVoucher)
 
 		// Cart routes
 		auth.GET("/cart/:id", cartController.GetItemFromCart)
