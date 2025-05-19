@@ -32,7 +32,6 @@ func (o *OrderRepoI) CreateOrderFromCart(ctx context.Context, userID string) (*m
 		return nil, errors.New("invalid user ID")
 	}
 
-	// Lấy dữ liệu từ giỏ hàng
 	var cart model.Cart
 	err = o.DB.Collection("carts").FindOne(ctx, bson.M{"_id": userObjectID}).Decode(&cart)
 	if err != nil {
