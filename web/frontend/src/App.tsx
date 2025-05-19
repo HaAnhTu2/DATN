@@ -17,6 +17,7 @@ import ProductManagementPage from './pages/admin/ProductManagementPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import Footer from './components/layout/Footer';
 import DetailProductPage from './pages/user/ProductDetailPage';
+import CreateFormProduct from './components/form/product/Create';
 
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
           <Route path="/" element={<UserHomePage />} />
           <Route path="/home" element={<UserHomePage />} />
           {/* <Route path="/create/user" element={<CreateUserPage />} /> */}
-          {/* <Route path="/create/product" element={<CreateProductPage />} /> */}
+          <Route path="/create/product" element={<CreateFormProduct />} />
           <Route path="/update/product" element={<ProductManagementPage />} />
           <Route path="/product/:id" element={<DetailProductPage />} />
           <Route path="/cart/:id" element={<CartPage />} />

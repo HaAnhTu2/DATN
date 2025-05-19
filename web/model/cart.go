@@ -19,3 +19,9 @@ type Cart struct {
 type LineItemRequest struct {
 	CartQuantity int `json:"cartquantity"`
 }
+
+type Cart_GioHang struct {
+	ID_Product_Detail string `bson:"id_product_detail" json:"id_product_detail"`
+	ID_User           string `bson:"id_user" json:"id_user"`
+	Quantity          int    `bson:"quantity" json:"quantity"`
+}

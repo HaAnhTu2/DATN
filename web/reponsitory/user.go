@@ -114,7 +114,7 @@ func (u *UserRepoI) Update(ctx context.Context, user model.User) (model.User, er
 	if result.MatchedCount == 0 {
 		return model.User{}, mongo.ErrNoDocuments
 	}
-	return model.User{}, nil
+	return user, nil
 }
 func (u *UserRepoI) Delete(ctx context.Context, id string) error {
 	ID, err := primitive.ObjectIDFromHex(id)

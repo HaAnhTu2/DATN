@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Category struct {
+type Category_LoaiSanPham struct {
 	Category_ID primitive.ObjectID `bson:"category_id,omitempty" json:"category_id,omitempty"`
 	Name        string             `bson:"name" json:"name"`
 	Status      string             `bson:"status" json:"status"`

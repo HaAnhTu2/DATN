@@ -63,7 +63,7 @@ const Header: React.FC = () => {
               {isLoggedIn ? (
                 <>
                   <li><a href="#"><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
-                  <li><Link to={`/cart/${user.id}`}><i className="fa fa-shopping-cart"></i> Cart</Link></li>
+                  <li><Link to={`/cart/${user.id}`} onClick={handleCartClick}><i className="fa fa-shopping-cart"></i> Cart</Link></li>
                   <li><Link to="/login" onClick={handleLogout}><i className="fa fa-sign-out"></i> Logout</Link></li>
                 </>
               ) : (

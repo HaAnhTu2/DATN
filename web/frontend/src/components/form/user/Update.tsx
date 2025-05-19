@@ -38,6 +38,8 @@ const UpdateFormUser: React.FC<UpdateFormUserProps> = ({ setUsers, setMessage, u
             setUsers(prevUsers =>
                 prevUsers.map(user => (user._id === userToEdit._id ? updatedUser : user)));
             setMessage("User updated successfully!");
+            window.location.reload(); 
+
         } catch (error) {
             setMessage('Error updating user');
         }

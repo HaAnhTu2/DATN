@@ -43,3 +43,15 @@ type UserResponse struct {
 	Password   string `json:"password,omitempty" bson:"password,omitempty"`
 	Image_URL  string `json:"userimage_url,omitempty" bson:"userimage_url,omitempty"`
 }
+
+type User_KhachHang struct {
+	User_ID    string    `json:"_id,omitempty" bson:"_id,omitempty"`
+	Email      string    `bson:"email" json:"email"`
+	Password   string    `bson:"password" json:"password"`
+	Birthday   string    `bson:"birthday" json:"birthday"`
+	Gender     string    `bson:"gender" json:"gender"`
+	Role       string    `bson:"role" json:"role"`
+	Status     string    `bson:"status" json:"status"`
+	Created_At time.Time `json:"created_at" bson:"created_at"`
+	Updated_At time.Time `json:"updated_at" bson:"updated_at"`
+}

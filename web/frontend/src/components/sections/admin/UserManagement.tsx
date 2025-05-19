@@ -30,9 +30,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ setFormUser }) => {
     if (loading) {
         return <div>Loading...</div>;
     }
-    const handleCreateClick = () => {
-        navigate(`/create/user`);
-    };
+    // const handleCreateClick = () => {
+    //     navigate(`/create/user`);
+    // };
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
@@ -59,9 +59,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ setFormUser }) => {
                     <Form className="d-flex align-items-center" style={{ margin: '10px' }}>
                         <Form.Control type="search" placeholder="Search" value={searchTerm} onChange={handleSearch} />
                     </Form>
-                    <Button onClick={handleCreateClick}>
+                    {/* <Button onClick={handleCreateClick}>
                         <span>Create User</span>
-                    </Button>
+                    </Button> */}
                 </div>
                 <Table responsive className="text-nowrap">
                     <thead className="table-light">
