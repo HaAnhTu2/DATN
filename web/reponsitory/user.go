@@ -15,15 +15,15 @@ import (
 )
 
 type UserRepo interface {
-	FindByID(ctx context.Context, id string) (model.User, error)
-	GetByID(ctx context.Context, ID primitive.ObjectID) (model.User, error)
-	FindByEmail(ctx context.Context, email string) (model.User, error)
-	GetAll(ctx context.Context) ([]model.UserResponse, error)
-	Create(ctx context.Context, user model.User) (model.User, error)
-	Update(ctx context.Context, user model.User) (model.User, error)
+	FindByID(ctx context.Context, id string) (model.User_KhachHang, error)
+	FindByEmail(ctx context.Context, email string) (model.User_KhachHang, error)
+	GetAll(ctx context.Context) ([]model.User_KhachHang, error)
+	Create(ctx context.Context, user model.User_KhachHang) (model.User_KhachHang, error)
+	Update(ctx context.Context, user model.User_KhachHang) (model.User_KhachHang, error)
 	Delete(ctx context.Context, id string) error
-	SaveToken(user *model.User) (string, error)
+	SaveToken(user *model.User_KhachHang) (string, error)
 }
+
 type UserRepoI struct {
 	db *mongo.Database
 }
@@ -31,123 +31,124 @@ type UserRepoI struct {
 func NewUserRepo(db *mongo.Database) UserRepo {
 	return &UserRepoI{db: db}
 }
-func (u *UserRepoI) GetByID(ctx context.Context, ID primitive.ObjectID) (model.User, error) {
-	var user model.User
-	err := u.db.Collection("users").FindOne(ctx, bson.M{"_id": ID}).Decode(&user)
-	if err != nil {
-		return model.User{}, err
-	}
-	return user, nil
-}
-func (u *UserRepoI) FindByID(ctx context.Context, id string) (model.User, error) {
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return model.User{}, errors.New("invalid user ID")
-	}
 
-	var user model.User
-	err = u.db.Collection("users").FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+func (u *UserRepoI) FindByID(ctx context.Context, id string) (model.User_KhachHang, error) {
+	var user model.User_KhachHang
+	err := u.db.Collection("users").FindOne(ctx, bson.M{"user_id": id}).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return model.User{}, errors.New("user not found")
+			return model.User_KhachHang{}, errors.New("user not found")
 		}
-		return model.User{}, err
+		return model.User_KhachHang{}, err
 	}
 	return user, nil
 }
-func (u *UserRepoI) FindByEmail(ctx context.Context, email string) (model.User, error) {
-	var user model.User
+
+func (u *UserRepoI) FindByEmail(ctx context.Context, email string) (model.User_KhachHang, error) {
+	var user model.User_KhachHang
 	err := u.db.Collection("users").FindOne(ctx, bson.M{"email": email}).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return model.User{}, errors.New("user not found")
+			return model.User_KhachHang{}, errors.New("user not found")
 		}
-		return model.User{}, err
+		return model.User_KhachHang{}, err
 	}
 	return user, nil
 }
-func (u *UserRepoI) GetAll(ctx context.Context) ([]model.UserResponse, error) {
-	var users []model.UserResponse
-	var items []model.User
-	r, err := u.db.Collection("users").Find(ctx, bson.M{})
+
+func (u *UserRepoI) GetAll(ctx context.Context) ([]model.User_KhachHang, error) {
+	var users []model.User_KhachHang
+
+	cursor, err := u.db.Collection("users").Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
-	if er := r.All(context.TODO(), &items); er != nil {
-		return nil, er
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var user model.User_KhachHang
+		if err := cursor.Decode(&user); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
 	}
 
-	for _, item := range items {
-		users = append(users, model.UserResponse{
-			Id:         item.ID.Hex(),
-			First_Name: item.First_Name,
-			Last_Name:  item.Last_Name,
-			Email:      item.Email,
-			Image_URL:  item.UserImage_URL,
-		})
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
+
 	return users, nil
 }
-func (u *UserRepoI) Create(ctx context.Context, user model.User) (model.User, error) {
+
+func (u *UserRepoI) Create(ctx context.Context, user model.User_KhachHang) (model.User_KhachHang, error) {
+	user.Created_At = time.Now()
+	user.Updated_At = time.Now()
+
 	result, err := u.db.Collection("users").InsertOne(ctx, user)
 	if err != nil {
-		return model.User{}, err
+		return model.User_KhachHang{}, err
 	}
-	user.ID = result.InsertedID.(primitive.ObjectID)
+
+	// MongoDB trả về ObjectID, lưu vào user.User_ID kiểu string
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		user.User_ID = oid.Hex()
+	} else if strID, ok := result.InsertedID.(string); ok {
+		user.User_ID = strID
+	} else {
+		user.User_ID = fmt.Sprintf("%v", result.InsertedID)
+	}
+
 	return user, nil
 }
-func (u *UserRepoI) Update(ctx context.Context, user model.User) (model.User, error) {
-	result, err := u.db.Collection("users").UpdateOne(ctx, bson.M{"_id": user.ID}, bson.M{
-		"$set": bson.M{
-			"first_name":    user.First_Name,
-			"last_name":     user.Last_Name,
-			"email":         user.Email,
-			"password":      user.Password,
-			"address":       user.Address,
-			"phone_number":  user.PhoneNumber,
-			"role":          user.Role,
-			"userimage_url": user.UserImage_URL,
-		}})
+
+func (u *UserRepoI) Update(ctx context.Context, user model.User_KhachHang) (model.User_KhachHang, error) {
+	user.Updated_At = time.Now()
+
+	update := bson.M{
+		"email":      user.Email,
+		"password":   user.Password,
+		"birthday":   user.Birthday,
+		"gender":     user.Gender,
+		"role":       user.Role,
+		"status":     user.Status,
+		"updated_at": user.Updated_At,
+	}
+
+	result, err := u.db.Collection("users").UpdateOne(ctx, bson.M{"user_id": user.User_ID}, bson.M{"$set": update})
 	if err != nil {
-		return model.User{}, err
+		return model.User_KhachHang{}, err
 	}
 	if result.MatchedCount == 0 {
-		return model.User{}, mongo.ErrNoDocuments
+		return model.User_KhachHang{}, mongo.ErrNoDocuments
 	}
 	return user, nil
 }
+
 func (u *UserRepoI) Delete(ctx context.Context, id string) error {
-	ID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
-	result, err := u.db.Collection("users").DeleteOne(ctx, bson.M{"_id": ID})
+	result, err := u.db.Collection("users").DeleteOne(ctx, bson.M{"user_id": id})
 	if err != nil {
 		return err
 	}
 	if result.DeletedCount == 0 {
-		return err
+		return mongo.ErrNoDocuments
 	}
 	return nil
 }
 
-func (u *UserRepoI) SaveToken(user *model.User) (string, error) {
-	// Lấy secret key từ biến môi trường
+func (u *UserRepoI) SaveToken(user *model.User_KhachHang) (string, error) {
 	secret := os.Getenv("SECRET_KEY")
 	if secret == "" {
 		return "", fmt.Errorf("SECRET_KEY is not set in the environment variables")
 	}
 
-	// Thiết lập thời gian hết hạn của token
 	expiredAt := time.Now().Add(15 * time.Hour)
-
 	claims := &jwt.MapClaims{
 		"sub": user.Email,
 		"exp": expiredAt.Unix(),
 	}
-	// Tạo JWT token với các claims trên
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// Ký token bằng secret key
+
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign the token: %v", err)

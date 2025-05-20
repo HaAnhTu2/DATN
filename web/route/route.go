@@ -12,40 +12,56 @@ import (
 )
 
 func Route(r *gin.Engine, DB *mongo.Database) {
-	// Kết nối DB
 	client := db.ConnectDB()
+
+	// Khởi tạo các repo + controller
+	ProductDetailRepo := reponsitory.NewProductDetailRepo(client.Database(os.Getenv("DB_NAME")))
+	productDetailController := controller.NewProductDetailController(ProductDetailRepo, DB)
+
 	ProductRepo := reponsitory.NewProductRepo(client.Database(os.Getenv("DB_NAME")))
-	productController := controller.NewProductController(ProductRepo, DB)
+	productController := controller.NewProductController(ProductRepo, ProductDetailRepo, DB)
+
 	UserRepo := reponsitory.NewUserRepo(client.Database(os.Getenv("DB_NAME")))
 	userController := controller.NewUserController(UserRepo, DB)
+
 	CartRepo := reponsitory.NewCartRepo(client.Database(os.Getenv("DB_NAME")))
 	cartController := controller.NewCartController(CartRepo, DB)
+
 	OrderRepo := reponsitory.NewOrderRepo(client.Database(os.Getenv("DB_NAME")))
 	orderController := controller.NewOrderController(OrderRepo, DB)
+
 	CategoryRepo := reponsitory.NewCategoryRepo(client.Database(os.Getenv("DB_NAME")))
 	categoryController := controller.NewCategoryController(CategoryRepo, DB)
+
 	FeedbackRepo := reponsitory.NewFeedbackRepo(client.Database(os.Getenv("DB_NAME")))
 	feedbackController := controller.NewFeedbackController(FeedbackRepo, DB)
+
 	ProducerRepo := reponsitory.NewProducerRepo(client.Database(os.Getenv("DB_NAME")))
 	producerController := controller.NewProducerController(ProducerRepo)
+
 	VoucherRepo := reponsitory.NewVoucherRepo(client.Database(os.Getenv("DB_NAME")))
 	voucherController := controller.NewVoucherController(VoucherRepo)
 
 	// Middleware xác thực
 	authMiddleware := middleware.AuthMiddleware
 
-	// Route không cần xác thực
+	// Các route public (không cần xác thực)
 	r.POST("/api/login", userController.Login)
 	r.POST("/api/signup", userController.SignUp)
-	// r.POST("/api/user/create", userController.CreateUser)
 	r.GET("/api/user/get", userController.GetAllUser)
 	r.GET("/api/user/get/:id", userController.GetByID)
-	r.GET("/api/user/serve-image/:imageId", userController.ServeImage)
+
+	// Lấy ảnh từ đường dẫn
+	r.GET("/image/:id", productController.ServeImageProduct)
 	r.GET("/product/get", productController.GetAllProduct)
 	r.GET("/product/get/:id", productController.GetByID)
-	r.GET("/product/image/:imageId", productController.ServeImageProduct)
+	r.GET("/product/image/:id", productController.ServeImageProduct)
 
-	// Nhóm route có xác thực
+	// ProductDetail public routes (nếu cần)
+	r.GET("/product-detail/product/:product_id", productDetailController.GetProductDetailsByProductID)
+	r.GET("/product-detail/get/:id", productDetailController.GetDetailByID)
+
+	// Nhóm route cần xác thực
 	auth := r.Group("/api")
 	auth.Use(authMiddleware)
 	{
@@ -58,6 +74,11 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.POST("/product/create", productController.CreateProduct)
 		auth.PUT("/product/update/:id", productController.UpdateProduct)
 		auth.DELETE("/product/delete/:id", productController.DeleteProduct)
+
+		// ProductDetail routes
+		auth.POST("/product-detail", productDetailController.CreateProductDetail)
+		auth.PUT("/product-detail/:id", productDetailController.UpdateProductDetail)
+		auth.DELETE("/product-detail/delete/:id", productDetailController.DeleteProductDetail)
 
 		// Category routes
 		auth.POST("/category/create", categoryController.CreateCategory)
@@ -92,10 +113,4 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.DELETE("/logout", userController.Logout)
 	}
 
-	// Lấy ảnh từ đường dẫn
-	r.GET("/image/:id", userController.ServeImage)
-	r.GET("/image2/:id", productController.ServeImageProduct)
-	r.GET("/product/get", productController.GetAllProduct)
-	r.GET("/product/get/:id", productController.GetByID)
-	r.GET("/product/image/:id", productController.ServeImageProduct)
 }

@@ -1,8 +1,10 @@
 package reponsitory
 
 import (
-	"DoAnToiNghiep/model"
 	"context"
+	"time"
+
+	"DoAnToiNghiep/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -10,11 +12,11 @@ import (
 )
 
 type ProductRepo interface {
-	FindByID(ctx context.Context, id string) (model.Product, error)
-	FindByType(ctx context.Context, producttype string) ([]model.ProductResponse, error)
-	GetAll(ctx context.Context) ([]model.ProductResponse, error)
-	Create(ctx context.Context, product model.Product) (model.Product, error)
-	Update(ctx context.Context, product model.Product) (model.Product, error)
+	GetAll(ctx context.Context) ([]model.Product_SanPham, error)
+	FindByID(ctx context.Context, id string) (model.Product_SanPham, error)
+	FindByCategory(ctx context.Context, categoryID string) ([]model.Product_SanPham, error)
+	Create(ctx context.Context, product model.Product_SanPham) (model.Product_SanPham, error)
+	Update(ctx context.Context, product model.Product_SanPham) (model.Product_SanPham, error)
 	Delete(ctx context.Context, id string) error
 }
 
@@ -26,122 +28,93 @@ func NewProductRepo(DB *mongo.Database) ProductRepo {
 	return &ProductRepoI{DB: DB}
 }
 
-func (p *ProductRepoI) GetAll(ctx context.Context) ([]model.ProductResponse, error) {
-	var products []model.ProductResponse
-	var items []model.Product
-	result, err := p.DB.Collection("products").Find(ctx, bson.M{})
+func (p *ProductRepoI) GetAll(ctx context.Context) ([]model.Product_SanPham, error) {
+	var products []model.Product_SanPham
+	cursor, err := p.DB.Collection("products").Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
-	if err := result.All(context.Background(), &items); err != nil {
+	if err := cursor.All(ctx, &products); err != nil {
 		return nil, err
-	}
-	for _, item := range items {
-		products = append(products, model.ProductResponse{
-			ID:               item.ID.Hex(),
-			ProductName:      item.ProductName,
-			Brand:            item.Brand,
-			Quantity:         item.Quantity,
-			Price:            item.Price,
-			ProductImage_URL: item.ProductImage_URL,
-			Description:      item.Description,
-		})
 	}
 	return products, nil
 }
 
-func (p *ProductRepoI) FindByID(ctx context.Context, id string) (model.Product, error) {
+func (p *ProductRepoI) FindByID(ctx context.Context, id string) (model.Product_SanPham, error) {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return model.Product{}, err
+		return model.Product_SanPham{}, err
 	}
-	var product model.Product
-	err = p.DB.Collection("products").FindOne(ctx, bson.M{"_id": objID}).Decode(&product)
+	var product model.Product_SanPham
+	err = p.DB.Collection("products").FindOne(ctx, bson.M{"product_id": objID}).Decode(&product)
 	if err != nil {
-		return model.Product{}, err
+		return model.Product_SanPham{}, err
 	}
 	return product, nil
 }
 
-func (p *ProductRepoI) FindByName(ctx context.Context, name string) (model.Product, error) {
-	var product model.Product
-	err := p.DB.Collection("products").FindOne(ctx, bson.M{"productname": name}).Decode(&product)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return model.Product{}, err
-		}
-		return model.Product{}, err
-	}
-	return product, nil
-}
-
-func (p *ProductRepoI) FindByType(ctx context.Context, producttype string) ([]model.ProductResponse, error) {
-	var products []model.ProductResponse
-	var items []model.Product
-	result, err := p.DB.Collection("products").Find(ctx, bson.M{})
+func (p *ProductRepoI) FindByCategory(ctx context.Context, categoryID string) ([]model.Product_SanPham, error) {
+	var products []model.Product_SanPham
+	cursor, err := p.DB.Collection("products").Find(ctx, bson.M{"id_category": categoryID})
 	if err != nil {
 		return nil, err
 	}
-	if err := result.All(context.Background(), &items); err != nil {
+	if err := cursor.All(ctx, &products); err != nil {
 		return nil, err
-	}
-	for _, item := range items {
-		if item.ProductType == producttype {
-			products = append(products, model.ProductResponse{
-				ID:               item.ID.Hex(),
-				ProductName:      item.ProductName,
-				Brand:            item.Brand,
-				Quantity:         item.Quantity,
-				Price:            item.Price,
-				ProductImage_URL: item.ProductImage_URL,
-				Description:      item.Description,
-			})
-		}
 	}
 	return products, nil
 }
 
-func (p *ProductRepoI) Create(ctx context.Context, product model.Product) (model.Product, error) {
+func (p *ProductRepoI) Create(ctx context.Context, product model.Product_SanPham) (model.Product_SanPham, error) {
+	product.Created_At = time.Now()
+	product.Updated_At = time.Now()
+
 	result, err := p.DB.Collection("products").InsertOne(ctx, product)
 	if err != nil {
-		return model.Product{}, err
+		return model.Product_SanPham{}, err
 	}
-
-	product.ID = result.InsertedID.(primitive.ObjectID)
+	product.Product_ID = result.InsertedID.(primitive.ObjectID)
 	return product, nil
 }
 
-func (p *ProductRepoI) Update(ctx context.Context, product model.Product) (model.Product, error) {
-	result, err := p.DB.Collection("products").UpdateOne(ctx, bson.M{"_id": product.ID}, bson.M{
+func (p *ProductRepoI) Update(ctx context.Context, product model.Product_SanPham) (model.Product_SanPham, error) {
+	product.Updated_At = time.Now()
+
+	filter := bson.M{"product_id": product.Product_ID}
+	update := bson.M{
 		"$set": bson.M{
-			"productname":      product.ProductName,
-			"brand":            product.Brand,
-			"producttype":      product.ProductType,
-			"quantity":         product.Quantity,
-			"price":            product.Price,
-			"productimage_url": product.ProductImage_URL,
-			"description":      product.Description,
-		}})
+			"id_producer": product.ID_Producer,
+			"id_category": product.ID_Category,
+			"name":        product.Name,
+			"description": product.Description,
+			"information": product.Information,
+			"price":       product.Price,
+			"status":      product.Status,
+			"updated_at":  product.Updated_At,
+		},
+	}
+
+	result, err := p.DB.Collection("products").UpdateOne(ctx, filter, update)
 	if err != nil {
-		return model.Product{}, err
+		return model.Product_SanPham{}, err
 	}
 	if result.MatchedCount == 0 {
-		return model.Product{}, mongo.ErrNoDocuments
+		return model.Product_SanPham{}, mongo.ErrNoDocuments
 	}
-	return model.Product{}, nil
+	return product, nil
 }
 
 func (p *ProductRepoI) Delete(ctx context.Context, id string) error {
-	ID, err := primitive.ObjectIDFromHex(id)
+	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
-	result, err := p.DB.Collection("products").DeleteOne(ctx, bson.M{"_id": ID})
+	result, err := p.DB.Collection("products").DeleteOne(ctx, bson.M{"product_id": objID})
 	if err != nil {
 		return err
 	}
 	if result.DeletedCount == 0 {
-		return err
+		return mongo.ErrNoDocuments
 	}
 	return nil
 }

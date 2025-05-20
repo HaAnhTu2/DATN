@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -21,12 +20,21 @@ import (
 )
 
 type ProductController struct {
-	ProductRepo reponsitory.ProductRepo
-	DB          *mongo.Database
+	ProductRepo       reponsitory.ProductRepo
+	ProductDetailRepo reponsitory.ProductDetailRepo
+	DB                *mongo.Database
 }
 
-func NewProductController(ProductRepo reponsitory.ProductRepo, db *mongo.Database) *ProductController {
-	return &ProductController{ProductRepo: ProductRepo, DB: db}
+func NewProductController(
+	repo reponsitory.ProductRepo,
+	detailRepo reponsitory.ProductDetailRepo,
+	db *mongo.Database,
+) *ProductController {
+	return &ProductController{
+		ProductRepo:       repo,
+		ProductDetailRepo: detailRepo,
+		DB:                db,
+	}
 }
 
 func (p *ProductController) GetAllProduct(c *gin.Context) {
@@ -55,79 +63,100 @@ func (p *ProductController) GetByID(c *gin.Context) {
 	})
 }
 func (p *ProductController) CreateProduct(c *gin.Context) {
-	product := model.Product{
-		ProductName: c.Request.FormValue("productname"),
-		Brand:       c.Request.FormValue("brand"),
-		ProductType: c.Request.FormValue("producttype"),
-		Description: c.Request.FormValue("description"),
+	// 1. Parse form
+	product := model.Product_SanPham{
+		ID_Producer: c.PostForm("id_producer"),
+		ID_Category: c.PostForm("id_category"),
+		Name:        c.PostForm("name"),
+		Description: c.PostForm("description"),
+		Information: c.PostForm("information"),
+		Status:      c.PostForm("status"),
+		Created_At:  time.Now(),
+		Updated_At:  time.Now(),
 	}
-	quantity, err := strconv.Atoi(c.Request.FormValue("quantity"))
+
+	price, err := strconv.Atoi(c.PostForm("price"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price", "field": "price"})
+		return
+	}
+	product.Price = price
+
+	// 2. Save Product
+	newProduct, err := p.ProductRepo.Create(c.Request.Context(), product)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert product"})
+		return
+	}
+
+	// 3. Upload image
+	file, header, err := c.Request.FormFile("image")
+	if err != nil || file == nil || header == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Image upload failed"})
+		return
+	}
+	defer file.Close()
+
+	bucket, err := gridfs.NewBucket(p.DB, options.GridFSBucket().SetName("products"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create GridFS bucket"})
+		return
+	}
+
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read image"})
+		return
+	}
+
+	filename := time.Now().Format("20060102150405") + "_" + header.Filename
+	uploadStream, err := bucket.OpenUploadStream(filename)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open GridFS upload stream"})
+		return
+	}
+	defer uploadStream.Close()
+
+	if _, err := uploadStream.Write(buf.Bytes()); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write to GridFS"})
+		return
+	}
+
+	imageID := ""
+	if oid, ok := uploadStream.FileID.(primitive.ObjectID); ok {
+		imageID = oid.Hex()
+	}
+
+	// 4. Save product detail
+	detail := model.Product_Detail_ChiTietDonHang{
+		ID_Product: newProduct.Product_ID.Hex(),
+		Color:      c.PostForm("color"),
+		Size:       c.PostForm("size"),
+		Status:     c.PostForm("status_detail"),
+		Image:      imageID,
+	}
+
+	detail.Quantity, err = strconv.Atoi(c.PostForm("quantity"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity"})
 		return
 	}
-	product.Quantity = quantity
-
-	price, err := strconv.Atoi(c.Request.FormValue("price"))
+	detail.Price, err = strconv.Atoi(c.PostForm("price_detail"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price"})
-		return
-	}
-	product.Price = price
-	file, header, err := c.Request.FormFile("image2")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Image upload failed"})
-		log.Print(err)
-		return
-	}
-	product.Created_At = time.Now()
-	product.Updated_At = time.Now()
-	defer file.Close()
-	//Create GridFS bucket
-
-	bucket, err := gridfs.NewBucket(p.DB.Client().Database(os.Getenv("DB_NAME")), options.GridFSBucket().SetName("products"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not create GridFS bucket"})
-		return
-	}
-	//Read image
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, file); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not read image"})
-		return
-	}
-	//Open upload stream
-	filename := time.Now().Format(time.RFC3339) + "_" + header.Filename
-	uploadStream, err := bucket.OpenUploadStream(filename)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not open upload stream"})
-		return
-	}
-	defer uploadStream.Close()
-	//Write to upload stream
-	fileSize, err := uploadStream.Write(buf.Bytes())
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not write to upload stream"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid detail price"})
 		return
 	}
 
-	// Save the file ID to the user model
-	fileId, err := json.Marshal(uploadStream.FileID)
+	createdDetail, err := p.ProductDetailRepo.Create(c.Request.Context(), detail)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not marshal file ID"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert product detail"})
 		return
 	}
-	product.ProductImage_URL = strings.Trim(string(fileId), `"`)
-	// Insert the user into the database
-	products, err := p.ProductRepo.Create(c.Request.Context(), product)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert user"})
-		return
-	}
+
+	// 5. Response
 	c.JSON(http.StatusOK, gin.H{
-		"fileId":   product.ProductImage_URL,
-		"fileSize": fileSize,
-		"product":  products,
+		"product":        newProduct,
+		"product_detail": createdDetail,
 	})
 }
 
@@ -155,98 +184,87 @@ func (p *ProductController) ServeImageProduct(c *gin.Context) {
 }
 
 func (p *ProductController) UpdateProduct(c *gin.Context) {
-	productid := c.Param("id")
-	product, err := p.ProductRepo.FindByID(c.Request.Context(), productid)
+	productID := c.Param("id")
+
+	// 1. Tìm sản phẩm
+	product, err := p.ProductRepo.FindByID(c.Request.Context(), productID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
 	}
-	if productname := c.PostForm("productname"); productname != "" {
-		product.ProductName = productname
+
+	// 2. Cập nhật các trường nếu có
+	if val := c.PostForm("id_producer"); val != "" {
+		product.ID_Producer = val
 	}
-	if brand := c.PostForm("brand"); brand != "" {
-		product.Brand = brand
+	if val := c.PostForm("id_category"); val != "" {
+		product.ID_Category = val
 	}
-	if producttype := c.PostForm("producttype"); producttype != "" {
-		product.ProductType = producttype
+	if val := c.PostForm("name"); val != "" {
+		product.Name = val
 	}
-	if quantityStr := c.PostForm("quantity"); quantityStr != "" {
-		quantity, err := strconv.Atoi(quantityStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid quantity",
-			})
+	if val := c.PostForm("description"); val != "" {
+		product.Description = val
+	}
+	if val := c.PostForm("information"); val != "" {
+		product.Information = val
+	}
+	if val := c.PostForm("status"); val != "" {
+		product.Status = val
+	}
+	if val := c.PostForm("price"); val != "" {
+		if price, err := strconv.Atoi(val); err == nil {
+			product.Price = price
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price"})
 			return
 		}
-		product.Quantity = quantity
 	}
-	if prices := c.PostForm("price"); prices != "" {
-		price, err := strconv.Atoi(prices)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid price",
-			})
-			return
-		}
-		product.Price = price
-	}
-	if description := c.PostForm("description"); description != "" {
-		product.Description = description
-	}
-	file, header, err := c.Request.FormFile("image2")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-	}
-	defer file.Close()
-	bucket, err := gridfs.NewBucket(p.DB.Client().Database(os.Getenv("DB_NAME")), options.GridFSBucket().SetName("products"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not create GridFS bucket"})
-		return
-	}
-
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, file); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not read image"})
-		return
-	}
-
-	filename := time.Now().Format(time.RFC3339) + "_" + header.Filename
-	uploadStream, err := bucket.OpenUploadStream(filename)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not open upload stream"})
-		return
-	}
-	defer uploadStream.Close()
-
-	if _, err := uploadStream.Write(buf.Bytes()); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not write to upload stream"})
-		return
-	}
-
-	fileId, err := json.Marshal(uploadStream.FileID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not marshal file ID"})
-		return
-	}
-	log.Print(fileId)
-	product.ProductImage_URL = strings.Trim(string(fileId), `"`)
 	product.Updated_At = time.Now()
+
+	// 3. Cập nhật ảnh nếu có
+	file, header, err := c.Request.FormFile("image")
+	if err == nil {
+		defer file.Close()
+		bucket, err := gridfs.NewBucket(p.DB, options.GridFSBucket().SetName("products"))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create GridFS bucket"})
+			return
+		}
+		buf := bytes.NewBuffer(nil)
+		io.Copy(buf, file)
+		filename := time.Now().Format(time.RFC3339) + "_" + header.Filename
+
+		uploadStream, err := bucket.OpenUploadStream(filename)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open upload stream"})
+			return
+		}
+		defer uploadStream.Close()
+		uploadStream.Write(buf.Bytes())
+
+		fileId, _ := json.Marshal(uploadStream.FileID)
+		imageID := strings.Trim(string(fileId), `"`)
+		// Nếu muốn lưu ảnh vào chi tiết, bạn cần tìm chi tiết sản phẩm rồi cập nhật
+		detail, err := p.ProductDetailRepo.FindByProductID(c.Request.Context(), productID)
+		if err == nil {
+			detail.Image = imageID
+			_, err = p.ProductDetailRepo.Update(c.Request.Context(), detail)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product"})
+				return
+			}
+		}
+	}
+
+	// 4. Cập nhật sản phẩm
 	updatedProduct, err := p.ProductRepo.Update(c.Request.Context(), product)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not update product",
-			"err":   err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"product": updatedProduct,
-	})
+	c.JSON(http.StatusOK, gin.H{"product": updatedProduct})
 }
 
 func (p *ProductController) DeleteProduct(c *gin.Context) {

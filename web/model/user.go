@@ -45,7 +45,7 @@ type UserResponse struct {
 }
 
 type User_KhachHang struct {
-	User_ID    string    `json:"_id,omitempty" bson:"_id,omitempty"`
+	User_ID    string    `json:"user_id,omitempty" bson:"user_id,omitempty"`
 	Email      string    `bson:"email" json:"email"`
 	Password   string    `bson:"password" json:"password"`
 	Birthday   string    `bson:"birthday" json:"birthday"`

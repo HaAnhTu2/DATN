@@ -3,14 +3,10 @@ package controller
 import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
-	"bytes"
 	"context"
-	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -19,8 +15,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/gridfs"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -48,7 +42,7 @@ func VerifyPassword(userpassword string, givenpassword string) (bool, string) {
 	valid := true
 	msg := ""
 	if err != nil {
-		msg = "Login Or Passowrd is Incorerct"
+		msg = "Login Or Password is Incorrect"
 		valid = false
 	}
 	return valid, msg
@@ -64,7 +58,7 @@ func (u *UserController) Login(c *gin.Context) {
 		})
 		return
 	}
-	// Tìm người dùng theo email
+
 	user, err := u.UserRepo.FindByEmail(c.Request.Context(), auth.Email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -73,9 +67,7 @@ func (u *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	// Kiểm tra mật khẩu
 	if valid, _ := VerifyPassword(auth.Password, user.Password); valid {
-		// Nếu mật khẩu hợp lệ, tạo token và trả về
 		token, err := u.UserRepo.SaveToken(&user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
@@ -103,7 +95,7 @@ func (u *UserController) Logout(c *gin.Context) {
 		Name:   "Token",
 		Value:  "",
 		Path:   "/",
-		MaxAge: -1, // Delete the Cookie
+		MaxAge: -1,
 	})
 	c.JSON(http.StatusOK, gin.H{
 		"data": "Logout successful!",
@@ -135,76 +127,34 @@ func (u *UserController) GetByID(c *gin.Context) {
 	})
 }
 
+// --- Thay đổi từ model.User sang model.User_KhachHang ở các hàm liên quan tới user ---
+
 func (u *UserController) CreateUser(c *gin.Context) {
-	user := model.User{
-		First_Name:  c.Request.FormValue("first_name"),
-		Last_Name:   c.Request.FormValue("last_name"),
-		Email:       c.Request.FormValue("email"),
-		Password:    c.Request.FormValue("password"),
-		Address:     c.Request.FormValue("address"),
-		PhoneNumber: c.Request.FormValue("phone_number"),
-		Role:        c.Request.FormValue("role"),
+	user := model.User_KhachHang{
+		Email:    c.Request.FormValue("email"),
+		Password: c.Request.FormValue("password"),
+		Birthday: c.Request.FormValue("birthday"),
+		Gender:   c.Request.FormValue("gender"),
+		Role:     c.Request.FormValue("role"),
+		Status:   c.Request.FormValue("status"),
 	}
 
-	file, header, err := c.Request.FormFile("image")
-	log.Print(file)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Image upload failed"})
-		return
+	if user.Role == "" {
+		user.Role = "User"
 	}
-	defer file.Close()
 
-	//Create GridFS bucket
-	bucket, err := gridfs.NewBucket(u.DB.Client().Database("DoAnToiNghiep"), options.GridFSBucket().SetName("photos_user"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not create GridFS bucket"})
-		return
-	}
-	//Read image
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, file); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not read image"})
-		return
-	}
-	//Open upload stream
-	filename := time.Now().Format(time.RFC3339) + "_" + header.Filename
-	uploadStream, err := bucket.OpenUploadStream(filename)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not open upload stream"})
-		return
-	}
-	defer uploadStream.Close()
-	//Write to upload stream
-	fileSize, err := uploadStream.Write(buf.Bytes())
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not write to upload stream"})
-		return
-	}
-	// Save the file ID to the user model
-	fileId, err := json.Marshal(uploadStream.FileID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not marshal file ID"})
-		return
-	}
-	user.UserImage_URL = strings.Trim(string(fileId), `"`)
-	if c.Request.FormValue("role") == "Admin" {
-		if user.Role != "admin" {
-			c.JSON(http.StatusOK, gin.H{"error": "you is not admin"})
-			return
-		}
-	}
-	// Insert the user into the database
-	users, err := u.UserRepo.Create(c.Request.Context(), user)
+	user.Created_At = time.Now()
+	user.Updated_At = time.Now()
+
+	_, err := u.DB.Collection("users").InsertOne(context.Background(), user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert user"})
 		return
 	}
-	user.Created_At = time.Now()
-	user.Updated_At = time.Now()
+
 	c.JSON(http.StatusOK, gin.H{
-		"fileId":   user.UserImage_URL,
-		"fileSize": fileSize,
-		"user":     users,
+		"fileId": user.User_ID,
+		"user":   user,
 	})
 }
 
@@ -212,24 +162,27 @@ func (u *UserController) SignUp(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	var user model.User
+	var user model.User_KhachHang
 	if c.ContentType() == "application/json" {
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON body: " + err.Error()})
 			return
 		}
 	} else {
-		user.First_Name = c.PostForm("first_name")
-		user.Last_Name = c.PostForm("last_name")
 		user.Email = c.PostForm("email")
 		user.Password = c.PostForm("password")
-		user.PhoneNumber = c.PostForm("phone_number")
+		user.Birthday = c.PostForm("birthday")
+		user.Gender = c.PostForm("gender")
+		user.Role = c.PostForm("role")
+		user.Status = c.PostForm("status")
 	}
+
 	validationErr := Validate.Struct(user)
 	if validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 		return
 	}
+
 	count, err := u.DB.Collection("users").CountDocuments(ctx, bson.M{"email": user.Email})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking email: " + err.Error()})
@@ -239,51 +192,38 @@ func (u *UserController) SignUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User with this email already exists"})
 		return
 	}
-	count, err = u.DB.Collection("users").CountDocuments(ctx, bson.M{"phone_number": user.PhoneNumber})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking phone: " + err.Error()})
-		return
-	}
-	if count > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Phone number is already in use"})
-		return
-	}
+
 	password := HashPassword(user.Password)
 	user.Password = password
 	user.Created_At = time.Now()
 	user.Updated_At = time.Now()
-	user.ID = primitive.NewObjectID()
-	user.User_ID = user.ID.Hex()
+	user.User_ID = primitive.NewObjectID().Hex()
+
 	if user.Role == "" {
-		defaultRole := "User"
-		// defaultRole := "Admin"
-		user.Role = defaultRole
+		user.Role = "User"
 	}
+
 	_, err = u.DB.Collection("users").InsertOne(ctx, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Successfully Signed Up!!",
 		"user":    user,
 	})
 }
+
 func (u *UserController) GetUserByToken(c *gin.Context) {
-	// Lấy token từ header Authorization
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
 		return
 	}
-
-	// Loại bỏ tiền tố "Bearer "
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-	// Khai báo struct claims để lưu thông tin giải mã từ token
 	claims := jwt.MapClaims{}
-
-	// Xác minh token và parse claims
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
@@ -293,24 +233,17 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 		return
 	}
 
-	// Lấy email từ claims
 	email, ok := claims["sub"].(string)
 	if !ok {
-		log.Println("Email not found or invalid in claims")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email not found in token"})
 		return
 	}
 
-	// Tạo context với timeout
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	var user model.User
-
-	// Tạo bộ lọc tìm kiếm người dùng theo email
+	var user model.User_KhachHang
 	filter := bson.M{"email": email}
-
-	// Tìm người dùng trong cơ sở dữ liệu
 	err = u.DB.Collection("users").FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -321,133 +254,64 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 		return
 	}
 
-	// Trả về thông tin người dùng
 	c.JSON(http.StatusOK, gin.H{
 		"user": gin.H{
-			"id":         user.ID,
-			"first_name": user.First_Name,
-			"last_name":  user.Last_Name,
-			"email":      user.Email,
-			"Role":       user.Role,
-			"address":    user.Address,
-			"phone":      user.PhoneNumber,
+			"user_id":  user.User_ID,
+			"email":    user.Email,
+			"role":     user.Role,
+			"birthday": user.Birthday,
+			"gender":   user.Gender,
+			"status":   user.Status,
 		},
 	})
 }
 
-func (u *UserController) ServeImage(c *gin.Context) {
-	imageId := strings.TrimPrefix(c.Request.URL.Path, "/image/")
-	objID, err := primitive.ObjectIDFromHex(imageId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image ID"})
-		return
-	}
-
-	bucket, _ := gridfs.NewBucket(u.DB.Client().Database("DoAnToiNghiep"), options.GridFSBucket().SetName("photos_user"))
-
-	var buf bytes.Buffer
-	_, err = bucket.DownloadToStream(objID, &buf)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not download image"})
-		return
-	}
-
-	contentType := http.DetectContentType(buf.Bytes())
-	c.Writer.Header().Add("Content-Type", contentType)
-	c.Writer.Header().Add("Content-Length", strconv.Itoa(len(buf.Bytes())))
-	c.Writer.Write(buf.Bytes())
-}
-
 func (u *UserController) UpdateUser(c *gin.Context) {
-	userId := c.Param("id")
-	user, err := u.UserRepo.FindByID(c.Request.Context(), userId)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-	if first_name := c.PostForm("first_name"); first_name != "" {
-		user.First_Name = first_name
-	}
-	if lastname := c.PostForm("last_name"); lastname != "" {
-		user.Last_Name = lastname
-	}
-	if email := c.PostForm("email"); email != "" {
-		user.Email = email
-	}
-	if password := c.PostForm("password"); password != "" {
-		hashpassword := HashPassword(password)
-		user.Password = hashpassword
-	}
-	if address := c.PostForm("address"); address != "" {
-		user.Address = address
-	}
-	if phone_number := c.PostForm("phone_number"); phone_number != "" {
-		user.PhoneNumber = phone_number
-	}
-	if role := c.PostForm("role"); role != "" {
-		user.Role = role
-	}
-	file, header, err := c.Request.FormFile("image")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-	}
-	defer file.Close()
-	bucket, err := gridfs.NewBucket(u.DB.Client().Database("DoAnToiNghiep"), options.GridFSBucket().SetName("photos_user"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not create GridFS bucket"})
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	userID := c.Param("id")
+
+	var user model.User_KhachHang
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
 		return
 	}
 
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, file); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not read image"})
-		return
-	}
-
-	filename := time.Now().Format(time.RFC3339) + "_" + header.Filename
-	uploadStream, err := bucket.OpenUploadStream(filename)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not open upload stream"})
-		return
-	}
-	defer uploadStream.Close()
-
-	if _, err := uploadStream.Write(buf.Bytes()); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not write to upload stream"})
-		return
-	}
-	fileId, err := json.Marshal(uploadStream.FileID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not marshal file ID"})
-		return
-	}
-	log.Print(fileId)
-	user.UserImage_URL = strings.Trim(string(fileId), `"`)
 	user.Updated_At = time.Now()
-	updatedUser, err := u.UserRepo.Update(c.Request.Context(), user)
+
+	filter := bson.M{"user_id": userID}
+	update := bson.M{
+		"$set": bson.M{
+			"email":      user.Email,
+			"password":   HashPassword(user.Password),
+			"birthday":   user.Birthday,
+			"gender":     user.Gender,
+			"role":       user.Role,
+			"status":     user.Status,
+			"updated_at": user.Updated_At,
+		},
+	}
+
+	_, err := u.DB.Collection("users").UpdateOne(ctx, filter, update)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not update user",
-			"err":   err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Update failed: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"user": updatedUser,
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
 }
 
 func (u *UserController) DeleteUser(c *gin.Context) {
-	id := c.Param("id")
-	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid argument id"})
+	userID := c.Param("id")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	_, err := u.DB.Collection("users").DeleteOne(ctx, bson.M{"user_id": userID})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user: " + err.Error()})
 		return
 	}
-	if err := u.UserRepo.Delete(c, id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
