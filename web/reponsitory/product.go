@@ -69,11 +69,10 @@ func (p *ProductRepoI) Create(ctx context.Context, product model.Product_SanPham
 	product.Created_At = time.Now()
 	product.Updated_At = time.Now()
 
-	result, err := p.DB.Collection("products").InsertOne(ctx, product)
+	_, err := p.DB.Collection("products").InsertOne(ctx, product)
 	if err != nil {
 		return model.Product_SanPham{}, err
 	}
-	product.Product_ID = result.InsertedID.(primitive.ObjectID)
 	return product, nil
 }
 

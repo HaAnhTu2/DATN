@@ -33,7 +33,7 @@ const Navigation: React.FC = () => {
                 <div id="responsive-nav">
                     <ul className="main-nav nav navbar-nav">
                         <li><Link to="/home">UserHome</Link></li>
-                        {user?.Role === 'admin' && (
+                        {user?.role === 'Admin' && (
                             <>
                                 <li><Link to="/update/user">User Management</Link></li>
                                 <li><Link to="/update/product">Product Management</Link></li>

@@ -37,7 +37,7 @@ const UserHome: React.FC<UserHomeProps> = () => {
     };
 
     const filteredProducts = products.filter(product =>
-        product.productname.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     return (
         <div>
@@ -49,28 +49,28 @@ const UserHome: React.FC<UserHomeProps> = () => {
             </div>
             <ul>
                 {filteredProducts.map(product => (
-                    <li key={product._id}>
+                    <li key={product.product_id}>
                         <div className="col-md-4 col-xs-6">
                             <div className="product">
                                 <div className="product-img">
-                                    {product.productimage_url ? (
-                                        <Card.Img src={`http://localhost:3000/image2/${product.productimage_url}`}
-                                            alt={product.productname}
+                                    {product.image ? (
+                                        <Card.Img src={`http://localhost:3000/image/${product.image}`}
+                                            alt={product.name}
                                         />
                                     ) : (
                                         "No Image"
                                     )}
                                 </div>
                                 <div className="product-body">
-                                    <p className="product-category">{product.brand || "Unknown"}</p>
-                                    <h3 className="product-name"><a onClick={() => handleDetailClick(product._id)} href="#">{product.productname || "No Name"}</a></h3>
+                                    <p className="product-category">{product.description || "Unknown"}</p>
+                                    <h3 className="product-name"><a onClick={() => handleDetailClick(product.product_id)} href="#">{product.name || "No Name"}</a></h3>
                                     <h4 className="product-price">${product.price != null ? product.price : "No Price"}</h4>
                                     <div className="product-rating">
-                                        {product.quantity || "No Rating"}<i className="fa fa-star"></i>
+                                        {product.status || "No Rating"}<i className="fa fa-star"></i>
                                     </div>
                                 </div>
                                 <div className="add-to-cart">
-                                    <Button onClick={() => handleDetailClick(product._id)} className="add-to-cart-btn"><i className="fa fa-shopping-cart"></i> add to cart</Button>
+                                    <Button onClick={() => handleDetailClick(product.product_id)} className="add-to-cart-btn"><i className="fa fa-shopping-cart"></i> add to cart</Button>
                                 </div>
                             </div>
                         </div>

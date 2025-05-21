@@ -52,10 +52,10 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/user/get/:id", userController.GetByID)
 
 	// Lấy ảnh từ đường dẫn
-	r.GET("/image/:id", productController.ServeImageProduct)
-	r.GET("/product/get", productController.GetAllProduct)
-	r.GET("/product/get/:id", productController.GetByID)
-	r.GET("/product/image/:id", productController.ServeImageProduct)
+	r.GET("/api/image/:id", productController.ServeImageProduct)
+	r.GET("/api/product/get", productController.GetAllProduct)
+	r.GET("/api/product/get/:id", productController.GetByID)
+	r.GET("/api/product/image/:id", productController.ServeImageProduct)
 
 	// ProductDetail public routes (nếu cần)
 	r.GET("/product-detail/product/:product_id", productDetailController.GetProductDetailsByProductID)

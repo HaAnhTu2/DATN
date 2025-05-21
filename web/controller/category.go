@@ -22,9 +22,14 @@ func NewCategoryController(CategoryRepo reponsitory.CategoryRepo, db *mongo.Data
 }
 
 func (ca *CategoryController) CreateCategory(c *gin.Context) {
-	category := model.Category_LoaiSanPham{
-		Name:   c.Request.FormValue("name"),
-		Status: c.Request.FormValue("status"),
+	var category model.Category_LoaiSanPham
+	// {
+	// 	Name:   c.Request.FormValue("name"),
+	// 	Status: c.Request.FormValue("status"),
+	// }
+	if err := c.ShouldBindJSON(&category); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 	category.Category_ID = primitive.NewObjectID()
 	category.Created_At = time.Now()

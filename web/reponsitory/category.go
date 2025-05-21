@@ -52,8 +52,8 @@ func (c *CategoryRepoI) Create(ctx context.Context, category model.Category_Loai
 func (c *CategoryRepoI) Update(ctx context.Context, category model.Category_LoaiSanPham) (model.Category_LoaiSanPham, error) {
 	result, err := c.db.Collection("category").UpdateOne(ctx, bson.M{"category_id": category.Category_ID}, bson.M{
 		"$set": bson.M{
-			"first_name": category.Name,
-			"last_name":  category.Status,
+			"name":   category.Name,
+			"status": category.Status,
 		}})
 	if err != nil {
 		return model.Category_LoaiSanPham{}, err

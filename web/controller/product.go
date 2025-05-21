@@ -74,6 +74,7 @@ func (p *ProductController) CreateProduct(c *gin.Context) {
 		Created_At:  time.Now(),
 		Updated_At:  time.Now(),
 	}
+	product.Product_ID = primitive.NewObjectID()
 
 	price, err := strconv.Atoi(c.PostForm("price"))
 	if err != nil {
