@@ -15,7 +15,7 @@ export const addToCart = async (form: FormData): Promise<any> => {
 
 export const getCartByUserId = async (userId: string): Promise<Cart[]> => {
   const response = await axios.get(`/api/cart/${userId}`, { headers: getAuthHeaders() });
-  return response.data.cart;
+  return response.data;
 };
 
 export const updateCartQuantity = async (form: FormData): Promise<any> => {

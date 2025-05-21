@@ -16,6 +16,12 @@ export const getUsers = async (): Promise<User[]> => {
     });
     return response.data.users;
 };
+export const getUserById = async (id: string): Promise<User> => {
+    const response = await axios.get(`/api/user/get/${id}`, {
+        headers: getAuthHeaders()
+    });
+    return response.data;
+};
 
 // Đăng ký user mới (không cần token)
 export const signup = async (newUser: FormData): Promise<Signup> => {

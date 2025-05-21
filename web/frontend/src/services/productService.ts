@@ -22,9 +22,7 @@ export const findNameProduct = async (name: string): Promise<Product> => {
 };
 
 export const getProductById = async (id: string): Promise<Product> => {
-    const response = await axios.get(`/api/product/get/${id}`, {
-        headers: getAuthHeaders()
-    });
+    const response = await axios.get(`/api/product/get/${id}`);
     return response.data.product;
 };
 
@@ -66,15 +64,11 @@ export const deleteProductDetail = async (id: string): Promise<void> => {
 };
 
 export const getProductDetailsByProductId = async (productId: string): Promise<ProductDetail[]> => {
-    const response = await axios.get(`/api/productdetail/product/${productId}`, {
-        headers: getAuthHeaders()
-    });
-    return response.data.product_details;
+    const response = await axios.get(`/api/productdetail/product/${productId}`);
+    return response.data;
 };
 
 export const getProductDetailById = async (id: string): Promise<ProductDetail> => {
-    const response = await axios.get(`/api/productdetail/get/${id}`, {
-        headers: getAuthHeaders()
-    });
-    return response.data.detail;
+    const response = await axios.get(`/api/productdetail/get/${id}`);
+    return response.data;
 };

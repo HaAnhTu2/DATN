@@ -62,7 +62,7 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
                             </div>
                             <div className="col-md-12">
                                 <label className="form-label">Ngày sinh: </label>
-                                <input type="text" value={birthday} onChange={(e: ChangeEvent<HTMLInputElement>) => setBirthday(e.target.value)} className="form-control" />
+                                <input type="date" value={birthday} onChange={(e: ChangeEvent<HTMLInputElement>) => setBirthday(e.target.value)} className="form-control" />
                             </div>
                             <div className="col-md-12">
                                 <label className="form-label">Giới tính: </label>

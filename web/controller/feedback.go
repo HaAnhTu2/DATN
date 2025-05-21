@@ -28,6 +28,15 @@ func NewFeedbackController(FeedbackRepo reponsitory.FeedbackRepo, db *mongo.Data
 	}
 }
 
+func (fc *FeedbackController) GetAllFeedback(c *gin.Context) {
+	feedbacks, err := fc.FeedbackRepo.GetAll(c.Request.Context())
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"data": feedbacks})
+}
+
 func (fc *FeedbackController) CreateFeedback(c *gin.Context) {
 	var feedback model.Feedback_DanhGiaSanPham
 	if c.ContentType() == "application/json" {

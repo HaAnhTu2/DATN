@@ -5,7 +5,6 @@ import (
 	"DoAnToiNghiep/reponsitory"
 	"bytes"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -190,14 +189,17 @@ func (ctrl *ProductDetailController) DeleteProductDetail(c *gin.Context) {
 
 func (ctrl *ProductDetailController) GetProductDetailsByProductID(c *gin.Context) {
 	productID := c.Param("id_product")
-	log.Print("productid: ", productID)
+	productid := ""
+	if productID != "nil" {
+
+		productid = productID
+	}
 	if productID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing product ID"})
 		return
 	}
 
-	details, err := ctrl.DetailRepo.FindByProductID(c.Request.Context(), productID)
-	log.Print(err)
+	details, err := ctrl.DetailRepo.FindByProductID(c.Request.Context(), productid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve product details"})
 		return

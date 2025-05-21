@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Home from "../../../components/sections/user/Home/page";
-import { Product } from "../../../types/product";
 import { Category } from "../../../types/category";
 import { getCategories } from "../../../services/category";
 
 const UserHomePage: React.FC = () => {
-  const [, setUserHome] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -28,8 +26,8 @@ const UserHomePage: React.FC = () => {
                       <img src="./src/assets/img/shop01.png" alt="" />
                     </div>
                     <div className="shop-body">
-                      <h3>Laptop<br />Collection</h3>
-                      <a href="#" className="cta-btn">Shop now <i className="fa fa-arrow-circle-right"></i></a>
+                      <h3>Bộ sưu tập <br />Máy tính</h3>
+                      <a href="#" className="cta-btn">Mua ngay <i className="fa fa-arrow-circle-right"></i></a>
                     </div>
                   </div>
                 </div>
@@ -40,8 +38,8 @@ const UserHomePage: React.FC = () => {
                       <img src="./src/assets/img/shop03.png" alt="" />
                     </div>
                     <div className="shop-body">
-                      <h3>Accessories<br />Collection</h3>
-                      <a href="#" className="cta-btn">Shop now <i className="fa fa-arrow-circle-right"></i></a>
+                      <h3>Bộ sưu tập<br />Phụ kiện</h3>
+                      <a href="#" className="cta-btn">Mua ngay <i className="fa fa-arrow-circle-right"></i></a>
                     </div>
                   </div>
                 </div>
@@ -52,8 +50,8 @@ const UserHomePage: React.FC = () => {
                       <img src="./src/assets/img/shop02.png" alt="shop2" />
                     </div>
                     <div className="shop-body">
-                      <h3>Cameras<br />Collection</h3>
-                      <a href="#" className="cta-btn">Shop now <i className="fa fa-arrow-circle-right"></i></a>
+                      <h3>Bộ sưu tập<br />Cameras</h3>
+                      <a href="#" className="cta-btn">Mua ngay <i className="fa fa-arrow-circle-right"></i></a>
                     </div>
                   </div>
                 {/* </div> */}
@@ -83,7 +81,7 @@ const UserHomePage: React.FC = () => {
                 <div className="products-tabs">
                   <div id="tab1" className="tab-pane active">
                     <div className="products-slick" data-nav="#slick-nav-1">
-                      <Home setUserHome={setUserHome} />
+                      <Home />
                     </div>
                     <div id="slick-nav-1" className="products-slick-nav"></div>
                   </div>

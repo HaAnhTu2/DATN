@@ -20,7 +20,7 @@ export const logout = async (): Promise<void> => {
         if (!token) {
             throw new Error('Token not found');
         }
-        const logout = await axios.delete('api/logout', {
+        const logout = await axios.delete('/api/logout', {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`,

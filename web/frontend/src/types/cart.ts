@@ -16,5 +16,5 @@ export interface CartItem {
 export interface Cart {
     id_product_detail: string;
     id_user: string;
-    quantity: Number;
+    quantity: number;
 }

@@ -42,6 +42,7 @@ const Header: React.FC = () => {
       localStorage.removeItem('token');
       setUser(null);
       navigate('/login');
+      window.location.reload();
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -55,21 +56,21 @@ const Header: React.FC = () => {
         <div id="top-header">
           <div className="container">
             <ul className="header-links pull-left">
-              <li><a href="#"><i className="fa fa-phone"></i> +123-45-67-89</a></li>
-              <li><a href="#"><i className="fa fa-envelope-o"></i> Tusha123@email.com</a></li>
-              <li><a href="#"><i className="fa fa-map-marker"></i> Tây Tựu, Bắc Từ Liêm, Hà Nội</a></li>
+              <li><a href="#" className='text-decoration-none'><i className="fa fa-phone"></i> +123-45-67-89</a></li>
+              <li><a href="#" className='text-decoration-none'><i className="fa fa-envelope-o"></i> Tusha123@email.com</a></li>
+              <li><a href="#" className='text-decoration-none'><i className="fa fa-map-marker"></i> Tây Tựu, Bắc Từ Liêm, Hà Nội</a></li>
             </ul>
             <ul className="header-links pull-right">
               {isLoggedIn ? (
                 <>
-                  <li><a href="#"><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
-                  <li><Link to={`/cart/${user?.user_id}`} onClick={handleCartClick}><i className="fa fa-shopping-cart"></i> Giỏ hàng</Link></li>
-                  <li><Link to="/login" onClick={handleLogout}><i className="fa fa-sign-out"></i> Đăng xuất</Link></li>
+                  <li><a href="#" className='text-decoration-none'><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
+                  <li><Link to={`/cart/${user?.user_id}`} className='text-decoration-none' onClick={handleCartClick}><i className="fa fa-shopping-cart"></i> Giỏ hàng</Link></li>
+                  <li><Link to="/logout" className='text-decoration-none' onClick={handleLogout}><i className="fa fa-sign-out"></i> Đăng xuất</Link></li>
                 </>
               ) : (
                 <>
-                  <li><Link to="/login" className="login-link">Đăng Nhập</Link></li>
-                  <li><Link to="/signup" className="signup-link">Đăng Ký</Link></li>
+                  <li><Link to="/login" className="text-decoration-none login-link">Đăng Nhập</Link></li>
+                  <li><Link to="/signup" className="text-decoration-none signup-link">Đăng Ký</Link></li>
                 </>
               )}
             </ul>

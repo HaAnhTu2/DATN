@@ -19,6 +19,14 @@ func NewProducerController(repo reponsitory.ProducerRepo) *ProducerController {
 		ProducerRepo: repo,
 	}
 }
+func (pc *ProducerController) GetAllProducer(c *gin.Context) {
+	producers, err := pc.ProducerRepo.GetAll(c.Request.Context())
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"data": producers})
+}
 
 // Create producer
 func (pc *ProducerController) CreateProducer(c *gin.Context) {

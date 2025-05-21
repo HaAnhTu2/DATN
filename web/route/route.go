@@ -49,7 +49,6 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.POST("/api/login", userController.Login)
 	r.POST("/api/signup", userController.SignUp)
 	r.GET("/api/user/get", userController.GetAllUser)
-	r.GET("/api/user/get/:id", userController.GetByID)
 
 	// Lấy ảnh từ đường dẫn
 	r.GET("/image/:id", productController.ServeImageProduct)
@@ -63,6 +62,8 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/productdetail/get/:id", productDetailController.GetDetailByID)
 
 	r.GET("/api/category", categoryController.GetCategories)
+	r.GET("/api/producer", producerController.GetAllProducer)
+	r.GET("/api/feedback", feedbackController.GetAllFeedback)
 
 	// Nhóm route cần xác thực
 	auth := r.Group("/api")
@@ -70,6 +71,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	{
 		// User routes
 		auth.GET("/users", userController.GetUserByToken)
+		auth.GET("/user/get/:id", userController.GetByID)
 		auth.PUT("/user/update/:id", userController.UpdateUser)
 		auth.DELETE("/user/delete/:id", userController.DeleteUser)
 

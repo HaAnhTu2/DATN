@@ -12,6 +12,7 @@ import (
 )
 
 type ProducerRepo interface {
+	GetAll(ctx context.Context) ([]model.Producer_NhaSanXuat, error)
 	FindByID(ctx context.Context, id primitive.ObjectID) (model.Producer_NhaSanXuat, error)
 	Create(ctx context.Context, producer model.Producer_NhaSanXuat) (model.Producer_NhaSanXuat, error)
 	Update(ctx context.Context, producer model.Producer_NhaSanXuat) (model.Producer_NhaSanXuat, error)
@@ -25,6 +26,29 @@ type ProducerRepoI struct {
 func NewProducerRepo(db *mongo.Database) ProducerRepo {
 	return &ProducerRepoI{db: db}
 }
+func (p *ProducerRepoI) GetAll(ctx context.Context) ([]model.Producer_NhaSanXuat, error) {
+	var producers []model.Producer_NhaSanXuat
+
+	cursor, err := p.db.Collection("producer").Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var producer model.Producer_NhaSanXuat
+		if err := cursor.Decode(&producer); err != nil {
+			return nil, err
+		}
+		producers = append(producers, producer)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return producers, nil
+}
+
 func (p *ProducerRepoI) FindByID(ctx context.Context, id primitive.ObjectID) (model.Producer_NhaSanXuat, error) {
 	var producer model.Producer_NhaSanXuat
 	err := p.db.Collection("producer").FindOne(ctx, bson.M{"producer_id": id}).Decode(&producer)

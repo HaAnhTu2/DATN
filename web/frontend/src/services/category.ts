@@ -10,17 +10,17 @@ const getAuthHeaders = () => {
 };
 export const getCategories = async (): Promise<Category[]> => {
   const response = await axios.get('/api/category');
-  return response.data.category;
+  return response.data;
 };
 
 export const createCategory = async (form: FormData): Promise<Category> => {
   const response = await axios.post('/api/category/create', form, { headers: getAuthHeaders() });
-  return response.data.category;
+  return response.data;
 };
 
 export const updateCategory = async (id: string, form: FormData): Promise<Category> => {
   const response = await axios.put(`/api/category/update/${id}`, form, { headers: getAuthHeaders() });
-  return response.data.category;
+  return response.data;
 };
 
 export const deleteCategory = async (id: string): Promise<void> => {

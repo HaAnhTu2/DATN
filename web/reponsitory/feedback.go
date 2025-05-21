@@ -10,6 +10,7 @@ import (
 )
 
 type FeedbackRepo interface {
+	GetAll(ctx context.Context) ([]model.Feedback_DanhGiaSanPham, error)
 	Create(ctx context.Context, feedback model.Feedback_DanhGiaSanPham) (model.Feedback_DanhGiaSanPham, error)
 	Update(ctx context.Context, user model.Feedback_DanhGiaSanPham) (model.Feedback_DanhGiaSanPham, error)
 	Delete(ctx context.Context, idUser string, idProduct string) error
@@ -20,6 +21,18 @@ type FeedbackRepoI struct {
 
 func NewFeedbackRepo(db *mongo.Database) FeedbackRepo {
 	return &FeedbackRepoI{db: db}
+}
+
+func (f *FeedbackRepoI) GetAll(ctx context.Context) ([]model.Feedback_DanhGiaSanPham, error) {
+	var feedbacks []model.Feedback_DanhGiaSanPham
+	cursor, err := f.db.Collection("feedback").Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	if err = cursor.All(ctx, &feedbacks); err != nil {
+		return nil, err
+	}
+	return feedbacks, nil
 }
 
 func (f *FeedbackRepoI) Create(ctx context.Context, feedback model.Feedback_DanhGiaSanPham) (model.Feedback_DanhGiaSanPham, error) {
