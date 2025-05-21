@@ -32,7 +32,7 @@ const Header: React.FC = () => {
       navigate('/login');
       return;
     }
-    navigate(`/cart/${user.id}`);
+    navigate(`/cart/${user.user_id}`);
   };
 
   const handleLogout = async (e: FormEvent) => {
@@ -63,13 +63,13 @@ const Header: React.FC = () => {
               {isLoggedIn ? (
                 <>
                   <li><a href="#"><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
-                  <li><Link to={`/cart/${user.id}`} onClick={handleCartClick}><i className="fa fa-shopping-cart"></i> Cart</Link></li>
-                  <li><Link to="/login" onClick={handleLogout}><i className="fa fa-sign-out"></i> Logout</Link></li>
+                  <li><Link to={`/cart/${user?.user_id}`} onClick={handleCartClick}><i className="fa fa-shopping-cart"></i> Giỏ hàng</Link></li>
+                  <li><Link to="/login" onClick={handleLogout}><i className="fa fa-sign-out"></i> Đăng xuất</Link></li>
                 </>
               ) : (
                 <>
-                  <li><Link to="/login" className="login-link">Login</Link></li>
-                  <li><Link to="/signup" className="signup-link">Sign Up</Link></li>
+                  <li><Link to="/login" className="login-link">Đăng Nhập</Link></li>
+                  <li><Link to="/signup" className="signup-link">Đăng Ký</Link></li>
                 </>
               )}
             </ul>

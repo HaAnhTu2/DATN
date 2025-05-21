@@ -1,13 +1,29 @@
 import axios from 'axios';
+import { Order, OrderDetail } from '../types/order';
 
-const createOrder = async (orderData: any) => {
-  const response = await axios.post('/api/orders', orderData);
-  return response.data;
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('Token not found');
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+};
+export const createOrder = async (form: FormData): Promise<Order> => {
+  const response = await axios.post('/api/order/create', form, { headers: getAuthHeaders() });
+  return response.data.order;
 };
 
-const getOrderById = async (orderId: string) => {
-  const response = await axios.get(`/api/orders/${orderId}`);
-  return response.data;
+export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
+  const response = await axios.get(`/api/order/user/${userId}`, { headers: getAuthHeaders() });
+  return response.data.orders;
 };
 
-export { createOrder, getOrderById };
+export const getOrderDetails = async (orderId: string): Promise<OrderDetail[]> => {
+  const response = await axios.get(`/api/order/detail/${orderId}`, { headers: getAuthHeaders() });
+  return response.data.details;
+};
+
+export const cancelOrder = async (orderId: string): Promise<Order> => {
+  const response = await axios.put(`/api/order/cancel/${orderId}`, {}, { headers: getAuthHeaders() });
+  return response.data.order;
+};

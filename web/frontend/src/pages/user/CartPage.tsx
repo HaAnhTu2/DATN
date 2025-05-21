@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getCartItems } from "../../services/cartService";
-import { CartItem } from "../../types/cart";
+import { getCartByUserId } from "../../services/cartService";
+import { Cart } from "../../types/cart";
 import CartList from "../../components/sections/user/Cart";
 import { getUserByToken } from "../../services/authService";
 import { User } from "../../types/user";
 
 const CartPage: React.FC = () => {
-    const [cart, setCart] = useState<{ lineItems: CartItem[], total: number } | null>(null);
+    const [cart, setCart] = useState<Cart[] | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ const CartPage: React.FC = () => {
         if (user) {
             const fetchCart = async () => {
                 try {
-                    const fetchedCartItems = await getCartItems(user.id);
+                    const fetchedCartItems = await getCartByUserId(user.user_id);
                     setCart(fetchedCartItems);
                 } catch (err) {
                     console.error("Failed to fetch cart:", err);
@@ -62,11 +62,12 @@ const CartPage: React.FC = () => {
 
     return (
         <div className="section">
+            
             <header className="container">
                 <div className="row">
                     <div className="col-md-12">
                         <p>User: {user.email}</p>
-                        <CartList userId={user.id} cartItems={cart.lineItems} />
+                        <CartList userId={user.user_id} />
                     </div>
                 </div>
             </header>

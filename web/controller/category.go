@@ -3,6 +3,7 @@ package controller
 import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
+	"context"
 	"net/http"
 	"time"
 
@@ -21,16 +22,31 @@ func NewCategoryController(CategoryRepo reponsitory.CategoryRepo, db *mongo.Data
 		DB: db}
 }
 
-func (ca *CategoryController) CreateCategory(c *gin.Context) {
-	var category model.Category_LoaiSanPham
-	// {
-	// 	Name:   c.Request.FormValue("name"),
-	// 	Status: c.Request.FormValue("status"),
-	// }
-	if err := c.ShouldBindJSON(&category); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func (ctrl *CategoryController) GetCategories(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+	defer cancel()
+
+	categories, err := ctrl.CategoryRepo.GetAllCategories(ctx)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get categories"})
 		return
 	}
+
+	c.JSON(http.StatusOK, categories)
+}
+
+func (ca *CategoryController) CreateCategory(c *gin.Context) {
+	var category model.Category_LoaiSanPham
+	if c.ContentType() == "application/json" {
+		if err := c.ShouldBindJSON(&category); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		category.Name = c.PostForm("name")
+		category.Status = c.PostForm("status")
+	}
+
 	category.Category_ID = primitive.NewObjectID()
 	category.Created_At = time.Now()
 	category.Updated_At = time.Now()

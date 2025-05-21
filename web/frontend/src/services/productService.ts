@@ -1,92 +1,80 @@
 import axios from 'axios';
-import { Product } from '../types/product';
+import { Product, ProductDetail } from '../types/product';
+
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token not found');
+    return {
+        Authorization: `Bearer ${token}`
+    };
+};
 
 export const getProducts = async (): Promise<Product[]> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token not found');
-    }
-    const response = await axios.get('/api/product/get', {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-        },
-    })
+    const response = await axios.get('/api/product/get');
     return response.data.products;
 };
 
 export const findNameProduct = async (name: string): Promise<Product> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token not found');
-    }
     const response = await axios.get(`/product/${name}`, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-        },
-    })
+        headers: getAuthHeaders()
+    });
     return response.data.products;
 };
+
 export const getProductById = async (id: string): Promise<Product> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token not found');
-    }
     const response = await axios.get(`/api/product/get/${id}`, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders()
     });
     return response.data.product;
 };
+
 export const createProduct = async (newProduct: FormData): Promise<Product> => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Token not found');
+    const response = await axios.post('/api/product/create', newProduct, {
+        headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'multipart/form-data',
         }
-        const response = await axios.post('/api/product/create', newProduct, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data as Product;
-    } catch (error) {
-        throw new Error('Error creating product');
-    }
+    });
+    return response.data;
 };
 
 export const updateProduct = async (id: string, product: Omit<Product, 'id'>): Promise<Product> => {
-    try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Token not found');
-        }
-        const response = await axios.put(`/api/product/update/${id}`, product, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`,
-            }
-        });
-        return response.data;
-    } catch (error) {
-        throw new Error('Error updating user');
-    }
+    const response = await axios.put(`/api/product/update/${id}`, product, {
+        headers: getAuthHeaders()
+    });
+    return response.data;
 };
 
 export const deleteProduct = async (id: string): Promise<void> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token not found');
-    }
-    const response = await axios.delete(`/api/product/delete/${id}`, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-        }
+    await axios.delete(`/api/product/delete/${id}`, {
+        headers: getAuthHeaders()
     });
-    return response.data
-}
+};
+
+export const createProductDetail = async (form: FormData): Promise<any> => {
+  const response = await axios.post('/api/product-detail', form, { headers: getAuthHeaders() });
+  return response.data;
+};
+
+export const updateProductDetail = async (id: string, form: FormData): Promise<any> => {
+  const response = await axios.put(`/api/product-detail/${id}`, form, { headers: getAuthHeaders() });
+  return response.data;
+};
+
+export const deleteProductDetail = async (id: string): Promise<void> => {
+  await axios.delete(`/api/product-detail/delete/${id}`, { headers: getAuthHeaders() });
+};
+
+export const getProductDetailsByProductId = async (productId: string): Promise<ProductDetail[]> => {
+    const response = await axios.get(`/api/productdetail/product/${productId}`, {
+        headers: getAuthHeaders()
+    });
+    return response.data.product_details;
+};
+
+export const getProductDetailById = async (id: string): Promise<ProductDetail> => {
+    const response = await axios.get(`/api/productdetail/get/${id}`, {
+        headers: getAuthHeaders()
+    });
+    return response.data.detail;
+};

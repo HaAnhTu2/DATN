@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -162,25 +161,30 @@ func (p *ProductController) CreateProduct(c *gin.Context) {
 }
 
 func (p *ProductController) ServeImageProduct(c *gin.Context) {
-	imageId := strings.TrimPrefix(c.Request.URL.Path, "/image2/")
+	imageId := c.Param("id")
 	objID, err := primitive.ObjectIDFromHex(imageId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID ảnh không hợp lệ"})
 		return
 	}
 
-	bucket, _ := gridfs.NewBucket(p.DB.Client().Database(os.Getenv("DB_NAME")), options.GridFSBucket().SetName("products"))
+	bucket, err := gridfs.NewBucket(p.DB, options.GridFSBucket().SetName("products"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo bucket"})
+		return
+	}
 
 	var buf bytes.Buffer
 	_, err = bucket.DownloadToStream(objID, &buf)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not download image"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không thể tìm thấy ảnh"})
 		return
 	}
 
 	contentType := http.DetectContentType(buf.Bytes())
-	c.Writer.Header().Add("Content-Type", contentType)
-	c.Writer.Header().Add("Content-Length", strconv.Itoa(len(buf.Bytes())))
+	c.Writer.Header().Set("Content-Type", contentType)
+	c.Writer.Header().Set("Content-Length", strconv.Itoa(len(buf.Bytes())))
+	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Write(buf.Bytes())
 }
 
@@ -247,14 +251,17 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 		fileId, _ := json.Marshal(uploadStream.FileID)
 		imageID := strings.Trim(string(fileId), `"`)
 		// Nếu muốn lưu ảnh vào chi tiết, bạn cần tìm chi tiết sản phẩm rồi cập nhật
-		detail, err := p.ProductDetailRepo.FindByProductID(c.Request.Context(), productID)
+		details, err := p.ProductDetailRepo.FindByProductID(c.Request.Context(), productID)
 		if err == nil {
-			detail.Image = imageID
-			_, err = p.ProductDetailRepo.Update(c.Request.Context(), detail)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product"})
-				return
+			for i := range details {
+				details[i].Image = imageID
+				_, err = p.ProductDetailRepo.Update(c.Request.Context(), details[i])
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product detail"})
+					return
+				}
 			}
+
 		}
 	}
 

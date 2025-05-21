@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Form, Row, Card, Table, Button, Alert } from 'react-bootstrap';
-import { getProducts, deleteProduct } from "../../../services/productService";
-import { Product } from "../../../types/product";
+import { getProducts, deleteProduct, getProductDetailsByProductId } from "../../../services/productService";
+import { Product, ProductDetail } from "../../../types/product";
 import { useNavigate } from "react-router-dom";
 
 
@@ -11,6 +11,7 @@ interface ProductManagementProps {
 
 const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct }) => {
     const [products, setProducts] = useState<Product[]>([]);
+    const [productDetail, setProductDetail] = useState<ProductDetail[]>([]);
     const [loading, setLoading] = useState(true);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
@@ -31,6 +32,31 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
         };
         fetchProducts();
     }, []);
+    useEffect(() => {
+        const fetchProductDetail = async () => {
+            try {
+                if (products.length === 0) return;
+
+                const detailPromises = products.map(product =>
+                    getProductDetailsByProductId(product.product_id)
+                );
+                const detailResults = await Promise.all(detailPromises);
+
+                const allDetails = detailResults.flat();
+
+                setProductDetail(allDetails);
+                setLoading(false);
+            } catch (error) {
+                console.log('Error fetching product details:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchProductDetail();
+    }, [products]);
+    console.log("ergfewrg",productDetail);
+    console.log("ergfewrg",products);
+
 
     if (loading) {
         return (
@@ -46,7 +72,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
         setSearchTerm(event.target.value);
     };
     const filteredProducts = products.filter(product =>
-        product.productname.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     const handleUpdateProduct = (product: Product) => {
         setFormProduct(product);
@@ -55,7 +81,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
     const handleDeleteProduct = async (id: string) => {
         try {
             await deleteProduct(id);
-            setProducts(products.filter(product => product._id !== id));
+            setProducts(products.filter(product => product.product_id !== id));
             setNotificationMessage('Product deleted successfully!');
             setShowNotification(true);
             setTimeout(() => {
@@ -100,43 +126,55 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredProducts.map(product => (
-                                <tr key={product._id}>
-                                    <td>{product.productname}</td>
-                                    <td>{product.brand}</td>
-                                    <td>{product.quantity}</td>
-                                    <td>{product.price}</td>
-                                    <td>
-                                        {product.productimage_url ? (
-                                            <img
-                                                src={`http://localhost:3000/image2/${product.productimage_url}`}
-                                                alt={product.productname}
-                                                style={{ width: "100px", height: "auto" }}
-                                            />
-                                        ) : (
-                                            "No Image"
-                                        )}
-                                    </td>
-                                    <td>{product.description}</td>
-                                    <td>
-                                        <Button
-                                            variant="outline-primary"
-                                            size="sm"
-                                            onClick={() => handleUpdateProduct(product)}
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            variant="outline-danger"
-                                            size="sm"
-                                            className="ms-2"
-                                            onClick={() => handleDeleteProduct(product._id)}
-                                        >
-                                            Delete
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {filteredProducts.map(product => {
+                                const relatedDetails = productDetail.filter(
+                                    detail => detail && detail.id_product === product.product_id
+                                );
+                                console.log(relatedDetails);
+
+                                return (
+
+                                    <tr key={product.product_id}>
+                                        <td>{product.name}</td>
+                                        <td>{product.status}</td>
+                                        <td>{product.information}</td>
+                                        <td>{product.price}</td>
+                                        <td>
+                                            {relatedDetails.length > 0 ? (
+                                                relatedDetails.map(detail => (
+                                                    <img
+                                                        key={detail.product_detail_id}
+                                                        src={`http://localhost:3000/image/${detail.image}`}
+                                                        alt={product.name}
+                                                        style={{ width: "100px", height: "auto", marginRight: '5px' }}
+                                                    />
+                                                ))
+                                            ) : (
+                                                "No Image"
+                                            )}
+                                        </td>
+                                        <td>{product.description}</td>
+                                        <td>
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                onClick={() => handleUpdateProduct(product)}
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                className="ms-2"
+                                                onClick={() => handleDeleteProduct(product.product_id)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+
                         </tbody>
                     </Table>
                 </Card.Body>

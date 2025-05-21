@@ -37,8 +37,8 @@ const Login: React.FC<LoginUserProps> = ({ setLogin, setError }) => {
                 <div className="card shadow-lg border-0 rounded-lg">
                     <div className="p-5">
                         <form onSubmit={handleLogin}>
-                            <h4>Login</h4>
-                            <p className="mb-2">Please enter your user information.</p>
+                            <h4>Đăng Nhập</h4>
+                            <p className="mb-2">Vui lòng nhập thông tin người dùng của bạn.</p>
                             <div className='mb-4'>
                                 <label className="form-label">Email:</label><br />
                                 <input type="email" name="username" className="form-control"
@@ -51,7 +51,7 @@ const Login: React.FC<LoginUserProps> = ({ setLogin, setError }) => {
                             </div>
                             <div>
                                 {localError && <p style={{ color: 'red' }}>{localError}</p>}
-                                <button type="submit" className="btn btn-primary">Login</button>
+                                <button type="submit" className="btn btn-primary">Đăng Nhập</button>
                             </div>
                         </form>
                     </div>

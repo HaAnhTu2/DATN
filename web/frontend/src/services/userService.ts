@@ -1,42 +1,56 @@
 import axios from 'axios';
 import { Signup, User } from '../types/user';
 
+// Helper để lấy token
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Token not found');
+    return {
+        Authorization: `Bearer ${token}`
+    };
+};
+
 export const getUsers = async (): Promise<User[]> => {
-    const response = await axios.get('/api/user/get')
+    const response = await axios.get('/api/user/get', {
+        headers: getAuthHeaders()
+    });
     return response.data.users;
 };
 
+// Đăng ký user mới (không cần token)
 export const signup = async (newUser: FormData): Promise<Signup> => {
     try {
         const response = await axios.post('/api/signup', newUser, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         });
-        return response.data as Signup;
+        return response.data;
     } catch (error) {
         throw new Error('Error creating user');
     }
 };
 
+// Tạo user (chỉ admin, cần token nếu cần xác thực)
 export const createUser = async (newUser: FormData): Promise<User> => {
     try {
         const response = await axios.post('/api/user/create', newUser, {
+            headers: {
+                ...getAuthHeaders(),
+                'Content-Type': 'multipart/form-data'
+            }
         });
-        return response.data as User;
+        return response.data;
     } catch (error) {
         throw new Error('Error creating user');
     }
 };
 
+// Cập nhật user (có thể là admin hoặc người dùng tự cập nhật)
 export const updateUser = async (id: string, user: Omit<User, 'id'>): Promise<User> => {
     try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Token not found');
-        }
         const response = await axios.put(`/api/user/update/${id}`, user, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`,
-            }
+            headers: getAuthHeaders()
         });
         return response.data;
     } catch (error) {
@@ -44,16 +58,9 @@ export const updateUser = async (id: string, user: Omit<User, 'id'>): Promise<Us
     }
 };
 
+// Xóa user
 export const deleteUser = async (id: string): Promise<void> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        throw new Error('Token not found');
-    }
-    const response = await axios.delete(`/api/user/delete/${id}`, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
-        }
+    await axios.delete(`/api/user/delete/${id}`, {
+        headers: getAuthHeaders()
     });
-    return response.data
 };

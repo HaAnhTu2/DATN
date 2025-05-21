@@ -1,19 +1,16 @@
 export interface User {
-    _id: string;
-    first_name: string;
-    last_name: string;
+    user_id: string;
     email: string;
     password?: string;
-    address: string;
-    phone_number: string;
+    birthday: string;
+    gender: string;
     role: string;
-    userimage_url: File;
+    status: string;
 }
 export interface Signup {
-    first_name: string;
-    last_name: string;
     email: string;
     password: string;
-    phone_number: string;
+    birthday:string;
+    gender:string;
 }
 

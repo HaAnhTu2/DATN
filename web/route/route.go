@@ -52,14 +52,17 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/user/get/:id", userController.GetByID)
 
 	// Lấy ảnh từ đường dẫn
-	r.GET("/api/image/:id", productController.ServeImageProduct)
+	r.GET("/image/:id", productController.ServeImageProduct)
+	r.GET("/api/feedback/image/:id", feedbackController.ServeImageFeedback)
 	r.GET("/api/product/get", productController.GetAllProduct)
 	r.GET("/api/product/get/:id", productController.GetByID)
 	r.GET("/api/product/image/:id", productController.ServeImageProduct)
 
 	// ProductDetail public routes (nếu cần)
-	r.GET("/product-detail/product/:product_id", productDetailController.GetProductDetailsByProductID)
-	r.GET("/product-detail/get/:id", productDetailController.GetDetailByID)
+	r.GET("/api/productdetail/product/:id_product", productDetailController.GetProductDetailsByProductID)
+	r.GET("/api/productdetail/get/:id", productDetailController.GetDetailByID)
+
+	r.GET("/api/category", categoryController.GetCategories)
 
 	// Nhóm route cần xác thực
 	auth := r.Group("/api")
@@ -101,13 +104,20 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.DELETE("/voucher/delete/:voucher_id", voucherController.DeleteVoucher)
 
 		// Cart routes
-		auth.GET("/cart/:id", cartController.GetItemFromCart)
-		auth.POST("/cart/add/:userID/:id", cartController.AddToCart)
-		auth.PUT("/cart/update/:userID/:id", cartController.UpdateCartItem)
-		auth.DELETE("/cart/delete/:userID/:id", cartController.RemoveCartItem)
+		auth.POST("/cart", cartController.AddToCart)
+		auth.GET("/cart/:user_id", cartController.GetCartByUserID)
+		auth.PUT("/cart/quantity", cartController.UpdateQuantity)
+		auth.DELETE("/cart", cartController.DeleteCartItem)
+		auth.DELETE("/cart/clear/:user_id", cartController.ClearCart)
 
 		// Order routes
-		auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
+		auth.POST("/order", orderController.CreateOrder)
+		auth.POST("/order/create", orderController.CreateOrder)
+		auth.GET("/order/user/:user_id", orderController.GetOrdersByUserID)
+		auth.GET("/order/detail/:order_id", orderController.GetOrderDetails)
+		auth.PUT("/order/cancel/:order_id", orderController.CancelOrder)
+
+		// auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
 
 		// Logout route
 		auth.DELETE("/logout", userController.Logout)

@@ -9,30 +9,29 @@ interface CreateFormUserProps {
 }
 
 const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage }) => {
-    const [first_name, setFirstName] = useState('');
-    const [last_name, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [phone_number, setPhoneNumber] = useState('');
+    const [birthday, setBirthday] = useState('');
+    const [gender, setGender] = useState('');
 
     const handleCreateUser = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
             const newUser = new FormData();
-            newUser.append('first_name', first_name);
-            newUser.append('last_name', last_name);
             newUser.append('email', email);
             newUser.append('password', password);
-            newUser.append('phone_number', phone_number);
+            newUser.append('birthday', birthday);
+            newUser.append('gender', gender);
+            console.log(gender);
+            
 
             const createdUser = await signup(newUser);
             setMessage('User created successfully!');
             setUsers(prevUsers => [...prevUsers, createdUser]);
-            setFirstName('');
-            setLastName('');
             setEmail('');
             setPassword('');
-            setPhoneNumber('');
+            setBirthday('');
+            setGender('');
             resetForm();
         } catch (error) {
             setMessage('Phone number or email already exists');
@@ -40,11 +39,10 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
     };
 
     const resetForm = () => {
-        setFirstName('');
-        setLastName('');
         setEmail('');
         setPassword('');
-        setPhoneNumber('');
+        setBirthday('');
+        setGender('');
     };
 
     return (
@@ -53,15 +51,7 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
                 <div className="card shadow-lg border-0 rounded-lg">
                     <div className="p-5">
                         <form onSubmit={handleCreateUser}>
-                            <h4>SignUp</h4>
-                            <div className="col-md-12">
-                                <label className="form-label">FirstName: </label>
-                                <input type="text" value={first_name} onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} className="form-control" />
-                            </div>
-                            <div className="col-md-12">
-                                <label className="form-label">LastName: </label>
-                                <input type="text" value={last_name} onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} className="form-control" />
-                            </div>
+                            <h4>Đăng Ký</h4>
                             <div className="col-md-12">
                                 <label className="form-label">Email: </label>
                                 <input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} className="form-control" />
@@ -71,12 +61,26 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
                                 <input type="password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} className="form-control" />
                             </div>
                             <div className="col-md-12">
-                                <label className="form-label">Phone: </label>
-                                <input type="text" value={phone_number} onChange={(e: ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} className="form-control" />
+                                <label className="form-label">Ngày sinh: </label>
+                                <input type="text" value={birthday} onChange={(e: ChangeEvent<HTMLInputElement>) => setBirthday(e.target.value)} className="form-control" />
+                            </div>
+                            <div className="col-md-12">
+                                <label className="form-label">Giới tính: </label>
+                                <select
+                                    value={gender}
+                                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setGender(e.target.value)}
+                                    className="form-control"
+                                >
+                                    <option value="">-- Chọn giới tính --</option>
+                                    <option value="male">Nam</option>
+                                    <option value="female">Nữ</option>
+                                    <option value="other">Khác</option>
+                                </select>
                             </div>
 
+
                             <div className="col-auto">
-                                <button type="submit" className="btn btn-outline-dark" style={{ margin: '10px' }}>{'Create User'}</button>
+                                <button type="submit" className="btn btn-outline-dark" style={{ margin: '10px' }}>{'Đăng Ký'}</button>
                                 <button type="submit" className="btn btn-outline-dark" onClick={resetForm} style={{ margin: '10px' }}>Clear</button>
                             </div>
                         </form>

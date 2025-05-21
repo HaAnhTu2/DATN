@@ -4,15 +4,11 @@ import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"context"
-	"errors"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type CartController struct {
@@ -20,151 +16,86 @@ type CartController struct {
 	DB       *mongo.Database
 }
 
-func NewCartController(CartRepo reponsitory.CartRepo, db *mongo.Database) *CartController {
-	return &CartController{CartRepo: CartRepo,
-		DB: db}
-}
-func (ca *CartController) AddToCart(c *gin.Context) {
-	productQueryID := c.Param("id")
-	if productQueryID == "" {
-		log.Println("product id is empty")
-		_ = c.AbortWithError(http.StatusBadRequest, errors.New("product id is empty"))
-		return
+func NewCartController(cartRepo reponsitory.CartRepo, db *mongo.Database) *CartController {
+	return &CartController{
+		CartRepo: cartRepo,
+		DB:       db,
 	}
-	userQueryID := c.Param("userID")
-	if userQueryID == "" {
-		log.Println("user id is empty")
-		_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
-		return
-	}
-	var request model.LineItemRequest
-	if err := c.BindJSON(&request); err != nil {
-		log.Println("Invalid JSON body:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-		return
-	}
-	cartquantity := request.CartQuantity
-	productID, err := primitive.ObjectIDFromHex(productQueryID)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err = ca.CartRepo.AddProductToCart(ctx, productID, userQueryID, cartquantity)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, err)
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully added to the cart"})
 }
 
-func (ca *CartController) GetItemFromCart(c *gin.Context) {
-	userID := c.Param("id")
-	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+// Thêm sản phẩm vào giỏ hàng
+func (cc *CartController) AddToCart(c *gin.Context) {
+	var cart model.Cart_GioHang
+	if err := c.ShouldBindJSON(&cart); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ"})
 		return
 	}
-	userOID, err := primitive.ObjectIDFromHex(userID)
+
+	err := cc.CartRepo.Create(context.Background(), cart)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ObjectID format"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể thêm vào giỏ hàng"})
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-	var cart model.Cart
-	err = ca.DB.Collection("carts").FindOne(ctx, bson.M{"_id": userOID}).Decode(&cart)
-	if err != nil {
-		log.Println("Error finding cart:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "cart not found"})
-		return
-	}
-	var total float64
-	for _, item := range cart.LineItems {
-		total += item.Subtotal
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"total":     total,
-		"lineItems": cart.LineItems,
-	})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Thêm vào giỏ hàng thành công"})
 }
 
-func (ca *CartController) UpdateCartItem(c *gin.Context) {
-	productQueryID := c.Param("id")
-	if productQueryID == "" {
-		log.Println("product id is empty")
-		_ = c.AbortWithError(http.StatusBadRequest, errors.New("product id is empty"))
-		return
-	}
-	userQueryID := c.Param("userID")
-	if userQueryID == "" {
-		log.Println("user id is empty")
-		_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
-		return
-	}
-	var request model.LineItemRequest
-	if err := c.BindJSON(&request); err != nil {
-		log.Println("Invalid JSON body:", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-		return
-	}
-	cartquantity := request.CartQuantity
-
-	if cartquantity <= 0 {
-		log.Println("Invalid quantity:", cartquantity)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Quantity must be greater than zero"})
-		return
-	}
-
-	productID, err := primitive.ObjectIDFromHex(productQueryID)
+// Lấy giỏ hàng của người dùng
+func (cc *CartController) GetCartByUserID(c *gin.Context) {
+	userID := c.Param("user_id")
+	carts, err := cc.CartRepo.GetByUserID(context.Background(), userID)
 	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lấy giỏ hàng"})
 		return
 	}
-	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err = ca.CartRepo.UpdateCartItem(ctx, productID, userQueryID, cartquantity)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully updated the cart item"})
+	c.JSON(http.StatusOK, carts)
 }
 
-func (ca *CartController) RemoveCartItem(c *gin.Context) {
-	productQueryID := c.Param("id")
-	if productQueryID == "" {
-		log.Println("product id is empty")
-		_ = c.AbortWithError(http.StatusBadRequest, errors.New("product id is empty"))
-		return
+// Cập nhật số lượng sản phẩm trong giỏ hàng
+func (cc *CartController) UpdateQuantity(c *gin.Context) {
+	var body struct {
+		UserID   string `json:"id_user"`
+		DetailID string `json:"id_product_detail"`
+		Quantity int    `json:"quantity"`
 	}
-	userQueryID := c.Param("userID")
-	if userQueryID == "" {
-		log.Println("user id is empty")
-		_ = c.AbortWithError(http.StatusBadRequest, errors.New("user id is empty"))
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ"})
 		return
 	}
 
-	productID, err := primitive.ObjectIDFromHex(productQueryID)
+	err := cc.CartRepo.UpdateQuantity(context.Background(), body.UserID, body.DetailID, body.Quantity)
 	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err = ca.CartRepo.RemoveCartItem(ctx, productID, userQueryID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật số lượng"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully removed the cart item"})
+	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật thành công"})
+}
+
+// Xoá sản phẩm khỏi giỏ hàng
+func (cc *CartController) DeleteCartItem(c *gin.Context) {
+	userID := c.Query("user_id")
+	detailID := c.Query("product_detail_id")
+	log.Print(userID, detailID)
+	err := cc.CartRepo.Delete(context.Background(), userID, detailID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể xoá sản phẩm"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Xoá sản phẩm thành công"})
+}
+
+// Xoá toàn bộ giỏ hàng
+func (cc *CartController) ClearCart(c *gin.Context) {
+	userID := c.Param("user_id")
+
+	err := cc.CartRepo.ClearCart(context.Background(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể xoá giỏ hàng"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Đã xoá toàn bộ giỏ hàng"})
 }

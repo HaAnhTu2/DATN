@@ -12,6 +12,14 @@ type Order struct {
 	LineItems []LineItem         `bson:"line_items" json:"line_items"`
 }
 
+const (
+	OrderStatusPending   = "pending"
+	OrderStatusPaid      = "paid"
+	OrderStatusShipped   = "shipped"
+	OrderStatusCompleted = "completed"
+	OrderStatusCancelled = "cancelled"
+)
+
 type Order_DonHang struct {
 	Order_ID        primitive.ObjectID `bson:"order_id,omitempty" json:"order_id,omitempty"`
 	ID_User         string             `bson:"id_user" json:"id_user"`

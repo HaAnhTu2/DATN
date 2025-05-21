@@ -83,13 +83,13 @@ func (u *UserRepoI) GetAll(ctx context.Context) ([]model.User_KhachHang, error) 
 func (u *UserRepoI) Create(ctx context.Context, user model.User_KhachHang) (model.User_KhachHang, error) {
 	user.Created_At = time.Now()
 	user.Updated_At = time.Now()
+	user.Status = "active"
 
 	result, err := u.db.Collection("users").InsertOne(ctx, user)
 	if err != nil {
 		return model.User_KhachHang{}, err
 	}
 
-	// MongoDB trả về ObjectID, lưu vào user.User_ID kiểu string
 	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
 		user.User_ID = oid.Hex()
 	} else if strID, ok := result.InsertedID.(string); ok {

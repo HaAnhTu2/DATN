@@ -1,6 +1,6 @@
 // UserRoutes.tsx
 import { Route, Routes } from 'react-router-dom';
-import HomePage from '../pages/user/HomePage';
+import HomePage from '../pages/user/Home/page';
 import ProductPage from '../pages/user/ProductPage';
 import CartPage from '../pages/user/CartPage';
 

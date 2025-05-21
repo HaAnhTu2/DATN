@@ -4,64 +4,125 @@ import (
 	"DoAnToiNghiep/model"
 	"context"
 	"errors"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var (
+	ErrOrderNotFound     = errors.New("Không tìm thấy đơn hàng")
+	ErrInsertOrderFailed = errors.New("Không thể tạo đơn hàng")
+	ErrGetOrdersFailed   = errors.New("Không thể lấy danh sách đơn hàng")
+)
+
 type OrderRepo interface {
-	CreateOrderFromCart(ctx context.Context, userID string) (*model.Order, error)
+	CreateOrder(ctx context.Context, order model.Order_DonHang) (*mongo.InsertOneResult, error)
+	CreateOrderDetails(ctx context.Context, details []model.Order_Detail_ChiTietDonHang) (*mongo.InsertManyResult, error)
+	GetOrdersByUserID(ctx context.Context, userID string) ([]model.Order_DonHang, error)
+	GetOrderDetails(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error)
+	CancelOrder(ctx context.Context, orderID string) error
+	GetOrderDetailsByOrderID(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error)
 }
 
 type OrderRepoI struct {
-	DB *mongo.Database
+	db *mongo.Database
 }
 
 func NewOrderRepo(db *mongo.Database) OrderRepo {
-	return &OrderRepoI{DB: db}
+	return &OrderRepoI{db: db}
 }
 
 // Create a order
-func (o *OrderRepoI) CreateOrderFromCart(ctx context.Context, userID string) (*model.Order, error) {
-	// Validate user ID
-	userObjectID, err := primitive.ObjectIDFromHex(userID)
+func (r *OrderRepoI) CreateOrder(ctx context.Context, order model.Order_DonHang) (*mongo.InsertOneResult, error) {
+	result, err := r.db.Collection("orders").InsertOne(ctx, order)
 	if err != nil {
-		log.Printf("Invalid user ID: %v", err)
-		return nil, errors.New("invalid user ID")
+		return nil, ErrInsertOrderFailed
+	}
+	return result, nil
+}
+
+func (r *OrderRepoI) CreateOrderDetails(ctx context.Context, details []model.Order_Detail_ChiTietDonHang) (*mongo.InsertManyResult, error) {
+	docs := make([]interface{}, len(details))
+	for i, d := range details {
+		docs[i] = d
+	}
+	result, err := r.db.Collection("order_details").InsertMany(ctx, docs)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (r *OrderRepoI) GetOrdersByUserID(ctx context.Context, userID string) ([]model.Order_DonHang, error) {
+	var orders []model.Order_DonHang
+	cursor, err := r.db.Collection("orders").Find(ctx, bson.M{"id_user": userID})
+	if err != nil {
+		return nil, ErrGetOrdersFailed
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var order model.Order_DonHang
+		if err := cursor.Decode(&order); err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
+}
+
+func (r *OrderRepoI) GetOrderDetails(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error) {
+	var details []model.Order_Detail_ChiTietDonHang
+	cursor, err := r.db.Collection("order_details").Find(ctx, bson.M{"id_order": orderID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var detail model.Order_Detail_ChiTietDonHang
+		if err := cursor.Decode(&detail); err != nil {
+			return nil, err
+		}
+		details = append(details, detail)
+	}
+	return details, nil
+}
+
+func (r *OrderRepoI) CancelOrder(ctx context.Context, orderID string) error {
+	filter := bson.M{"_id": orderID}
+	update := bson.M{"$set": bson.M{"status": "cancelled"}}
+
+	result, err := r.db.Collection("orders").UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrOrderNotFound
+	}
+	return nil
+}
+
+func (r *OrderRepoI) GetOrderDetailsByOrderID(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error) {
+	var details []model.Order_Detail_ChiTietDonHang
+
+	cursor, err := r.db.Collection("order_details").Find(ctx, bson.M{"id_order": orderID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var detail model.Order_Detail_ChiTietDonHang
+		if err := cursor.Decode(&detail); err != nil {
+			return nil, err
+		}
+		details = append(details, detail)
 	}
 
-	var cart model.Cart
-	err = o.DB.Collection("carts").FindOne(ctx, bson.M{"_id": userObjectID}).Decode(&cart)
-	if err != nil {
-		log.Printf("Error retrieving cart: %v", err)
-		return nil, errors.New("cart not found")
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
-	// Tạo đơn hàng mới
-	order := model.Order{
-		ID:        primitive.NewObjectID(),
-		UserID:    userID,
-		LineItems: cart.LineItems,
-	}
-	_, err = o.DB.Collection("orders").InsertOne(ctx, order)
-	if err != nil {
-		log.Printf("Error creating order: %v", err)
-		return nil, errors.New("failed to create order")
-	}
-
-	// Xóa LineItems khỏi giỏ hàng
-	_, err = o.DB.Collection("carts").UpdateOne(
-		ctx,
-		bson.M{"_id": userObjectID},
-		bson.M{"$set": bson.M{"line_items": []model.LineItem{}}},
-	)
-	if err != nil {
-		log.Printf("Error clearing cart: %v", err)
-		return nil, errors.New("failed to clear cart")
-	}
-
-	log.Printf("Order created successfully for user %s", userID)
-	return &order, nil
+	return details, nil
 }

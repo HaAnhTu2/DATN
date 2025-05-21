@@ -12,24 +12,22 @@ import (
 type ProductDetailRepo interface {
 	Create(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (*model.Product_Detail_ChiTietDonHang, error)
 	FindByID(ctx context.Context, id string) (*model.Product_Detail_ChiTietDonHang, error)
-	FindByProductID(ctx context.Context, productID string) (model.Product_Detail_ChiTietDonHang, error)
+	FindByProductID(ctx context.Context, productID string) ([]model.Product_Detail_ChiTietDonHang, error)
 	Update(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (model.Product_Detail_ChiTietDonHang, error)
 	Delete(ctx context.Context, id string) error
 }
 
 type ProductDetailRepoI struct {
-	Collection *mongo.Collection
+	DB *mongo.Database
 }
 
 func NewProductDetailRepo(db *mongo.Database) ProductDetailRepo {
-	return &ProductDetailRepoI{
-		Collection: db.Collection("product_details"),
-	}
+	return &ProductDetailRepoI{DB: db}
 }
 
 func (r *ProductDetailRepoI) Create(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (*model.Product_Detail_ChiTietDonHang, error) {
 	detail.Product_Detail_ID = primitive.NewObjectID()
-	_, err := r.Collection.InsertOne(ctx, detail)
+	_, err := r.DB.Collection("product_details").InsertOne(ctx, detail)
 	if err != nil {
 		return nil, err
 	}
@@ -43,21 +41,31 @@ func (r *ProductDetailRepoI) FindByID(ctx context.Context, id string) (*model.Pr
 	}
 
 	var detail model.Product_Detail_ChiTietDonHang
-	err = r.Collection.FindOne(ctx, bson.M{"product_detail_id": objID}).Decode(&detail)
+	err = r.DB.Collection("product_details").FindOne(ctx, bson.M{"product_detail_id": objID}).Decode(&detail)
 	if err != nil {
 		return nil, err
 	}
 	return &detail, nil
 }
 
-func (r *ProductDetailRepoI) FindByProductID(ctx context.Context, productID string) (model.Product_Detail_ChiTietDonHang, error) {
-	var detail model.Product_Detail_ChiTietDonHang
+func (r *ProductDetailRepoI) FindByProductID(ctx context.Context, productID string) ([]model.Product_Detail_ChiTietDonHang, error) {
+	var details []model.Product_Detail_ChiTietDonHang
+
 	filter := bson.M{"id_product": productID}
-	err := r.Collection.FindOne(ctx, filter).Decode(&detail)
+	cursor, err := r.DB.Collection("product_details").Find(ctx, filter)
 	if err != nil {
-		return detail, err
+		return nil, err
 	}
-	return detail, nil
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var detail model.Product_Detail_ChiTietDonHang
+		if err := cursor.Decode(&detail); err != nil {
+			return nil, err
+		}
+		details = append(details, detail)
+	}
+	return details, nil
 }
 
 func (r *ProductDetailRepoI) Update(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (model.Product_Detail_ChiTietDonHang, error) {
@@ -72,7 +80,7 @@ func (r *ProductDetailRepoI) Update(ctx context.Context, detail model.Product_De
 			"status":   detail.Status,
 		},
 	}
-	_, err := r.Collection.UpdateOne(ctx, filter, update)
+	_, err := r.DB.Collection("product_details").UpdateOne(ctx, filter, update)
 	return detail, err
 }
 
@@ -81,6 +89,6 @@ func (r *ProductDetailRepoI) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	_, err = r.Collection.DeleteOne(ctx, bson.M{"product_detail_id": objID})
+	_, err = r.DB.Collection("product_details").DeleteOne(ctx, bson.M{"product_detail_id": objID})
 	return err
 }

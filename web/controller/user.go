@@ -195,15 +195,13 @@ func (u *UserController) SignUp(c *gin.Context) {
 
 	password := HashPassword(user.Password)
 	user.Password = password
-	user.Created_At = time.Now()
-	user.Updated_At = time.Now()
 	user.User_ID = primitive.NewObjectID().Hex()
 
 	if user.Role == "" {
 		user.Role = "User"
 	}
 
-	_, err = u.DB.Collection("users").InsertOne(ctx, user)
+	_, err = u.UserRepo.Create(ctx, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
 		return
