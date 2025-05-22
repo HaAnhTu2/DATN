@@ -29,7 +29,7 @@ func NewProducerRepo(db *mongo.Database) ProducerRepo {
 func (p *ProducerRepoI) GetAll(ctx context.Context) ([]model.Producer_NhaSanXuat, error) {
 	var producers []model.Producer_NhaSanXuat
 
-	cursor, err := p.db.Collection("producer").Find(ctx, bson.M{})
+	cursor, err := p.db.Collection("producers").Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (p *ProducerRepoI) GetAll(ctx context.Context) ([]model.Producer_NhaSanXuat
 
 func (p *ProducerRepoI) FindByID(ctx context.Context, id primitive.ObjectID) (model.Producer_NhaSanXuat, error) {
 	var producer model.Producer_NhaSanXuat
-	err := p.db.Collection("producer").FindOne(ctx, bson.M{"producer_id": id}).Decode(&producer)
+	err := p.db.Collection("producers").FindOne(ctx, bson.M{"producer_id": id}).Decode(&producer)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return model.Producer_NhaSanXuat{}, errors.New("user not found")

@@ -20,6 +20,11 @@ import Footer from './components/layout/Footer';
 import DetailProductPage from './pages/user/Product/ProductDetailPage';
 import UserUpdate from './components/sections/admin/User/edit/[id]/page';
 import CategoryManagementPage from './pages/admin/Category/CategoryManagementPage';
+import OrderManagementPage from './pages/admin/Order/OrderManagementPage';
+import ProducerManagementPage from './pages/admin/Producer/ProducerManagementPage';
+import VoucherManagementPage from './pages/admin/Voucher/VoucherManagementPage';
+import OrderPage from './pages/user/Order/OrderPage';
+import OrderSuccess from './pages/user/Order/Success';
 
 
 function App() {
@@ -28,24 +33,31 @@ function App() {
       <Router>
         <Header />
         <Navigation />
-        <div style={{display: "flex", flexDirection: "column", minHeight: "100vh"}}>
-      <main style={{flex: 1}}>
-        <Routes>
-          
-          <Route path="/" element={<UserHomePage />} />
-          <Route path="/home" element={<UserHomePage />} />
-          <Route path="/update/product" element={<ProductManagementPage />} />
-          <Route path="/product/:id" element={<DetailProductPage />} />
-          <Route path="/update/category" element={<CategoryManagementPage />} />
-          <Route path="/cart/:id" element={<CartPage />} />
-          <Route path="/update/user" element={<UserManagementPage />} />
-          <Route path="/user/edit/:id" element={<UserUpdate />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-       </main>
-      <Footer />
-    </div>
+        <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+          <main style={{ flex: 1 }}>
+            <Routes>
+              <Route path="/" element={<UserHomePage />} />
+              <Route path="/home" element={<UserHomePage />} />
+              <Route path="/update/category" element={<CategoryManagementPage />} />
+              <Route path="/update/order" element={<OrderManagementPage />} />
+              <Route path="/update/producer" element={<ProducerManagementPage />} />
+              <Route path="/update/product" element={<ProductManagementPage />} />
+              <Route path="/update/user" element={<UserManagementPage />} />
+              <Route path="/update/voucher" element={<VoucherManagementPage />} />
+              <Route path="/product/:id" element={<DetailProductPage />} />
+
+              <Route path="/cart/:id" element={<CartPage />} />
+              <Route path="/order/:id" element={<OrderPage />} />
+              <Route path="/order/success" element={<OrderSuccess />} />
+
+              <Route path="/user/edit/:id" element={<UserUpdate />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/login" element={<LoginPage />} />
+            </Routes>
+
+          </main>
+          <Footer />
+        </div>
       </Router>
     </AuthProvider>
   );

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getCartByUserId } from "../../../services/cartService";
-import { Cart } from "../../../types/cart";
-import CartList from "../../../components/sections/user/Cart";
 import { getUserByToken } from "../../../services/authService";
 import { User } from "../../../types/user";
 import { getProductDetailById } from "../../../services/productService";
 import { ProductDetail } from "../../../types/product";
+import CartList from "../../../components/sections/user/Cart/Cart";
 
 interface CartProduct {
   detail: ProductDetail;

@@ -11,6 +11,7 @@ import (
 )
 
 type VoucherRepo interface {
+	GetAll(ctx context.Context) ([]model.Voucher_MaGiamGia, error)
 	GetByID(ctx context.Context, id primitive.ObjectID) (model.Voucher_MaGiamGia, error)
 	Create(ctx context.Context, voucher model.Voucher_MaGiamGia) (model.Voucher_MaGiamGia, error)
 	Update(ctx context.Context, voucher model.Voucher_MaGiamGia) (model.Voucher_MaGiamGia, error)
@@ -34,6 +35,30 @@ func (v *VoucherRepoI) GetByID(ctx context.Context, id primitive.ObjectID) (mode
 		return model.Voucher_MaGiamGia{}, err
 	}
 	return voucher, nil
+}
+
+func (v *VoucherRepoI) GetAll(ctx context.Context) ([]model.Voucher_MaGiamGia, error) {
+	var vouchers []model.Voucher_MaGiamGia
+
+	cursor, err := v.db.Collection("vouchers").Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var voucher model.Voucher_MaGiamGia
+		if err := cursor.Decode(&voucher); err != nil {
+			return nil, err
+		}
+		vouchers = append(vouchers, voucher)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return vouchers, nil
 }
 
 func (v *VoucherRepoI) Create(ctx context.Context, voucher model.Voucher_MaGiamGia) (model.Voucher_MaGiamGia, error) {

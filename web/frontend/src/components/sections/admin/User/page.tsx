@@ -61,8 +61,6 @@ const UserManagement: React.FC = () => {
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <h4 className="mb-0" style={{ fontSize: '2rem' }}>User Management</h4>
-                        {/* Uncomment if create user feature added */}
-                        {/* <Button variant="primary" onClick={() => navigate("/users/create")}>Create User</Button> */}
                     </div>
                     <Form className="mb-3">
                         <Form.Control
@@ -76,10 +74,10 @@ const UserManagement: React.FC = () => {
                         <thead className="table-light">
                             <tr>
                                 <th>Email</th>
-                                <th>Gender</th>
-                                <th>Birthday</th>
-                                <th>Status</th>
-                                <th>Role</th>
+                                <th>Giới tính</th>
+                                <th>Ngày sinh</th>
+                                <th>Trạng thái</th>
+                                <th>Quyền</th>
                                 <th style={{ width: "140px" }}>Actions</th>
                             </tr>
                         </thead>
@@ -105,14 +103,14 @@ const UserManagement: React.FC = () => {
                                                 onClick={() => handleUpdateUser(user)}
                                                 className="me-2"
                                             >
-                                                Edit
+                                                Sửa
                                             </Button>
                                             <Button
                                                 variant="outline-danger"
                                                 size="sm"
                                                 onClick={() => handleDeleteUser(user.user_id)}
                                             >
-                                                Delete
+                                                Xoá
                                             </Button>
                                         </td>
                                     </tr>

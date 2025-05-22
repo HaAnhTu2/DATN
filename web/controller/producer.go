@@ -25,15 +25,20 @@ func (pc *ProducerController) GetAllProducer(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"data": producers})
+	c.JSON(200, gin.H{"producers": producers})
 }
 
 // Create producer
 func (pc *ProducerController) CreateProducer(c *gin.Context) {
 	var producer model.Producer_NhaSanXuat
-	if err := c.ShouldBindJSON(&producer); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if c.ContentType() == "application/json" {
+		if err := c.ShouldBindJSON(&producer); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		producer.Name = c.PostForm("name")
+		producer.Status = c.PostForm("status")
 	}
 
 	producer.Producer_ID = primitive.NewObjectID()

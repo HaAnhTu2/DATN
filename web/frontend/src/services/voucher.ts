@@ -8,6 +8,10 @@ const getAuthHeaders = () => {
     Authorization: `Bearer ${token}`,
   };
 };
+export const getVouchers = async (): Promise<Voucher[]> => {
+    const response = await axios.get('/api/voucher/all');
+    return response.data.vouchers;
+};
 export const createVoucher = async (form: FormData): Promise<Voucher> => {
   const response = await axios.post('/api/voucher/create', form, { headers: getAuthHeaders() });
   return response.data.voucher;

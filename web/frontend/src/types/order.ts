@@ -18,6 +18,7 @@ export interface Order {
     shipping_method: string
     payment_method: string
     total_amount: number
+    status: string
     note: string
 }
 

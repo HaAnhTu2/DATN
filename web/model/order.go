@@ -30,6 +30,7 @@ type Order_DonHang struct {
 	ShippingMethod  string             `bson:"shipping_method" json:"shipping_method"`
 	PaymentMethod   string             `bson:"payment_method" json:"payment_method"`
 	TotalAmount     int                `bson:"total_amount" json:"total_amount"`
+	Status          string             `bson:"status" json:"status"`
 	Note            string             `bson:"note" json:"note"`
 }
 

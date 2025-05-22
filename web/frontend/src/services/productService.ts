@@ -18,7 +18,7 @@ export const findNameProduct = async (name: string): Promise<Product> => {
     const response = await axios.get(`/product/${name}`, {
         headers: getAuthHeaders()
     });
-    return response.data.products;
+    return response.data.product;
 };
 
 export const getProductById = async (id: string): Promise<Product> => {
@@ -33,14 +33,14 @@ export const createProduct = async (newProduct: FormData): Promise<Product> => {
             'Content-Type': 'multipart/form-data',
         }
     });
-    return response.data;
+    return response.data.product;
 };
 
 export const updateProduct = async (id: string, product: Omit<Product, 'id'>): Promise<Product> => {
     const response = await axios.put(`/api/product/update/${id}`, product, {
         headers: getAuthHeaders()
     });
-    return response.data;
+    return response.data.product;
 };
 
 export const deleteProduct = async (id: string): Promise<void> => {
@@ -50,22 +50,28 @@ export const deleteProduct = async (id: string): Promise<void> => {
 };
 
 export const createProductDetail = async (form: FormData): Promise<any> => {
-  const response = await axios.post('/api/product-detail', form, { headers: getAuthHeaders() });
-  return response.data;
+    const response = await axios.post('/api/product-detail', form, {
+        headers: getAuthHeaders()
+    });
+    return response.data;
 };
 
 export const updateProductDetail = async (id: string, form: FormData): Promise<any> => {
-  const response = await axios.put(`/api/product-detail/${id}`, form, { headers: getAuthHeaders() });
-  return response.data;
+    const response = await axios.put(`/api/product-detail/${id}`, form, {
+        headers: getAuthHeaders()
+    });
+    return response.data;
 };
 
 export const deleteProductDetail = async (id: string): Promise<void> => {
-  await axios.delete(`/api/product-detail/delete/${id}`, { headers: getAuthHeaders() });
+    await axios.delete(`/api/product-detail/delete/${id}`, {
+        headers: getAuthHeaders()
+    });
 };
 
 export const getProductDetailsByProductId = async (productId: string): Promise<ProductDetail[]> => {
     const response = await axios.get(`/api/productdetail/product/${productId}`);
-    return response.data;
+    return response.data; 
 };
 
 export const getProductDetailById = async (id: string): Promise<ProductDetail> => {

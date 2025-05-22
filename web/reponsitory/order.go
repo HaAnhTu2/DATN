@@ -4,8 +4,10 @@ import (
 	"DoAnToiNghiep/model"
 	"context"
 	"errors"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -22,6 +24,9 @@ type OrderRepo interface {
 	GetOrderDetails(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error)
 	CancelOrder(ctx context.Context, orderID string) error
 	GetOrderDetailsByOrderID(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error)
+	GetAllOrders(ctx context.Context) ([]model.Order_DonHang, error)
+	UpdateOrderStatus(ctx context.Context, orderID, status string) error
+	DeleteOrder(ctx context.Context, orderID string) error
 }
 
 type OrderRepoI struct {
@@ -30,6 +35,22 @@ type OrderRepoI struct {
 
 func NewOrderRepo(db *mongo.Database) OrderRepo {
 	return &OrderRepoI{db: db}
+}
+func (r *OrderRepoI) GetAllOrders(ctx context.Context) ([]model.Order_DonHang, error) {
+	var orders []model.Order_DonHang
+	cursor, err := r.db.Collection("orders").Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	for cursor.Next(ctx) {
+		var order model.Order_DonHang
+		if err := cursor.Decode(&order); err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
 
 // Create a order
@@ -101,6 +122,32 @@ func (r *OrderRepoI) CancelOrder(ctx context.Context, orderID string) error {
 		return ErrOrderNotFound
 	}
 	return nil
+}
+
+func (r *OrderRepoI) UpdateOrderStatus(ctx context.Context, orderID, status string) error {
+	objID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objID}
+	update := bson.M{"$set": bson.M{"status": status, "updated_at": time.Now()}}
+	_, err = r.db.Collection("orders").UpdateOne(ctx, filter, update)
+	return err
+}
+
+func (r *OrderRepoI) DeleteOrder(ctx context.Context, orderID string) error {
+	objID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return err
+	}
+	_, err = r.db.Collection("orders").DeleteOne(ctx, bson.M{"_id": objID})
+	if err != nil {
+		return err
+	}
+
+	// Đồng thời xoá chi tiết đơn hàng
+	_, err = r.db.Collection("order_details").DeleteMany(ctx, bson.M{"id_order": orderID})
+	return err
 }
 
 func (r *OrderRepoI) GetOrderDetailsByOrderID(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error) {

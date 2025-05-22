@@ -4,6 +4,7 @@ import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,12 +19,46 @@ func NewVoucherController(voucherRepo reponsitory.VoucherRepo) *VoucherControlle
 	return &VoucherController{VoucherRepo: voucherRepo}
 }
 
+func (vc *VoucherController) GetAllVouchers(c *gin.Context) {
+	vouchers, err := vc.VoucherRepo.GetAll(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lấy danh sách voucher"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"vouchers": vouchers})
+}
+
 func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 	var voucher model.Voucher_MaGiamGia
 
-	if err := c.ShouldBind(&voucher); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
-		return
+	if c.ContentType() == "application/json" {
+		if err := c.ShouldBindJSON(&voucher); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input: " + err.Error()})
+			return
+		}
+	} else {
+		voucher.Code = c.PostForm("code")
+		voucher.Value = c.PostForm("value")
+
+		minOrderStr := c.PostForm("min_order_value")
+		minOrderVal, err := strconv.Atoi(minOrderStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid min_order_value: must be a number"})
+			return
+		}
+		voucher.Min_Order_Value = minOrderVal
+
+		expiredStr := c.PostForm("exprired_time")
+		expiredTime, err := time.Parse("2006-01-02", expiredStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid exprired_time: must be in YYYY-MM-DD format"})
+			return
+		}
+		voucher.Exprired_Time = expiredTime
+
+		voucher.Description = c.PostForm("description")
+		voucher.Status = c.PostForm("status")
 	}
 
 	voucher.Voucher_ID = primitive.NewObjectID()

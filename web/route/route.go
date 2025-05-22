@@ -14,7 +14,6 @@ import (
 func Route(r *gin.Engine, DB *mongo.Database) {
 	client := db.ConnectDB()
 
-	// Khởi tạo các repo + controller
 	ProductDetailRepo := reponsitory.NewProductDetailRepo(client.Database(os.Getenv("DB_NAME")))
 	productDetailController := controller.NewProductDetailController(ProductDetailRepo, DB)
 
@@ -42,30 +41,26 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	VoucherRepo := reponsitory.NewVoucherRepo(client.Database(os.Getenv("DB_NAME")))
 	voucherController := controller.NewVoucherController(VoucherRepo)
 
-	// Middleware xác thực
 	authMiddleware := middleware.AuthMiddleware
 
-	// Các route public (không cần xác thực)
 	r.POST("/api/login", userController.Login)
 	r.POST("/api/signup", userController.SignUp)
 	r.GET("/api/user/get", userController.GetAllUser)
 
-	// Lấy ảnh từ đường dẫn
 	r.GET("/image/:id", productController.ServeImageProduct)
 	r.GET("/api/feedback/image/:id", feedbackController.ServeImageFeedback)
 	r.GET("/api/product/get", productController.GetAllProduct)
 	r.GET("/api/product/get/:id", productController.GetByID)
 	r.GET("/api/product/image/:id", productController.ServeImageProduct)
 
-	// ProductDetail public routes (nếu cần)
 	r.GET("/api/productdetail/product/:id_product", productDetailController.GetProductDetailsByProductID)
 	r.GET("/api/productdetail/get/:id", productDetailController.GetDetailByID)
 
 	r.GET("/api/category", categoryController.GetCategories)
 	r.GET("/api/producer", producerController.GetAllProducer)
 	r.GET("/api/feedback", feedbackController.GetAllFeedback)
+	r.GET("/api/voucher/all", voucherController.GetAllVouchers)
 
-	// Nhóm route cần xác thực
 	auth := r.Group("/api")
 	auth.Use(authMiddleware)
 	{
@@ -113,12 +108,13 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.DELETE("/cart/clear/:user_id", cartController.ClearCart)
 
 		// Order routes
-		auth.POST("/order", orderController.CreateOrder)
-		auth.POST("/order/create", orderController.CreateOrder)
-		auth.GET("/order/user/:user_id", orderController.GetOrdersByUserID)
-		auth.GET("/order/detail/:order_id", orderController.GetOrderDetails)
-		auth.PUT("/order/cancel/:order_id", orderController.CancelOrder)
-
+		auth.GET("/orders", orderController.GetAllOrders) // admin
+		auth.GET("/orders/user/:user_id", orderController.GetOrdersByUserID)
+		auth.GET("/orders/:order_id/details", orderController.GetOrderDetails)
+		auth.POST("/orders/create", orderController.CreateOrder)
+		auth.PUT("/orders/:order_id/status", orderController.UpdateOrderStatus)
+		auth.DELETE("/orders/:order_id", orderController.DeleteOrder)
+		auth.PUT("/orders/:order_id/cancel", orderController.CancelOrder) // huỷ đơn hàng
 		// auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
 
 		// Logout route

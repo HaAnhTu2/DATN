@@ -9,14 +9,28 @@ const getAuthHeaders = () => {
   };
 };
 
-export const createProducer = async (form: FormData): Promise<Producer> => {
-  const response = await axios.post('/api/producer/create', form, { headers: getAuthHeaders() });
-  return response.data.producer;
+export const getAllProducers = async (): Promise<Producer[]> => {
+  const response = await axios.get('/api/producer');
+  return response.data.producers;
+};
+
+export const createProducer = async (newProducer: FormData): Promise<Producer> => {
+  try {
+    const response = await axios.post("/api/producer/create", newProducer, {
+      headers: {
+        ...getAuthHeaders(),
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Error creating producer');
+  }
 };
 
 export const updateProducer = async (id: string, form: FormData): Promise<Producer> => {
   const response = await axios.put(`/api/producer/update/${id}`, form, { headers: getAuthHeaders() });
-  return response.data.producer;
+  return response.data;
 };
 
 export const deleteProducer = async (id: string): Promise<void> => {

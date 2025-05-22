@@ -1,3 +1,5 @@
+import { ProductDetail } from "./product";
+
 export interface CartItem {
     id: string;
     product_id: string;
@@ -17,4 +19,9 @@ export interface Cart {
     id_product_detail: string;
     id_user: string;
     quantity: number;
+}
+
+ export interface CartProduct {
+  detail: ProductDetail;
+  cartQuantity: number;
 }

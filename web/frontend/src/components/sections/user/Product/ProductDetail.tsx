@@ -41,7 +41,6 @@ const GetProductDetail: React.FC = () => {
                 const detailResponse = await getProductDetailsByProductId(product.product_id);
                 setProductDetail(detailResponse.details || []);
                 
-                // ✅ Chọn mặc định phiên bản đầu tiên
                 if (detailResponse.details && detailResponse.details.length > 0) {
                     setSelectedDetailId(detailResponse.details[0].product_detail_id);
                 }

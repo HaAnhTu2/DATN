@@ -101,11 +101,7 @@ const UserHome: React.FC = () => {
                       {product.name || "No Name"}
                     </Card.Title>
                     <Card.Text className="text-muted mb-2" style={{ fontSize: '12px' }}>{product.description || "No Description"}</Card.Text>
-                    <Card.Text className="fw-bold mb-2" style={{ fontSize: '14px' }}>${product.price ?? "No Price"}</Card.Text>
-                    <Card.Text className="mb-3" style={{ fontSize: '16px' }}>
-                      Status: {product.status || "Unknown"}
-                      <i className="fa fa-star text-warning ms-2"></i>
-                    </Card.Text>
+                    <Card.Text className="fw-bold mb-2" style={{ fontSize: '14px' }}>{product.price ?? "No Price"} đ</Card.Text>
                     <div className="mt-auto d-flex gap-2">
                       <Button
                         variant="outline-primary"

@@ -6,7 +6,7 @@ import { User } from "../../../../../../types/user";
 const UserUpdate: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User>();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +14,6 @@ const UserUpdate: React.FC = () => {
   const [gender, setGender] = useState("");
   const [status, setStatus] = useState("");
 
-  // Lấy dữ liệu user theo id khi component mount
   useEffect(() => {
     if (id) {
       getUserById(id)
@@ -30,7 +29,6 @@ const UserUpdate: React.FC = () => {
     }
   }, [id]);
 
-  // Handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -47,7 +45,7 @@ const UserUpdate: React.FC = () => {
     try {
       await updateUser(user.user_id, updatedUser);
       alert("User updated successfully!");
-      navigate("update/user");
+      navigate("/update/user");
     } catch (err) {
       console.error("Error updating user:", err);
     }
@@ -83,7 +81,7 @@ const UserUpdate: React.FC = () => {
         </div>
 
         <div className="mb-3">
-          <label>Gender</label>
+          <label>Giới tính</label>
           <select
             name="gender"
             value={gender}
@@ -92,14 +90,14 @@ const UserUpdate: React.FC = () => {
             required
           >
             <option value="">-- Select Gender --</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="male">Nam</option>
+            <option value="female">Nữ</option>
+            <option value="other">khác</option>
           </select>
         </div>
 
         <div className="mb-3">
-          <label>Birthday</label>
+          <label>Ngày sinh</label>
           <input
             name="birthday"
             value={birthday}
@@ -111,7 +109,7 @@ const UserUpdate: React.FC = () => {
         </div>
 
         <div className="mb-3">
-          <label>Status</label>
+          <label>Trạng thái</label>
           <select
             name="status"
             value={status}
@@ -120,20 +118,20 @@ const UserUpdate: React.FC = () => {
             required
           >
             <option value="">-- Select Status --</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Không hoại động</option>
           </select>
         </div>
 
         <button type="submit" className="btn btn-primary me-2">
-          Update
+          Cập Nhật
         </button>
         <button
           type="button"
           className="btn btn-secondary"
           onClick={() => navigate("/update/user")}
         >
-          Cancel
+          Quay lại
         </button>
       </form>
     </div>

@@ -42,22 +42,30 @@ const Navigation: React.FC = () => {
       <div className="container">
         <div id="responsive-nav">
           <ul className="main-nav nav d-flex gap-3"
-          style={{
-            listStyle: 'none',
-            display: 'flex',
-            gap: '30px',
-            margin: 0,
-            padding: 0,
-            alignItems: 'center',
-            fontSize: '18px',
-            fontWeight: '500',
-          }}
->
+            style={{
+              listStyle: 'none',
+              display: 'flex',
+              gap: '30px',
+              margin: 0,
+              padding: 0,
+              alignItems: 'center',
+              fontSize: '15px',
+              fontWeight: '500',
+            }}
+          >
+            {user?.role === 'User' && (
+              <>
             <li>
               <Link to="/home" className="text-decoration-none text-dark">
                 Trang chủ
               </Link>
+              <Link to="/category" className="text-decoration-none text-dark">
+                    Loại sản phẩm
+                  </Link>
             </li>
+            </>
+            )}
+            
             {user?.role === 'Admin' && (
               <>
                 <li>
@@ -73,6 +81,21 @@ const Navigation: React.FC = () => {
                 <li>
                   <Link to="/update/category" className="text-decoration-none text-dark">
                     Quản lý loại sản phẩm
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/update/order" className="text-decoration-none text-dark">
+                    Quản Lý đơn hàng
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/update/producer" className="text-decoration-none text-dark">
+                    Quản lý nhà sản xuất
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/update/voucher" className="text-decoration-none text-dark">
+                    Quản lý mã giảm giá
                   </Link>
                 </li>
               </>

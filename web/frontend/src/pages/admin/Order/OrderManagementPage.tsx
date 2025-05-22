@@ -1,13 +1,20 @@
 import React from 'react';
+import OrderManagement from '../../../components/sections/admin/Order/page';
 
-const OrderManagementPage = () => {
+const OrderManagementPage: React.FC = () => {
   return (
-    <div>
-      <h1>Quản lý Đơn hàng</h1>
-      <p>Danh sách đơn hàng và trạng thái đơn hàng</p>
-      {/* Thêm bảng đơn hàng và các chức năng */}
-    </div>
-  );
-};
+        <div className="section">
+            <header className="container">
+                <div className="row">
+                    <div className="col-md-12">
+                        <div>
+                            <OrderManagement />
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    )
+  };
 
 export default OrderManagementPage;
