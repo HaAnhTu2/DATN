@@ -53,19 +53,33 @@ const Navigation: React.FC = () => {
               fontWeight: '500',
             }}
           >
-            {user?.role === 'User' && (
+
+            {user?.role != 'Admin' && (
               <>
-            <li>
-              <Link to="/home" className="text-decoration-none text-dark">
-                Trang chủ
-              </Link>
-              <Link to="/category" className="text-decoration-none text-dark">
-                    Loại sản phẩm
+                <li>
+                  <Link to="/home" className="text-decoration-none text-dark">
+                    Trang chủ
                   </Link>
-            </li>
-            </>
+                </li>
+                <li>
+                  <Link to="/category" className="text-decoration-none text-dark">
+                    Máy tính
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/category" className="text-decoration-none text-dark">
+                    Điện thoại
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/category" className="text-decoration-none text-dark">
+                    Phụ Kiện
+                  </Link>
+                </li>
+              </>
+
             )}
-            
+
             {user?.role === 'Admin' && (
               <>
                 <li>

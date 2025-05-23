@@ -96,13 +96,13 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
     <div>
       <Row className="mb-3 align-items-center">
         <Col md={4}>
-          <h4>Product List</h4>
+          <h4>Quản lý sản phẩm</h4>
         </Col>
         <Col md={5}>
           <InputGroup>
             <Form.Control
               type="search"
-              placeholder="Search products"
+              placeholder="Tìm sản phẩm"
               value={searchTerm}
               onChange={handleSearch}
             />
@@ -110,7 +110,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
         </Col>
         <Col md={3} className="text-md-end mt-2 mt-md-0">
           <Button variant="primary" onClick={handleCreateClick}>
-            Create Product
+            Tạo sản phẩm
           </Button>
         </Col>
       </Row>
@@ -126,13 +126,13 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
           <Table striped bordered hover responsive className="align-middle text-center">
             <thead className="table-light">
               <tr>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Information</th>
-                <th>Price</th>
-                <th>Image</th>
-                <th>Description</th>
-                <th style={{ minWidth: '140px' }}>Actions</th>
+                <th>Tên sản phẩm</th>
+                <th>Trạng thái</th>
+                <th>Thông tin</th>
+                <th>Giá</th>
+                <th>Ảnh</th>
+                <th>Mô tả</th>
+                <th style={{ minWidth: '140px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -144,7 +144,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
               {filteredProducts.map(product => (
                 <tr key={product.product_id}>
                   <td>{product.name}</td>
-                  <td>{product.status}</td>
+                  <td>{product.status=== "active" ? "Hoạt động" : "Ngưng hoạt động"}</td>
                   <td>{product.information}</td>
                   <td>{product.price.toLocaleString()} VND</td>
                   <td>
@@ -166,14 +166,14 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
                       onClick={() => handleUpdateProduct(product)}
                       className="me-2"
                     >
-                      Edit
+                      Sửa
                     </Button>
                     <Button
                       variant="outline-danger"
                       size="sm"
                       onClick={() => handleDeleteProduct(product.product_id)}
                     >
-                      Delete
+                      Xoá
                     </Button>
                   </td>
                 </tr>

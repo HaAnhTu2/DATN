@@ -90,7 +90,7 @@ const GetProductDetail: React.FC = () => {
     if (!product) return <div>Không tìm thấy sản phẩm</div>;
 
     return (
-        <div>
+        <div  className="m-4">
             <div className="row">
                 <div className="col-md-5 col-md-push-2">
                     <div id="product-main-img">

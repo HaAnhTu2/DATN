@@ -83,7 +83,6 @@ const CartPage: React.FC = () => {
       <header className="container">
         <div className="row">
           <div className="col-md-12">
-            <p>User: {user.email}</p>
             <CartList userId={user.user_id} cartItems={cartItems} />
           </div>
         </div>

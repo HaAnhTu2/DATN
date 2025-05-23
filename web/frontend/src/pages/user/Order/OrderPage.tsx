@@ -137,7 +137,7 @@ const OrderPage: React.FC = () => {
             }
           />
         </Form.Group>
-        <Button onClick={handleSubmit}>Xác nhận đặt hàng</Button>
+        <Button className="m-4" onClick={handleSubmit}>Xác nhận đặt hàng</Button>
       </Form>
     </Container>
   );

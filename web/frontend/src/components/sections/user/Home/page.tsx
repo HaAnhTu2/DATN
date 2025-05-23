@@ -68,7 +68,7 @@ const UserHome: React.FC = () => {
       <Form className="mb-4">
         <Form.Control
           type="search"
-          placeholder="Search products..."
+          placeholder="Tìm sản phẩm..."
           value={searchTerm}
           onChange={handleSearch}
         />

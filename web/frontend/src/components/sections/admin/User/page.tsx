@@ -56,16 +56,16 @@ const UserManagement: React.FC = () => {
     };
 
     return (
-        <Row className="mt-4" style={{ fontSize: '1.8rem' }}>
+        <Row className="mt-4">
             <Card className="w-100 shadow-sm">
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h4 className="mb-0" style={{ fontSize: '2rem' }}>User Management</h4>
+                        <h4 className="mb-0" style={{ fontSize: '2rem' }}>Quản lý khách hàng</h4>
                     </div>
                     <Form className="mb-3">
                         <Form.Control
                             type="search"
-                            placeholder="Search by email"
+                            placeholder="Tìm theo email"
                             value={searchTerm}
                             onChange={handleSearch}
                         />

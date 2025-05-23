@@ -39,7 +39,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
 
   return (
     <div className="container mt-4">
-      <h3>Quản lý đơn hàng của tôi</h3>
+      <h3>Quản lý đơn hàng</h3>
       <table className="table table-bordered mt-3">
         <thead>
           <tr>
@@ -50,6 +50,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
             <th>Địa chỉ</th>
             <th>Tổng tiền</th>
             <th>Phương thức</th>
+            <th>trạng thái</th>
             <th>Ghi chú</th>
             <th>Hành động</th>
           </tr>
@@ -66,6 +67,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
               <td>
                 {order.shipping_method} / {order.payment_method}
               </td>
+              <td>{order.status}</td>
               <td>{order.note}</td>
               <td>
                 <button
@@ -74,12 +76,25 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
                 >
                   Chi tiết
                 </button>
+                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+
                 <button
-                  className="btn btn-warning btn-sm"
-                  onClick={() => handleCancel(order.order_id)}
+                  className="btn btn-success btn-sm me-2"
+                  onClick={() => navigate(`/orders/${order.order_id}`)}
                 >
-                  Huỷ
+                  Xác nhận
                 </button>
+                ) : (null)}
+
+                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+                  <button
+                    className="btn btn-warning btn-sm"
+                    onClick={() => handleCancel(order.order_id)}
+                  >
+                    Huỷ
+                  </button>
+                ) : (null)}
+
               </td>
             </tr>
           ))}

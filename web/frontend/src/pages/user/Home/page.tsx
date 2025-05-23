@@ -68,7 +68,7 @@ const UserHomePage: React.FC = () => {
           <div className="row">
             <div className="col-md-12">
               <div className="section-title">
-                <h3 className="title">Products</h3>
+                <h3 className="title">Sản phẩm</h3>
                 <div className="section-nav">
                   <ul className="section-tab-nav tab-nav">
                   </ul>
