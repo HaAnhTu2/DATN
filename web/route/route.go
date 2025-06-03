@@ -57,9 +57,12 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/productdetail/get/:id", productDetailController.GetDetailByID)
 
 	r.GET("/api/category", categoryController.GetCategories)
+	r.GET("/api/category/:id", categoryController.GetCategoryByID)
 	r.GET("/api/producer", producerController.GetAllProducer)
+	r.GET("/api/producer/:id", producerController.GetProducerByID)
 	r.GET("/api/feedback", feedbackController.GetAllFeedback)
 	r.GET("/api/voucher/all", voucherController.GetAllVouchers)
+	r.GET("/api/voucher/:id", voucherController.GetVoucherByID)
 
 	auth := r.Group("/api")
 	auth.Use(authMiddleware)

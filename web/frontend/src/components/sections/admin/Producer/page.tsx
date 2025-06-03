@@ -4,7 +4,7 @@ import {
   createProducer,
   updateProducer,
   deleteProducer,
-} from "../../../../services/producer";
+} from "../../../../services/producerService";
 import { Producer } from "../../../../types/producer";
 import { Button } from "react-bootstrap";
 

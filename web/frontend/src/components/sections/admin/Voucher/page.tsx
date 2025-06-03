@@ -4,7 +4,7 @@ import {
   createVoucher,
   updateVoucher,
   deleteVoucher,
-} from "../../../../services/voucher";
+} from "../../../../services/voucherService";
 import { Voucher } from "../../../../types/voucher";
 
 const VoucherManagement: React.FC = () => {

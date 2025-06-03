@@ -35,6 +35,27 @@ func (ctrl *CategoryController) GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, categories)
 }
 
+func (ctrl *CategoryController) GetCategoryByID(c *gin.Context) {
+	id := c.Param("id")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	category, err := ctrl.CategoryRepo.FindByID(ctx, id)
+	if err != nil {
+		if err.Error() == "category not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy loại sản phẩm"})
+		} else if err.Error() == "invalid category ID" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi server khi tìm category"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, category)
+}
+
 func (ca *CategoryController) CreateCategory(c *gin.Context) {
 	var category model.Category_LoaiSanPham
 	if c.ContentType() == "application/json" {

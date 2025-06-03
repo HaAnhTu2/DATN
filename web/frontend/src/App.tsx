@@ -30,6 +30,13 @@ import CreateProductDetailPage from './pages/admin/ProductDetail/create/page';
 import UpdateUserPage from './pages/admin/User/update/page';
 import UpdateUserDetailPage from './pages/user/User/page';
 import UpdateProductDetailPage from './pages/admin/ProductDetail/update/page';
+import UpdateProductPage from './pages/admin/Product/update/page';
+import CreateVoucherPage from './pages/admin/Voucher/create/page';
+import UpdateVoucherPage from './pages/admin/Voucher/update/page';
+import CreateproducerPage from './pages/admin/Producer/create/page';
+import UpdateProducerPage from './pages/admin/Producer/update/page';
+import CreateCategoryPage from './pages/admin/Category/create/page';
+import UpdateCategoryPage from './pages/admin/Category/update/page';
 
 
 function App() {
@@ -43,17 +50,24 @@ function App() {
             <Routes>
               <Route path="/" element={<UserHomePage />} />
               <Route path="/home" element={<UserHomePage />} />
+              <Route path="/create/category" element={<CreateCategoryPage />} />
+              <Route path="/update/category/:id" element={<UpdateCategoryPage />} />
               <Route path="/update/category" element={<CategoryManagementPage />} />
 
               <Route path="/update/order" element={<OrderManagementPage />} />
 
+              <Route path="/create/producer" element={<CreateproducerPage />} />
+              <Route path="/update/producer/:id" element={<UpdateProducerPage />} />
               <Route path="/update/producer" element={<ProducerManagementPage />} />
 
               <Route path="/create/product" element={<CreateProductPage />} />
+              <Route path="/update/product/:id" element={<UpdateProductPage />} />
               <Route path="/update/product" element={<ProductManagementPage />} />
 
               <Route path="/update/user" element={<UserManagementPage />} />
 
+              <Route path="/creare/voucher" element={<CreateVoucherPage />} />
+              <Route path="/update/voucher/:id" element={<UpdateVoucherPage />} />
               <Route path="/update/voucher" element={<VoucherManagementPage />} />
 
               <Route path="/productdetail/create/:id" element={<CreateProductDetailPage />} />

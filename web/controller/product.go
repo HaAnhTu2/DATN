@@ -4,11 +4,9 @@ import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"bytes"
-	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -227,45 +225,6 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 	}
 	product.Updated_At = time.Now()
 
-	// 3. Cập nhật ảnh nếu có
-	file, header, err := c.Request.FormFile("image")
-	if err == nil {
-		defer file.Close()
-		bucket, err := gridfs.NewBucket(p.DB, options.GridFSBucket().SetName("products"))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create GridFS bucket"})
-			return
-		}
-		buf := bytes.NewBuffer(nil)
-		io.Copy(buf, file)
-		filename := time.Now().Format(time.RFC3339) + "_" + header.Filename
-
-		uploadStream, err := bucket.OpenUploadStream(filename)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open upload stream"})
-			return
-		}
-		defer uploadStream.Close()
-		uploadStream.Write(buf.Bytes())
-
-		fileId, _ := json.Marshal(uploadStream.FileID)
-		imageID := strings.Trim(string(fileId), `"`)
-		// Nếu muốn lưu ảnh vào chi tiết, bạn cần tìm chi tiết sản phẩm rồi cập nhật
-		details, err := p.ProductDetailRepo.FindByProductID(c.Request.Context(), productID)
-		if err == nil {
-			for i := range details {
-				details[i].Image = imageID
-				_, err = p.ProductDetailRepo.Update(c.Request.Context(), details[i])
-				if err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product detail"})
-					return
-				}
-			}
-
-		}
-	}
-
-	// 4. Cập nhật sản phẩm
 	updatedProduct, err := p.ProductRepo.Update(c.Request.Context(), product)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product"})

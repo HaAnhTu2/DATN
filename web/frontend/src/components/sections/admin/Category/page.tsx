@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getCategories, deleteCategory } from "../../../../services/category";
+import { getCategories, deleteCategory } from "../../../../services/categoryService";
 import { Category } from "../../../../types/category";
 import { Row, Card, Table, Button, Form } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
@@ -60,9 +60,9 @@ const CategoryManagement: React.FC = () => {
             <Card className="w-100 shadow-sm">
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h4 className="mb-0">Category Management</h4>
+                        <h4 className="mb-0">Quản lý loại sản phẩm</h4>
                         <Button variant="primary" onClick={() => navigate("/categories/create")}>
-                            Create Category
+                            Tạo loại sản phẩm
                         </Button>
                     </div>
                     <Form className="mb-3">
@@ -76,9 +76,9 @@ const CategoryManagement: React.FC = () => {
                     <Table responsive bordered hover className="text-nowrap align-middle">
                         <thead className="table-light">
                             <tr>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th style={{ width: "140px" }}>Actions</th>
+                                <th>Tên</th>
+                                <th>Mô tải</th>
+                                <th style={{ width: "140px" }}></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,7 +92,7 @@ const CategoryManagement: React.FC = () => {
                                 filteredCategories.map(category => (
                                     <tr key={category.category_id}>
                                         <td>{category.name}</td>
-                                        <td>{category.status}</td>
+                                        <td>{category.status==="active"? "Hoạt động": "Ngưng hoạt động"}</td>
                                         <td>
                                             <Button
                                                 variant="outline-primary"
@@ -100,14 +100,14 @@ const CategoryManagement: React.FC = () => {
                                                 onClick={() => handleEditCategory(category)}
                                                 className="me-2"
                                             >
-                                                Edit
+                                                Sửa
                                             </Button>
                                             <Button
                                                 variant="outline-danger"
                                                 size="sm"
                                                 onClick={() => handleDeleteCategory(category.category_id)}
                                             >
-                                                Delete
+                                                Xoá
                                             </Button>
                                         </td>
                                     </tr>

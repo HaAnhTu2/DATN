@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Home from "../../../components/sections/user/Home/page";
 import { Category } from "../../../types/category";
-import { getCategories } from "../../../services/category";
+import { getCategories } from "../../../services/categoryService";
 
 const UserHomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);

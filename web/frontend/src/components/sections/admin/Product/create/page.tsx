@@ -2,9 +2,9 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { Product } from "../../../../../types/product";
 import { createProduct } from "../../../../../services/productService";
 import { Category } from "../../../../../types/category";
-import { getCategories } from "../../../../../services/category";
+import { getCategories } from "../../../../../services/categoryService";
 import { Producer } from "../../../../../types/producer";
-import { getAllProducers } from "../../../../../services/producer";
+import { getAllProducers } from "../../../../../services/producerService";
 
 interface CreateFormProductProps {
     setProducts: React.Dispatch<React.SetStateAction<Product[]>>;

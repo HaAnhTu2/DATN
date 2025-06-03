@@ -3,6 +3,8 @@ package controller
 import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
+	"context"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -27,6 +29,29 @@ func (vc *VoucherController) GetAllVouchers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"vouchers": vouchers})
+}
+
+func (vc *VoucherController) GetVoucherByID(c *gin.Context) {
+	id := c.Param("id")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Print("err", err)
+	}
+	voucher, err := vc.VoucherRepo.GetByID(ctx, objID)
+	if err != nil {
+		if err.Error() == "voucher not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy mã giảm giá"})
+		} else if err.Error() == "invalid voucher ID" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi server khi tìm voucher"})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, voucher)
 }
 
 func (vc *VoucherController) CreateVoucher(c *gin.Context) {

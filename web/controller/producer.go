@@ -3,6 +3,8 @@ package controller
 import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
+	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -26,6 +28,30 @@ func (pc *ProducerController) GetAllProducer(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"producers": producers})
+}
+
+func (pc *ProducerController) GetProducerByID(c *gin.Context) {
+	id := c.Param("id")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Print("err", err)
+	}
+	producer, err := pc.ProducerRepo.FindByID(ctx, objID)
+	if err != nil {
+		if err.Error() == "producer not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy nhà sản xuất"})
+		} else if err.Error() == "invalid producer ID" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi server khi tìm producer"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, producer)
 }
 
 // Create producer

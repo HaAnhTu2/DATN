@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Form, Row, Col, Card, Table, Button, Alert, InputGroup } from 'react-bootstrap';
+import { Form, Row, Col, Card, Table, Button, InputGroup } from 'react-bootstrap';
 import { getProducts, deleteProduct, getProductDetailsByProductId } from "../../../../services/productService";
 import { Product, ProductDetail } from "../../../../types/product";
 import { useNavigate } from "react-router-dom";
 
-interface ProductManagementProps {
-  setFormProduct: (product: Product) => void;
-}
-
-const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct }) => {
+const ProductManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productDetail, setProductDetail] = useState<ProductDetail[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -71,16 +65,14 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
   );
 
   const handleUpdateProduct = (product: Product) => {
-    setFormProduct(product);
+    navigate(`/update/product/${product.product_id}`);
   };
 
   const handleDeleteProduct = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       await deleteProduct(id);
       setProducts(products.filter(product => product.product_id !== id));
-      setNotificationMessage('Product deleted successfully!');
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 3000);
     } catch (error) {
       console.error('Error deleting product:', error);
     }
@@ -118,12 +110,6 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
         </Col>
       </Row>
 
-      {showNotification && (
-        <Alert variant="success" onClose={() => setShowNotification(false)} dismissible>
-          {notificationMessage}
-        </Alert>
-      )}
-
       <Card className="shadow-sm">
         <Card.Body>
           <Table striped bordered hover responsive className="align-middle text-center">
@@ -147,7 +133,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
               {filteredProducts.map(product => (
                 <tr key={product.product_id}>
                   <td>{product.name}</td>
-                  <td>{product.status=== "active" ? "Hoạt động" : "Ngưng hoạt động"}</td>
+                  <td>{product.status === "active" ? "Hoạt động" : "Ngưng hoạt động"}</td>
                   <td>{product.information}</td>
                   <td>{product.price.toLocaleString()} VND</td>
                   <td>
