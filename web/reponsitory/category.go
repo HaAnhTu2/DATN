@@ -32,7 +32,7 @@ func (c *CategoryRepoI) FindByID(ctx context.Context, id string) (model.Category
 		return model.Category_LoaiSanPham{}, errors.New("invalid category ID")
 	}
 	var category model.Category_LoaiSanPham
-	err = c.db.Collection("category").FindOne(ctx, bson.M{"_id": objID}).Decode(&category)
+	err = c.db.Collection("category").FindOne(ctx, bson.M{"category_id": objID}).Decode(&category)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return model.Category_LoaiSanPham{}, errors.New("category not found")

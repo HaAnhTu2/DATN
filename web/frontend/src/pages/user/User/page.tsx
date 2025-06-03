@@ -4,7 +4,6 @@ import UserDetailUpdate from "../../../components/sections/user/User/page";
 
 const UpdateUserDetailPage: React.FC = () => {
     const { id } = useParams();
-    console.log("ID từ URL:", id); // kiểm tra ở đây
 
     return (
         <div className="section">

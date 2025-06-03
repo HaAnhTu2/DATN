@@ -2,22 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUserByToken } from '../../services/authService';
 import { User } from '../../types/user';
+import { getCategories } from '../../services/categoryService';
+import { Category } from '../../types/category';
 
 const Navigation: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
       try {
-        const fetchedUser = await getUserByToken(token);
-        setUser(fetchedUser.user);
+        if (token) {
+          const fetchedUser = await getUserByToken(token);
+          setUser(fetchedUser.user);
+        }
+        const fetchedCategories = await getCategories();
+        setCategories(fetchedCategories);
       } catch (error) {
         console.error('Failed to fetch user:', error);
       } finally {
@@ -54,30 +57,24 @@ const Navigation: React.FC = () => {
             }}
           >
 
-            {user?.role != 'Admin' && (
+            {user?.role !== 'Admin' && (
               <>
                 <li>
                   <Link to="/home" className="text-decoration-none text-dark">
                     Trang chủ
                   </Link>
                 </li>
-                <li>
-                  <Link to="/category" className="text-decoration-none text-dark">
-                    Máy tính
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/category" className="text-decoration-none text-dark">
-                    Điện thoại
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/category" className="text-decoration-none text-dark">
-                    Phụ Kiện
-                  </Link>
-                </li>
+                {categories.map((category) => (
+                  <li key={category.category_id}>
+                    <Link
+                      to={`/category/${category.category_id}`}
+                      className="text-decoration-none text-dark"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))}
               </>
-
             )}
 
             {user?.role === 'Admin' && (

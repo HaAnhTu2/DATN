@@ -3,21 +3,21 @@ import { getOrdersByUserId, cancelOrder } from "../../../../services/orderServic
 import { Order } from "../../../../types/order";
 import { useNavigate } from "react-router-dom";
 
-interface Props {
-  userId: string;
+interface OrderUserProps {
+  id: string;
 }
 
-const OrderManagement: React.FC<Props> = ({ userId }) => {
+export default function OrderUser({ id }: OrderUserProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
-  }, [userId]);
+  }, [id]);
 
   const fetchOrders = async () => {
     try {
-      const data = await getOrdersByUserId(userId);
+      const data = await getOrdersByUserId(id);
       setOrders(data);
     } catch (err) {
       console.error("Lỗi khi lấy danh sách đơn hàng:", err);
@@ -39,7 +39,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
 
   return (
     <div className="container mt-4">
-      <h3>Quản lý đơn hàng</h3>
+      <h3>Đơn hàng của tôi</h3>
       <table className="table table-bordered mt-3">
         <thead>
           <tr>
@@ -56,7 +56,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
+          {orders?.map((order) => (
             <tr key={order.order_id}>
               <td>{order.order_id}</td>
               <td>{order.fullname}</td>
@@ -72,21 +72,11 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
               <td>
                 <button
                   className="btn btn-info btn-sm me-2"
-                  onClick={() => navigate(`/orders/${order.order_id}`)}
+                  onClick={() => navigate(`/order/detail/${order.order_id}`)}
                 >
                   Chi tiết
                 </button>
-                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
-
-                <button
-                  className="btn btn-success btn-sm me-2"
-                  onClick={() => navigate(`/orders/${order.order_id}`)}
-                >
-                  Xác nhận
-                </button>
-                ) : (null)}
-
-                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+                {order.status != "cancelled" ? (
                   <button
                     className="btn btn-warning btn-sm"
                     onClick={() => handleCancel(order.order_id)}
@@ -98,7 +88,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
               </td>
             </tr>
           ))}
-          {orders.length === 0 && (
+          {!orders && (
             <tr>
               <td colSpan={9} className="text-center">
                 Không có đơn hàng nào
@@ -110,5 +100,3 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
     </div>
   );
 };
-
-export default OrderManagement;

@@ -265,41 +265,77 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 }
 
 func (u *UserController) UpdateUser(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
 	userID := c.Param("id")
-
 	log.Print("user_id: ", userID)
+
 	var user model.User_KhachHang
+	updateFields := bson.M{}
+
+	// Xử lý JSON
 	if c.ContentType() == "application/json" {
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
 			return
 		}
+		// Gộp dữ liệu vào updateFields nếu có
+		if user.Email != "" {
+			updateFields["email"] = user.Email
+		}
+		if user.Password != "" {
+			updateFields["password"] = HashPassword(user.Password)
+		}
+		if user.Birthday != "" {
+			updateFields["birthday"] = user.Birthday
+		}
+		if user.Gender != "" {
+			updateFields["gender"] = user.Gender
+		}
+		if user.Role != "" {
+			updateFields["role"] = user.Role
+		}
+		if user.Status != "" {
+			updateFields["status"] = user.Status
+		}
 	} else {
-		user.Email = c.PostForm("email")
-		Password := c.PostForm("password")
-		user.Password = HashPassword(Password)
-		user.Gender = c.PostForm("gender")
-		user.Birthday = c.PostForm("birthday")
-		user.Status = c.PostForm("status")
+		email := c.PostForm("email")
+		password := c.PostForm("password")
+		birthday := c.PostForm("birthday")
+		gender := c.PostForm("gender")
+		role := c.PostForm("role")
+		status := c.PostForm("status")
+
+		if email != "" {
+			updateFields["email"] = email
+		}
+		if password != "" {
+			updateFields["password"] = HashPassword(password)
+		}
+		if birthday != "" {
+			updateFields["birthday"] = birthday
+		}
+		if gender != "" {
+			updateFields["gender"] = gender
+		}
+		if role != "" {
+			updateFields["role"] = role
+		}
+		if status != "" {
+			updateFields["status"] = status
+		}
 	}
 
-	user.Updated_At = time.Now()
+	updateFields["updated_at"] = time.Now()
+
+	if len(updateFields) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Không có trường nào được cập nhật"})
+		return
+	}
 
 	filter := bson.M{"user_id": userID}
-	update := bson.M{
-		"$set": bson.M{
-			"email":      user.Email,
-			"password":   user.Password,
-			"birthday":   user.Birthday,
-			"gender":     user.Gender,
-			"role":       user.Role,
-			"status":     user.Status,
-			"updated_at": user.Updated_At,
-		},
-	}
+	update := bson.M{"$set": updateFields}
 
 	_, err := u.DB.Collection("users").UpdateOne(ctx, filter, update)
 	if err != nil {

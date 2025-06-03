@@ -19,7 +19,7 @@ export const createOrder = async (order: Order, details: OrderDetail[]) => {
 };
 
 export const getOrdersByUserId = async (userId: string) => {
-  const response = await axios.get(`/api/order/user/${userId}`, {
+  const response = await axios.get(`/api/orders/user/${userId}`, {
     headers: getAuthHeaders()
   });
   return response.data;

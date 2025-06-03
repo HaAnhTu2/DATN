@@ -90,26 +90,17 @@ const Header: React.FC = () => {
                   </Link>
                 </div>
               </div>
+              <a
+                className="col-md-9 text-decoration-none d-flex align-items-center gap-2"
+                style={{ color: "white", fontSize: "16px", cursor: "pointer", justifyContent: "flex-end" }}
+                data-toggle="dropdown"
+                aria-expanded="true"
+              >
+                <Link to={`/userorder/${user?.user_id}`} className='text-decoration-none text-white'>
+                <i className="fa fa-list-alt fa-lg"></i> Đơn hàng
+                </Link>
 
-              <div className="col-md-6">
-                {/* You can add more content here */}
-              </div>
-
-              <div className="col-md-3 clearfix">
-                <div className="header-ctn">
-
-                  <div className="menu-toggle block xl:hidden">
-                    <a onClick={() => setMenuOpen(!menuOpen)}>
-                      <i className="fa fa-bars"></i>
-                      <span>Menu</span>
-                    </a>
-                  </div>
-                  {/* {menuOpen && (
-                    <HeaderMenu />
-                  )} */}
-
-                </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>

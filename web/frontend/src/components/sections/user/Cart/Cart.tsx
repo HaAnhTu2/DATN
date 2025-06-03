@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // nếu dùng React Router
 import { ProductDetail } from "../../../../types/product";
 import { Row, Card, Table, Button } from "react-bootstrap";
+import { deleteCartItem } from "../../../../services/cartService";
 
 interface CartProduct {
   detail: ProductDetail;
@@ -14,21 +15,35 @@ interface CartListProps {
 }
 
 const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
-  const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<CartProduct[]>(cartItems);
+  const totalAmount = items.reduce(
+    (sum, item) => sum + item.cartQuantity * item.detail.price,
+    0
+  );
+  const navigate = useNavigate(); 
 
-  const navigate = useNavigate(); // nếu dùng React Router
+  const handleRemoveProduct = async (userId: string, productDetailId: string) => {
+    if (!window.confirm("Are you sure you want to delete this product detail?")) return;
 
-  const handleRemoveProduct = async (productDetailId: string) => {
-    setLoading(true);
     try {
-      setItems(prev => prev.filter(item => item.detail.product_detail_id !== productDetailId));
+      await deleteCartItem(userId, productDetailId);
+      setItems(prev => prev.filter(cart => cart.detail.product_detail_id !== productDetailId));
     } catch (error) {
-      console.error("Error removing product:", error);
-    } finally {
-      setLoading(false);
+      console.error('Error deleting cart:', error);
     }
   };
+  const handleQuantityChange = (productDetailId: string, newQuantity: number) => {
+    if (newQuantity < 1) return;
+
+    setItems(prev =>
+      prev.map(item =>
+        item.detail.product_detail_id === productDetailId
+          ? { ...item, cartQuantity: newQuantity }
+          : item
+      )
+    );
+  };
+
 
   const handlePlaceOrder = () => {
     // Lưu cart vào localStorage hoặc state management trước khi chuyển trang
@@ -60,7 +75,15 @@ const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
               <tr key={item.detail.product_detail_id}>
                 <td><img src={`http://localhost:3000/image/${item.detail.image}`} alt="" style={{ width: "100px", height: "auto", borderRadius: '5px' }} /></td>
                 <td>{item.detail.color} / {item.detail.size}</td>
-                <td>{item.cartQuantity}</td>
+                <td>
+                  <input
+                    type="number"
+                    min={1}
+                    value={item.cartQuantity}
+                    onChange={(e) => handleQuantityChange(item.detail.product_detail_id, parseInt(e.target.value))}
+                    style={{ width: '70px' }}
+                  />
+                </td>
                 <td>${item.detail.price.toFixed(2)}</td>
                 <td>${(item.cartQuantity * item.detail.price).toFixed(2)}</td>
                 <td>
@@ -75,14 +98,14 @@ const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
                   <Button
                     variant="outline-danger"
                     size="sm"
-                    disabled={loading}
-                    onClick={() => handleRemoveProduct(item.detail.product_detail_id)}
+                    onClick={() => handleRemoveProduct(userId, item.detail.product_detail_id)}
                   >
-                    {loading ? "Removing..." : "Xoá"}
+                    Xoá
                   </Button>
                 </td>
               </tr>
             ))}
+            <div>Tổng tiền cần thanh toán: {totalAmount}đ</div>
             <Button
               variant="primary"
               disabled={items.length === 0}

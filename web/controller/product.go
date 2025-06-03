@@ -59,6 +59,19 @@ func (p *ProductController) GetByID(c *gin.Context) {
 		"product": product,
 	})
 }
+
+func (p *ProductController) GetByCategory(c *gin.Context) {
+	categoryID := c.Param("id")
+
+	products, err := p.ProductRepo.FindByCategory(c.Request.Context(), categoryID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lấy sản phẩm theo danh mục", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"products": products})
+}
+
 func (p *ProductController) CreateProduct(c *gin.Context) {
 	// 1. Parse form
 	product := model.Product_SanPham{

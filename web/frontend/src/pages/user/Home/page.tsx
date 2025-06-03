@@ -2,64 +2,55 @@ import React, { useEffect, useState } from "react";
 import Home from "../../../components/sections/user/Home/page";
 import { Category } from "../../../types/category";
 import { getCategories } from "../../../services/categoryService";
+import { Link, useNavigate } from "react-router-dom";
 
 const UserHomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const imageList = ["shop03.png", "shop02.png", "shop01.png"]; // ảnh cố định
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getCategories()
-      .then((cats) => setCategories(cats))
-      .catch((err) => console.error("Failed to load categories", err));
-  }, []);
+    const fetchCategory = async () => {
+      try {
+        const fetchedCategories = await getCategories();
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error('Failed to fetch category:', error);
+      }
+    }
+    fetchCategory();
+  }, [navigate]);
 
   return (
     <div>
       <div className="section">
         <div className="container">
-                <div className="row">
-            {/* {categories.length === 0 && <p>Loading categories...</p>}
-            {categories.map(cat => (
-                <div key={cat.category_id}> */}
-                  <div className="col-md-4 col-xs-6">
-                  <div className="shop">
-                    <div className="shop-img">
-                      <img src="./src/assets/img/shop01.png" alt="" />
-                    </div>
-                    <div className="shop-body">
-                      <h3>Bộ sưu tập <br />Máy tính</h3>
-                      <a href="#" className="cta-btn">Mua ngay <i className="fa fa-arrow-circle-right"></i></a>
-                    </div>
+          <div className="row">
+            {categories.slice(0, 3).map((category, index) => (
+              <div key={category.category_id} className="col-md-4 col-xs-6">
+                <div className="shop">
+                  <Link
+                    to={`/category/${category.category_id}`}
+                  >
+                  <div className="shop-img">
+                    <img src={`./src/assets/img/${imageList[index % imageList.length]}`} alt={category.name} />
                   </div>
-                </div>
-
-                <div className="col-md-4 col-xs-6">
-                  <div className="shop">
-                    <div className="shop-img">
-                      <img src="./src/assets/img/shop03.png" alt="" />
-                    </div>
-                    <div className="shop-body">
-                      <h3>Bộ sưu tập<br />Phụ kiện</h3>
-                      <a href="#" className="cta-btn">Mua ngay <i className="fa fa-arrow-circle-right"></i></a>
-                    </div>
+                  <div className="shop-body">
+                    <h3>Bộ sưu tập<br />{category.name}</h3>
+                    <Link
+                      to={`/category/${category.category_id}`}
+                      className="cta-btn"
+                    >
+                      Mua ngay <i className="fa fa-arrow-circle-right"></i>
+                    </Link>
                   </div>
+                  </Link>
                 </div>
-
-                <div className="col-md-4 col-xs-6">
-                  <div className="shop">
-                    <div className="shop-img">
-                      <img src="./src/assets/img/shop02.png" alt="shop2" />
-                    </div>
-                    <div className="shop-body">
-                      <h3>Bộ sưu tập<br />Cameras</h3>
-                      <a href="#" className="cta-btn">Mua ngay <i className="fa fa-arrow-circle-right"></i></a>
-                    </div>
-                  </div>
-                {/* </div> */}
-                </div>
-              {/* ))} */}
-
-
+              </div>
+            ))}
           </div>
+
         </div>
 
       </div>

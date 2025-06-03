@@ -4,6 +4,7 @@ import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"bytes"
+	"context"
 	"io"
 	"net/http"
 	"strconv"
@@ -35,6 +36,25 @@ func (fc *FeedbackController) GetAllFeedback(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"data": feedbacks})
+}
+
+func (f *FeedbackController) GetFeedbackByProductID(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	productID := c.Param("id")
+	if productID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required"})
+		return
+	}
+
+	feedbacks, err := f.FeedbackRepo.GetByProductID(ctx, productID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get feedbacks: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, feedbacks)
 }
 
 func (fc *FeedbackController) CreateFeedback(c *gin.Context) {

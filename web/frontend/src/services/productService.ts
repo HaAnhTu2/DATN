@@ -26,6 +26,11 @@ export const getProductById = async (id: string): Promise<Product> => {
     return response.data.product;
 };
 
+export const getProductByCategoryId = async (id: string): Promise<Product[]> => {
+    const response = await axios.get(`/api/product/category/${id}`);
+    return response.data.products;
+};
+
 export const createProduct = async (newProduct: FormData): Promise<Product> => {
     const response = await axios.post('/api/product/create', newProduct, {
         headers: {

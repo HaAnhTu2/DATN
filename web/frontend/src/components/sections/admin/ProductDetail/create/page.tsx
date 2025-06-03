@@ -5,7 +5,7 @@ import { createProductDetail } from "../../../../../services/productService";
 import { useNavigate } from "react-router-dom";
 
 interface CreateProductDetailFormProps {
-  id: string ;
+  id: string;
 }
 
 export default function CreateProductDetail({ id }: CreateProductDetailFormProps) {
@@ -36,7 +36,7 @@ export default function CreateProductDetail({ id }: CreateProductDetailFormProps
     formData.append("status", status);
 
     console.log(id);
-    
+
 
     try {
       const res = await createProductDetail(id, formData); // ✅ đã sửa hàm gọi API
@@ -50,12 +50,12 @@ export default function CreateProductDetail({ id }: CreateProductDetailFormProps
     }
   };
 
-      const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-          const files = event.target.files;
-          if (files && files.length > 0) {
-              setImage(files[0]);
-          }
-      };
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      setImage(files[0]);
+    }
+  };
 
   return (
     <div className="container mt-4">

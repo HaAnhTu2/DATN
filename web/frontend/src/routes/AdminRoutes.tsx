@@ -1,17 +1,48 @@
-// AdminRoutes.tsx
-import { Route, Routes } from 'react-router-dom';
-import DashboardPage from '../pages/admin/DashboardPage';
-import UserManagementPage from '../pages/admin/User/UserManagementPage';
-import ProductManagementPage from '../pages/admin/Product/ProductManagementPage';
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { getUserByToken } from "../services/authService";
+import { User } from "../types/user";
+import NotAuthorized from "./NotAuthorized";
 
-const AdminRoutes = () => {
-  return (
-    <Routes>
-      <Route path="/admin/dashboard" element={<DashboardPage />} />
-      <Route path="/admin/users" element={<UserManagementPage />} />
-      <Route path="/admin/products" element={<ProductManagementPage />} />
-    </Routes>
-  );
+interface ProtectedRouteProps {
+  children: JSX.Element;
+  allowedRoles: string[];
+}
+
+const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); 
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const fetchedUser = await getUserByToken(token);
+        setUser(fetchedUser.user);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return <div>Đang kiểm tra quyền truy cập...</div>;
+  }
+
+  if (!user || !allowedRoles.includes(user.role)) {
+    return <NotAuthorized />;
+
+  }
+
+  return children;
 };
 
-export default AdminRoutes;
+export default ProtectedRoute;

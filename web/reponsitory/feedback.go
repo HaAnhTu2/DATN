@@ -11,6 +11,7 @@ import (
 
 type FeedbackRepo interface {
 	GetAll(ctx context.Context) ([]model.Feedback_DanhGiaSanPham, error)
+	GetByProductID(ctx context.Context, productID string) ([]model.Feedback_DanhGiaSanPham, error)
 	Create(ctx context.Context, feedback model.Feedback_DanhGiaSanPham) (model.Feedback_DanhGiaSanPham, error)
 	Update(ctx context.Context, user model.Feedback_DanhGiaSanPham) (model.Feedback_DanhGiaSanPham, error)
 	Delete(ctx context.Context, idUser string, idProduct string) error
@@ -41,6 +42,19 @@ func (f *FeedbackRepoI) Create(ctx context.Context, feedback model.Feedback_Danh
 		return model.Feedback_DanhGiaSanPham{}, err
 	}
 	return feedback, nil
+}
+
+func (f *FeedbackRepoI) GetByProductID(ctx context.Context, productID string) ([]model.Feedback_DanhGiaSanPham, error) {
+	var feedbacks []model.Feedback_DanhGiaSanPham
+	filter := bson.M{"id_product": productID}
+	cursor, err := f.db.Collection("feedback").Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	if err = cursor.All(ctx, &feedbacks); err != nil {
+		return nil, err
+	}
+	return feedbacks, nil
 }
 
 func (f *FeedbackRepoI) Update(ctx context.Context, feedback model.Feedback_DanhGiaSanPham) (model.Feedback_DanhGiaSanPham, error) {

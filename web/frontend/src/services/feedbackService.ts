@@ -12,6 +12,12 @@ export const getFeedbacks = async (): Promise<Feedback[]> => {
   const response = await axios.get('/api/feedback');
   return response.data;
 };
+export const getFeedbackById = async (id: string): Promise<Feedback[]> => {
+    const response = await axios.get(`/api/feedback/${id}`, {
+        headers: getAuthHeaders()
+    });
+    return response.data;
+};
 export const createFeedback = async (form: FormData): Promise<Feedback> => {
   const response = await axios.post('/api/feedback/create', form, { headers: getAuthHeaders() });
   return response.data;

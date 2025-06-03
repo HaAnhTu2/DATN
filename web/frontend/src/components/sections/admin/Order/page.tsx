@@ -52,54 +52,56 @@ const OrderManagement: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
-            <tr key={order._id}>
-              <td>{order.order_id}</td>
-              <td>{order.fullname}</td>
-              <td>{order.phone}</td>
-              <td>{new Date(order.order_date).toLocaleString()}</td>
-              <td>{order.shipping_address}</td>
-              <td>{order.total_amount.toLocaleString()}₫</td>
-              <td>
-                {order.shipping_method} / {order.payment_method}
-              </td>
-              <td>{order.status}</td>
-              <td>{order.note}</td>
-              <td>
-                <button
-                  className="btn btn-info btn-sm me-2"
-                  onClick={() => navigate(`/orders/${order.order_id}`)}
-                >
-                  Chi tiết
-                </button>
-                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+          {orders ? (
+              orders?.map((order) => (
+                <tr key={order.order_id}>
+                  <td>{order.order_id}</td>
+                  <td>{order.fullname}</td>
+                  <td>{order.phone}</td>
+                  <td>{new Date(order.order_date).toLocaleString()}</td>
+                  <td>{order.shipping_address}</td>
+                  <td>{order.total_amount.toLocaleString()}₫</td>
+                  <td>
+                    {order.shipping_method} / {order.payment_method}
+                  </td>
+                  <td>{order.status}</td>
+                  <td>{order.note}</td>
+                  <td>
+                    <button
+                      className="btn btn-info btn-sm me-2"
+                      onClick={() => navigate(`/orders/${order.order_id}`)}
+                    >
+                      Chi tiết
+                    </button>
+                    {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
 
-                <button
-                  className="btn btn-success btn-sm me-2"
-                  onClick={() => navigate(`/orders/${order.order_id}`)}
-                >
-                  Xác nhận
-                </button>
-                ) : (null)}
+                      <button
+                        className="btn btn-success btn-sm me-2"
+                        onClick={() => navigate(`/orders/${order.order_id}`)}
+                      >
+                        Xác nhận
+                      </button>
+                    ) : (null)}
 
-                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() => handleCancel(order.order_id)}
-                  >
-                    Huỷ
-                  </button>
-                ) : (null)}
+                    {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+                      <button
+                        className="btn btn-warning btn-sm"
+                        onClick={() => handleCancel(order.order_id)}
+                      >
+                        Huỷ
+                      </button>
+                    ) : (null)}
 
-              </td>
-            </tr>
-          ))}
-          {orders.length === 0 && (
+                  </td>
+                </tr>
+              ))
+          ) : (
             <tr>
               <td colSpan={9} className="text-center">
                 Không có đơn hàng nào
               </td>
             </tr>
+
           )}
         </tbody>
       </table>

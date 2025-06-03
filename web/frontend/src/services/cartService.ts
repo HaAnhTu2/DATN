@@ -23,8 +23,8 @@ export const updateCartQuantity = async (form: FormData): Promise<any> => {
   return response.data;
 };
 
-export const deleteCartItem = async (form: FormData): Promise<void> => {
-  await axios.delete('/api/cart', { data: form, headers: getAuthHeaders() });
+export const deleteCartItem = async (userId: string, ProductDetailId: string): Promise<void> => {
+  await axios.delete(`/api/cart/${userId}/${ProductDetailId}`, { headers: getAuthHeaders() });
 };
 
 export const clearCart = async (userId: string): Promise<void> => {

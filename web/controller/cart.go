@@ -75,8 +75,8 @@ func (cc *CartController) UpdateQuantity(c *gin.Context) {
 
 // Xoá sản phẩm khỏi giỏ hàng
 func (cc *CartController) DeleteCartItem(c *gin.Context) {
-	userID := c.Query("user_id")
-	detailID := c.Query("product_detail_id")
+	userID := c.Param("user_id")
+	detailID := c.Param("product_detail_id")
 	log.Print(userID, detailID)
 	err := cc.CartRepo.Delete(context.Background(), userID, detailID)
 	if err != nil {

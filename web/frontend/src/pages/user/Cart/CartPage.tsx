@@ -38,8 +38,6 @@ const CartPage: React.FC = () => {
 
     fetchUser();
   }, []);
-  console.log(user?.user_id);
-  
 
   useEffect(() => {
     const fetchCartWithDetails = async () => {
@@ -48,7 +46,7 @@ const CartPage: React.FC = () => {
       try {
         const fetchedCart = await getCartByUserId(user?.user_id);
         console.log(fetchedCart);
-        
+
 
         const cartProducts: CartProduct[] = await Promise.all(
           fetchedCart.map(async (cartItem) => {
@@ -63,7 +61,6 @@ const CartPage: React.FC = () => {
         setCartItems(cartProducts);
       } catch (err) {
         console.error("Failed to fetch cart or product details:", err);
-        setError("Failed to load cart data.");
       } finally {
         setLoading(false);
       }
@@ -71,12 +68,19 @@ const CartPage: React.FC = () => {
 
     fetchCartWithDetails();
   }, [user]);
-  console.log(cartItems);
-  
+
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  if (!cartItems || !user) return <div>No cart items available.</div>;
+  if (!cartItems || !user) return <div className="section">
+    <header className="container">
+      <div className="row">
+        <div className="col-md-12">
+          <h5>Không có sản phẩm nào trong giỏ hàng.</h5>
+        </div>
+      </div>
+    </header>
+  </div>;
 
   return (
     <div className="section">

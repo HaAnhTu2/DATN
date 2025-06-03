@@ -51,6 +51,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/feedback/image/:id", feedbackController.ServeImageFeedback)
 	r.GET("/api/product/get", productController.GetAllProduct)
 	r.GET("/api/product/get/:id", productController.GetByID)
+	r.GET("/api/product/category/:id", productController.GetByCategory)
 	r.GET("/api/product/image/:id", productController.ServeImageProduct)
 
 	r.GET("/api/productdetail/product/:id_product", productDetailController.GetProductDetailsByProductID)
@@ -61,6 +62,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	r.GET("/api/producer", producerController.GetAllProducer)
 	r.GET("/api/producer/:id", producerController.GetProducerByID)
 	r.GET("/api/feedback", feedbackController.GetAllFeedback)
+	r.GET("/api/feedback/:id", feedbackController.GetFeedbackByProductID)
 	r.GET("/api/voucher/all", voucherController.GetAllVouchers)
 	r.GET("/api/voucher/:id", voucherController.GetVoucherByID)
 
@@ -107,13 +109,13 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.POST("/cart", cartController.AddToCart)
 		auth.GET("/cart/:user_id", cartController.GetCartByUserID)
 		auth.PUT("/cart/quantity", cartController.UpdateQuantity)
-		auth.DELETE("/cart", cartController.DeleteCartItem)
+		auth.DELETE("/cart/:user_id/:product_detail_id", cartController.DeleteCartItem)
 		auth.DELETE("/cart/clear/:user_id", cartController.ClearCart)
 
 		// Order routes
 		auth.GET("/orders", orderController.GetAllOrders) // admin
 		auth.GET("/orders/user/:user_id", orderController.GetOrdersByUserID)
-		auth.GET("/orders/:order_id/details", orderController.GetOrderDetails)
+		auth.GET("/orders/detail/:order_id", orderController.GetOrderDetails)
 		auth.POST("/orders/create", orderController.CreateOrder)
 		auth.PUT("/orders/:order_id/status", orderController.UpdateOrderStatus)
 		auth.DELETE("/orders/:order_id", orderController.DeleteOrder)

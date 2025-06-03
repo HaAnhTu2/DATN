@@ -37,12 +37,11 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ", "detail": err.Error()})
 		return
 	}
-	log.Print("req.Order.ID_User: ", req.Order.ID_User)
 
 	req.Order.OrderDate = time.Now()
 	req.Order.Order_ID = primitive.NewObjectID()
 
-	orderResult, err := oc.OrderRepo.CreateOrder(context.Background(), req.Order)
+	_, err := oc.OrderRepo.CreateOrder(context.Background(), req.Order)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo đơn hàng"})
 		return
@@ -53,12 +52,7 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		}
 	}
 
-	orderIDObj, ok := orderResult.InsertedID.(primitive.ObjectID)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ID đơn hàng không hợp lệ"})
-		return
-	}
-	orderID := orderIDObj.Hex()
+	orderID := req.Order.Order_ID.Hex()
 
 	for i := range req.Details {
 		req.Details[i].ID_Order = orderID

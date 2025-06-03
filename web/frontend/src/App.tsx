@@ -37,6 +37,10 @@ import CreateproducerPage from './pages/admin/Producer/create/page';
 import UpdateProducerPage from './pages/admin/Producer/update/page';
 import CreateCategoryPage from './pages/admin/Category/create/page';
 import UpdateCategoryPage from './pages/admin/Category/update/page';
+import CategoryPage from './pages/user/Category/[id]/page';
+import OrderUserPage from './pages/user/Order/OrderUser';
+import ProtectedRoute from './routes/AdminRoutes';
+import OrderDetailPage from './pages/user/Order/[id]/OrderDetailPage';
 
 
 function App() {
@@ -50,34 +54,39 @@ function App() {
             <Routes>
               <Route path="/" element={<UserHomePage />} />
               <Route path="/home" element={<UserHomePage />} />
-              <Route path="/create/category" element={<CreateCategoryPage />} />
-              <Route path="/update/category/:id" element={<UpdateCategoryPage />} />
-              <Route path="/update/category" element={<CategoryManagementPage />} />
+              <Route path="/create/category" element={<ProtectedRoute allowedRoles={['Admin']}><CreateCategoryPage /></ProtectedRoute>} />
+              <Route path="/update/category/:id" element={<ProtectedRoute allowedRoles={['Admin']}><UpdateCategoryPage /></ProtectedRoute>} />
+              <Route path="/update/category" element={<ProtectedRoute allowedRoles={['Admin']}><CategoryManagementPage /></ProtectedRoute>} />
 
-              <Route path="/update/order" element={<OrderManagementPage />} />
+              <Route path="/update/order" element={<ProtectedRoute allowedRoles={['Admin']}><OrderManagementPage /></ProtectedRoute>} />
 
-              <Route path="/create/producer" element={<CreateproducerPage />} />
-              <Route path="/update/producer/:id" element={<UpdateProducerPage />} />
-              <Route path="/update/producer" element={<ProducerManagementPage />} />
+              <Route path="/create/producer" element={<ProtectedRoute allowedRoles={['Admin']}><CreateproducerPage /></ProtectedRoute>} />
+              <Route path="/update/producer/:id" element={<ProtectedRoute allowedRoles={['Admin']}><UpdateProducerPage /></ProtectedRoute>} />
+              <Route path="/update/producer" element={<ProtectedRoute allowedRoles={['Admin']}><ProducerManagementPage /></ProtectedRoute>} />
 
-              <Route path="/create/product" element={<CreateProductPage />} />
-              <Route path="/update/product/:id" element={<UpdateProductPage />} />
-              <Route path="/update/product" element={<ProductManagementPage />} />
+              <Route path="/create/product" element={<ProtectedRoute allowedRoles={['Admin']}><CreateProductPage /></ProtectedRoute>} />
+              <Route path="/update/product/:id" element={<ProtectedRoute allowedRoles={['Admin']}><UpdateProductPage /></ProtectedRoute>} />
+              <Route path="/update/product" element={<ProtectedRoute allowedRoles={['Admin']}><ProductManagementPage /></ProtectedRoute>} />
 
-              <Route path="/update/user" element={<UserManagementPage />} />
+              <Route path="/update/user" element={<ProtectedRoute allowedRoles={['Admin']}><UserManagementPage /></ProtectedRoute>} />
 
-              <Route path="/creare/voucher" element={<CreateVoucherPage />} />
-              <Route path="/update/voucher/:id" element={<UpdateVoucherPage />} />
-              <Route path="/update/voucher" element={<VoucherManagementPage />} />
+              <Route path="/creare/voucher" element={<ProtectedRoute allowedRoles={['Admin']}><CreateVoucherPage /></ProtectedRoute>} />
+              <Route path="/update/voucher/:id" element={<ProtectedRoute allowedRoles={['Admin']}><UpdateVoucherPage /></ProtectedRoute>} />
+              <Route path="/update/voucher" element={<ProtectedRoute allowedRoles={['Admin']}><VoucherManagementPage /></ProtectedRoute>} />
 
-              <Route path="/productdetail/create/:id" element={<CreateProductDetailPage />} />
-              <Route path="/productdetail/update/:id" element={<UpdateProductDetailPage />} />
-              <Route path="/productdetail/:id" element={<ProductDetailPage />} />
+              <Route path="/productdetail/create/:id" element={<ProtectedRoute allowedRoles={['Admin']}><CreateProductDetailPage /></ProtectedRoute>} />
+              <Route path="/productdetail/update/:id" element={<ProtectedRoute allowedRoles={['Admin']}><UpdateProductDetailPage /></ProtectedRoute>} />
+              <Route path="/productdetail/:id" element={<ProtectedRoute allowedRoles={['Admin']}><ProductDetailPage /></ProtectedRoute>} />
+              
+
               <Route path="/product/:id" element={<DetailProductPage />} />
+              <Route path="/category/:id" element={<CategoryPage />} />
 
               <Route path="/user/:id" element={<UpdateUserDetailPage />} />
               <Route path="/cart/:id" element={<CartPage />} />
+              <Route path="/userorder/:id" element={<OrderUserPage />} />
               <Route path="/order/:id" element={<OrderPage />} />
+              <Route path="/order/detail/:id" element={<OrderDetailPage />} />
               <Route path="/order/success" element={<OrderSuccess />} />
 
               <Route path="/user/update/:id" element={<UpdateUserPage />} />
