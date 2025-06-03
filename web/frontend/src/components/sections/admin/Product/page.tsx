@@ -58,6 +58,9 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
   const handleCreateClick = () => {
     navigate(`/create/product`);
   };
+  const handleProductDetailClick = (product: Product) => {
+    navigate(`/productdetail/${product.product_id}`);
+  };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -138,7 +141,7 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
             <tbody>
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={7}>No products found</td>
+                  <td colSpan={7}>Không tìm thấy sản phẩm nào.</td>
                 </tr>
               )}
               {filteredProducts.map(product => (
@@ -160,6 +163,14 @@ const ProductManagement: React.FC<ProductManagementProps> = ({ setFormProduct })
                   </td>
                   <td>{product.description}</td>
                   <td>
+                    <Button
+                      variant="outline-info"
+                      size="sm"
+                      onClick={() => handleProductDetailClick(product)}
+                      className="me-2"
+                    >
+                      Chi tiết sản phẩm
+                    </Button>
                     <Button
                       variant="outline-primary"
                       size="sm"

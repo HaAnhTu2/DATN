@@ -10,33 +10,28 @@ interface UpdateFormUserProps {
 }
 
 const UpdateFormUser: React.FC<UpdateFormUserProps> = ({ setUsers, setMessage, userToEdit }) => {
-    const [first_name, setFirstName] = useState(userToEdit.first_name);
-    const [last_name, setLastName] = useState(userToEdit.last_name);
     const [email, setEmail] = useState(userToEdit.email);
     const [password, setPassword] = useState(userToEdit.password);
-    const [address, setAddress] = useState(userToEdit.address);
-    const [phone_number, setPhoneNumber] = useState(userToEdit.phone_number);
-    const [role, setRole] = useState(userToEdit.role)
+    const [gender, setGender] = useState(userToEdit.gender);
+    const [birthday, setBirthday] = useState(userToEdit.birthday);
+    const [status, setStatus] = useState(userToEdit.status)
     const [image, setImage] = useState<File | null>(null);
 
     useEffect(() => {
-        setFirstName(userToEdit.first_name);
-        setLastName(userToEdit.last_name);
         setEmail(userToEdit.email);
         setPassword(userToEdit.password);
-        setAddress(userToEdit.address);
-        setPhoneNumber(userToEdit.phone_number);
-        setRole(userToEdit.role);
-        setImage(userToEdit.userimage_url)
+        setGender(userToEdit.gender);
+        setBirthday(userToEdit.birthday);
+        setStatus(userToEdit.status);
     }, [userToEdit]);
 
     const handleUpdateUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const updatedUser = { ...userToEdit, first_name, last_name, email, password, address, phone_number, role, image };
-            await updateUser(userToEdit._id, updatedUser);
+            const updatedUser = { ...userToEdit, email, password, gender, birthday, status, image };
+            await updateUser(userToEdit.user_id, updatedUser);
             setUsers(prevUsers =>
-                prevUsers.map(user => (user._id === userToEdit._id ? updatedUser : user)));
+                prevUsers.map(user => (user.user_id === userToEdit.user_id ? updatedUser : user)));
             setMessage("User updated successfully!");
             window.location.reload(); 
 
@@ -50,20 +45,12 @@ const UpdateFormUser: React.FC<UpdateFormUserProps> = ({ setUsers, setMessage, u
             setImage(files[0]);
         }
     };
-    const handleRoleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        setRole(event.target.value);
+    const handlestatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        setStatus(event.target.value);
     };
 
     return (
         <form onSubmit={handleUpdateUser}>
-            <div>
-                <label>FirstName: </label><br />
-                <input type="text" value={first_name} onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)} required />
-            </div>
-            <div>
-                <label>LastName: </label><br />
-                <input type="text" value={last_name} onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)} required />
-            </div>
             <div>
                 <label>Email: </label><br />
                 <input type="email" value={email} onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required />
@@ -73,17 +60,17 @@ const UpdateFormUser: React.FC<UpdateFormUserProps> = ({ setUsers, setMessage, u
                 <input type="password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} required />
             </div>
             <div>
-                <label>Address: </label><br />
-                <input type="text" value={address} onChange={(e: ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)} required />
+                <label>gender: </label><br />
+                <input type="text" value={gender} onChange={(e: ChangeEvent<HTMLInputElement>) => setGender(e.target.value)} required />
             </div>
             <div>
                 <label>Phone: </label><br />
-                <input type="text" value={phone_number} onChange={(e: ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} required />
+                <input type="text" value={birthday} onChange={(e: ChangeEvent<HTMLInputElement>) => setBirthday(e.target.value)} required />
             </div>
             <div>
-                <label>Role: </label><br />
-                <select value={role} onChange={handleRoleChange} className="form-select">
-                    <option value="">Select a role</option>
+                <label>status: </label><br />
+                <select value={status} onChange={handlestatusChange} className="form-select">
+                    <option value="">Select a status</option>
                     <option value="Admin">Admin</option>
                     <option value="User">User</option>
                     <option value="Guest">Guest</option>

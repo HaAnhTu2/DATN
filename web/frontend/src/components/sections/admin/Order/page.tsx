@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { getOrdersByUserId, cancelOrder } from "../../../../services/orderService";
+import { cancelOrder, getAllOrders } from "../../../../services/orderService";
 import { Order } from "../../../../types/order";
 import { useNavigate } from "react-router-dom";
 
-interface Props {
-  userId: string;
-}
-
-const OrderManagement: React.FC<Props> = ({ userId }) => {
+const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
-  }, [userId]);
+  }, []);
 
   const fetchOrders = async () => {
     try {
-      const data = await getOrdersByUserId(userId);
+      const data = await getAllOrders();
       setOrders(data);
     } catch (err) {
       console.error("Lỗi khi lấy danh sách đơn hàng:", err);
@@ -57,7 +53,7 @@ const OrderManagement: React.FC<Props> = ({ userId }) => {
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order.order_id}>
+            <tr key={order._id}>
               <td>{order.order_id}</td>
               <td>{order.fullname}</td>
               <td>{order.phone}</td>

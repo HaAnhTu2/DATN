@@ -27,7 +27,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	cartController := controller.NewCartController(CartRepo, DB)
 
 	OrderRepo := reponsitory.NewOrderRepo(client.Database(os.Getenv("DB_NAME")))
-	orderController := controller.NewOrderController(OrderRepo, DB)
+	orderController := controller.NewOrderController(OrderRepo, CartRepo, DB)
 
 	CategoryRepo := reponsitory.NewCategoryRepo(client.Database(os.Getenv("DB_NAME")))
 	categoryController := controller.NewCategoryController(CategoryRepo, DB)
@@ -76,7 +76,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.DELETE("/product/delete/:id", productController.DeleteProduct)
 
 		// ProductDetail routes
-		auth.POST("/product-detail", productDetailController.CreateProductDetail)
+		auth.POST("/product-detail/:id", productDetailController.CreateProductDetail)
 		auth.PUT("/product-detail/:id", productDetailController.UpdateProductDetail)
 		auth.DELETE("/product-detail/delete/:id", productDetailController.DeleteProductDetail)
 

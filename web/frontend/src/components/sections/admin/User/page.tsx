@@ -41,7 +41,7 @@ const UserManagement: React.FC = () => {
     );
 
     const handleUpdateUser = (user: User) => {
-        navigate(`/user/edit/${user.user_id}`);
+        navigate(`/user/update/${user.user_id}`);
     };
 
     const handleDeleteUser = async (id: string) => {
@@ -85,7 +85,7 @@ const UserManagement: React.FC = () => {
                             {filteredUsers.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="text-center text-muted">
-                                        No users found.
+                                        Không tìm thấy người dùng nào.
                                     </td>
                                 </tr>
                             ) : (

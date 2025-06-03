@@ -4,6 +4,7 @@ import (
 	"DoAnToiNghiep/model"
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -111,11 +112,17 @@ func (r *OrderRepoI) GetOrderDetails(ctx context.Context, orderID string) ([]mod
 }
 
 func (r *OrderRepoI) CancelOrder(ctx context.Context, orderID string) error {
-	filter := bson.M{"_id": orderID}
+	objID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"order_id": objID}
 	update := bson.M{"$set": bson.M{"status": "cancelled"}}
 
 	result, err := r.db.Collection("orders").UpdateOne(ctx, filter, update)
 	if err != nil {
+		log.Print("err: ", err)
 		return err
 	}
 	if result.MatchedCount == 0 {

@@ -31,13 +31,13 @@ const OrderPage: React.FC = () => {
       navigate("/cart");
     }
   }, [navigate]);
-
+  const totalAmount = cartItems.reduce(
+    (sum, item) => sum + item.cartQuantity * item.detail.price,
+    0
+  );
   const handleSubmit = async () => {
     try {
-      const totalAmount = cartItems.reduce(
-        (sum, item) => sum + item.cartQuantity * item.detail.price,
-        0
-      );
+
 
       const order: Order = {
         order_id: "",
@@ -136,6 +136,9 @@ const OrderPage: React.FC = () => {
               setFormData({ ...formData, note: e.target.value })
             }
           />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Tổng tiền cần thanh toán: {totalAmount}đ</Form.Label>
         </Form.Group>
         <Button className="m-4" onClick={handleSubmit}>Xác nhận đặt hàng</Button>
       </Form>

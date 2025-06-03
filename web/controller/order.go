@@ -4,6 +4,7 @@ import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -14,12 +15,14 @@ import (
 
 type OrderController struct {
 	OrderRepo reponsitory.OrderRepo
+	CartRepo  reponsitory.CartRepo
 	DB        *mongo.Database
 }
 
-func NewOrderController(orderRepo reponsitory.OrderRepo, db *mongo.Database) *OrderController {
+func NewOrderController(orderRepo reponsitory.OrderRepo, cartRepo reponsitory.CartRepo, db *mongo.Database) *OrderController {
 	return &OrderController{
 		OrderRepo: orderRepo,
+		CartRepo:  cartRepo,
 		DB:        db,
 	}
 }
@@ -34,13 +37,20 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ", "detail": err.Error()})
 		return
 	}
+	log.Print("req.Order.ID_User: ", req.Order.ID_User)
 
 	req.Order.OrderDate = time.Now()
+	req.Order.Order_ID = primitive.NewObjectID()
 
 	orderResult, err := oc.OrderRepo.CreateOrder(context.Background(), req.Order)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo đơn hàng"})
 		return
+	} else {
+		err := oc.CartRepo.ClearCart(context.Background(), req.Order.ID_User)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể xoá giỏ hàng"})
+		}
 	}
 
 	orderIDObj, ok := orderResult.InsertedID.(primitive.ObjectID)
@@ -87,6 +97,7 @@ func (oc *OrderController) CancelOrder(c *gin.Context) {
 	orderID := c.Param("order_id")
 	err := oc.OrderRepo.CancelOrder(context.Background(), orderID)
 	if err != nil {
+		log.Print("error: ", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Huỷ đơn hàng thất bại"})
 		return
 	}

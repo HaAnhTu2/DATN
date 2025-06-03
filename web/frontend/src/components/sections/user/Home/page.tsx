@@ -74,11 +74,11 @@ const UserHome: React.FC = () => {
         />
       </Form>
 
-      <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-        {filteredProducts.length === 0 ? (
-          <p>Không tìm thấy sản phẩm nào.</p>
-        ) : (
-          filteredProducts.map(product => {
+      {filteredProducts.length === 0 ? (
+        <p>Không tìm thấy sản phẩm nào.</p>
+      ) : (
+        <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+          {filteredProducts.map(product => {
             const detail = productDetails.find(d => d.id_product === product.product_id);
             const imageUrl = detail ? `http://localhost:3000/image/${detail.image}` : null;
 
@@ -124,9 +124,10 @@ const UserHome: React.FC = () => {
                 </Card>
               </Col>
             );
-          })
-        )}
-      </Row>
+          })}
+        </Row>
+
+      )}
     </div>
   );
 };

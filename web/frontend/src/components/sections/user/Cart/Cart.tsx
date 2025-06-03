@@ -42,7 +42,7 @@ const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
       <Card className="h-100 w-100">
         <div className="bg-white py-3 px-4 d-flex justify-content-between">
           <h4 className="mb-0">Giỏ hàng</h4>
-          
+
         </div>
         <Table responsive className="text-nowrap">
           <thead className="table-light">
@@ -58,20 +58,20 @@ const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
           <tbody>
             {items.map(item => (
               <tr key={item.detail.product_detail_id}>
-                <td><img src={`http://localhost:3000/image/${item.detail.image}`} alt=""style={{ width: "100px", height: "auto", borderRadius: '5px' }} /></td>
+                <td><img src={`http://localhost:3000/image/${item.detail.image}`} alt="" style={{ width: "100px", height: "auto", borderRadius: '5px' }} /></td>
                 <td>{item.detail.color} / {item.detail.size}</td>
                 <td>{item.cartQuantity}</td>
                 <td>${item.detail.price.toFixed(2)}</td>
                 <td>${(item.cartQuantity * item.detail.price).toFixed(2)}</td>
                 <td>
                   <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        // onClick={() => handleUpdateProduct(product)}
-                                        className="me-2"
-                                      >
-                                        Sửa
-                                      </Button>
+                    variant="outline-primary"
+                    size="sm"
+                    // onClick={() => handleUpdateProduct(product)}
+                    className="me-2"
+                  >
+                    Sửa
+                  </Button>
                   <Button
                     variant="outline-danger"
                     size="sm"
@@ -84,13 +84,13 @@ const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
               </tr>
             ))}
             <Button
-            variant="primary"
-            disabled={items.length === 0}
-            onClick={handlePlaceOrder}
-            className="mt-4"
-          >
-            Đặt hàng
-          </Button>
+              variant="primary"
+              disabled={items.length === 0}
+              onClick={handlePlaceOrder}
+              className="mt-4"
+            >
+              Đặt hàng
+            </Button>
           </tbody>
         </Table>
       </Card>

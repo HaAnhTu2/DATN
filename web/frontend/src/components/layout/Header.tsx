@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getUserByToken, logout } from '../../services/authService';
 import { User } from '../../types/user';
 import logo from '../../assets/img/logo.png';
+import HeaderMenu from './HeaderMenu';
 
 const Header: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,7 +66,7 @@ const Header: React.FC = () => {
             <ul className="header-links pull-right">
               {isLoggedIn ? (
                 <>
-                  <li><a href="#" className='text-decoration-none'><i className="fa fa-user-o"></i> Hello, {user?.email}</a></li>
+                  <li><Link to={`/user/${user?.user_id}`} className='text-decoration-none'><i className="fa fa-user-o"></i> Hello, {user?.email}</Link></li>
                   <li><Link to={`/cart/${user?.user_id}`} className='text-decoration-none' onClick={handleCartClick}><i className="fa fa-shopping-cart"></i> Giỏ hàng</Link></li>
                   <li><Link to="/logout" className='text-decoration-none' onClick={handleLogout}><i className="fa fa-sign-out"></i> Đăng xuất</Link></li>
                 </>
@@ -95,12 +98,16 @@ const Header: React.FC = () => {
               <div className="col-md-3 clearfix">
                 <div className="header-ctn">
 
-                  <div className="menu-toggle">
-                    <a href="#">
+                  <div className="menu-toggle block xl:hidden">
+                    <a onClick={() => setMenuOpen(!menuOpen)}>
                       <i className="fa fa-bars"></i>
                       <span>Menu</span>
                     </a>
                   </div>
+                  {/* {menuOpen && (
+                    <HeaderMenu />
+                  )} */}
+
                 </div>
               </div>
             </div>

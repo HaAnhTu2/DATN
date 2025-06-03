@@ -49,8 +49,8 @@ export const deleteProduct = async (id: string): Promise<void> => {
     });
 };
 
-export const createProductDetail = async (form: FormData): Promise<any> => {
-    const response = await axios.post('/api/product-detail', form, {
+export const createProductDetail = async (id: string, form: FormData): Promise<any> => {
+    const response = await axios.post(`/api/product-detail/${id}`, form, {
         headers: getAuthHeaders()
     });
     return response.data;

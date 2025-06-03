@@ -20,7 +20,7 @@ export const getUserById = async (id: string): Promise<User> => {
     const response = await axios.get(`/api/user/get/${id}`, {
         headers: getAuthHeaders()
     });
-    return response.data;
+    return response.data.user;
 };
 
 // Đăng ký user mới (không cần token)

@@ -29,13 +29,13 @@ func NewProductDetailController(detailRepo reponsitory.ProductDetailRepo, db *mo
 }
 func (ctrl *ProductDetailController) CreateProductDetail(c *gin.Context) {
 	detail := model.Product_Detail_ChiTietDonHang{
-		ID_Product: c.PostForm("id_product"),
-		Color:      c.PostForm("color"),
-		Size:       c.PostForm("size"),
-		Status:     c.PostForm("status"),
+		Color:  c.PostForm("color"),
+		Size:   c.PostForm("size"),
+		Status: c.PostForm("status"),
 	}
 
 	var err error
+	detail.ID_Product = c.Param("id")
 	detail.Quantity, err = strconv.Atoi(c.PostForm("quantity"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity"})

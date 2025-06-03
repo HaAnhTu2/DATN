@@ -87,9 +87,31 @@ func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 	}
 
 	var voucher model.Voucher_MaGiamGia
-	if err := c.ShouldBind(&voucher); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
-		return
+	if c.ContentType() == "application/json" {
+		if err := c.ShouldBind(&voucher); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
+			return
+		}
+	} else {
+		voucher.Code = c.PostForm("code")
+		voucher.Value = c.PostForm("value")
+
+		minOrderStr := c.PostForm("min_order_value")
+		minOrderVal, err := strconv.Atoi(minOrderStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid min_order_value: must be a number"})
+			return
+		}
+		voucher.Min_Order_Value = minOrderVal
+		expiredStr := c.PostForm("exprired_time")
+		expiredTime, err := time.Parse("2006-01-02", expiredStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid exprired_time: must be in YYYY-MM-DD format"})
+			return
+		}
+		voucher.Exprired_Time = expiredTime
+		voucher.Description = c.PostForm("description")
+		voucher.Status = c.PostForm("status")
 	}
 
 	voucher.Voucher_ID = objectID

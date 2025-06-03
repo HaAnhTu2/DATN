@@ -66,7 +66,7 @@ func (v *VoucherRepoI) Create(ctx context.Context, voucher model.Voucher_MaGiamG
 	voucher.Created_At = time.Now()
 	voucher.Updated_At = time.Now()
 
-	_, err := v.db.Collection("voucher").InsertOne(ctx, voucher)
+	_, err := v.db.Collection("vouchers").InsertOne(ctx, voucher)
 	if err != nil {
 		return model.Voucher_MaGiamGia{}, err
 	}
@@ -86,7 +86,7 @@ func (v *VoucherRepoI) Update(ctx context.Context, voucher model.Voucher_MaGiamG
 		"updated_at":      voucher.Updated_At,
 	}
 
-	result, err := v.db.Collection("voucher").UpdateOne(
+	result, err := v.db.Collection("vouchers").UpdateOne(
 		ctx,
 		bson.M{"voucher_id": voucher.Voucher_ID},
 		bson.M{"$set": update},
@@ -101,7 +101,7 @@ func (v *VoucherRepoI) Update(ctx context.Context, voucher model.Voucher_MaGiamG
 	return voucher, nil
 }
 func (v *VoucherRepoI) Delete(ctx context.Context, voucherID primitive.ObjectID) error {
-	result, err := v.db.Collection("voucher").DeleteOne(
+	result, err := v.db.Collection("vouchers").DeleteOne(
 		ctx,
 		bson.M{"voucher_id": voucherID},
 	)

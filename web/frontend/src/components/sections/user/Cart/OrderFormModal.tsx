@@ -44,13 +44,13 @@ const OrderFormModal: React.FC<OrderFormModalProps> = ({ show, onHide, onSuccess
             };
 
             const details: OrderDetail[] = cartItems.map(item => ({
-                id_order: "", // sẽ được gán từ backend
+                id_order: "",
                 id_product_detail: item.detail.product_detail_id,
                 quantity: item.cartQuantity,
                 price: item.detail.price
             }));
 
-            await createOrder(order, details); // gọi API có đính kèm Authorization
+            await createOrder(order, details); 
 
             onSuccess();
         } catch (err: any) {

@@ -1,95 +1,114 @@
-// import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Form, Button, Container } from "react-bootstrap";
-// import { CartProduct } from "../../../../types/cart";
+import React, { useEffect, useState } from "react";
+import { getOrdersByUserId, cancelOrder } from "../../../../services/orderService";
+import { Order } from "../../../../types/order";
+import { useNavigate } from "react-router-dom";
 
-// const OrderPage: React.FC = () => {
-//   const [formData, setFormData] = useState({
-//     fullname: "",
-//     phone: "",
-//     shipping_address: "",
-//     note: ""
-//   });
+interface Props {
+  userId: string;
+}
 
-//   const [cartItems, setCartItems] = useState<CartProduct[]>([]);
-//   const [userId, setUserId] = useState("");
-//   const navigate = useNavigate();
+const OrderManagement: React.FC<Props> = ({ userId }) => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const navigate = useNavigate();
 
-//   useEffect(() => {
-//     const storedCart = localStorage.getItem("checkout_cart");
-//     const storedUserId = localStorage.getItem("checkout_user_id");
+  useEffect(() => {
+    fetchOrders();
+  }, [userId]);
 
-//     if (storedCart && storedUserId) {
-//       setCartItems(JSON.parse(storedCart));
-//       setUserId(storedUserId);
-//     } else {
-//       // Nếu không có dữ liệu thì quay lại cart
-//       navigate("/cart");
-//     }
-//   }, []);
+  const fetchOrders = async () => {
+    try {
+      const data = await getOrdersByUserId(userId);
+      setOrders(data);
+    } catch (err) {
+      console.error("Lỗi khi lấy danh sách đơn hàng:", err);
+    }
+  };
 
-//   const handleSubmit = async () => {
-//     const totalAmount = cartItems.reduce((sum, item) => sum + item.cartQuantity * item.detail.price, 0);
+  const handleCancel = async (orderId: string) => {
+    const confirm = window.confirm("Bạn có chắc chắn muốn huỷ đơn hàng này?");
+    if (!confirm) return;
 
-//     const order = {
-//       order_id: "",
-//       id_user: userId,
-//       fullname: formData.fullname,
-//       phone: formData.phone,
-//       order_date: new Date().toISOString(),
-//       shipping_address: formData.shipping_address,
-//       shipping_method: "standard",
-//       payment_method: "cod",
-//       total_amount: totalAmount,
-//       status: "pending",
-//       note: formData.note
-//     };
+    try {
+      await cancelOrder(orderId);
+      alert("Đã huỷ đơn hàng.");
+      fetchOrders();
+    } catch (err) {
+      console.error("Lỗi khi huỷ đơn hàng:", err);
+    }
+  };
 
-//     const details = cartItems.map(item => ({
-//       id_order: "",
-//       id_product_detail: item.detail.product_detail_id,
-//       quantity: item.cartQuantity,
-//       price: item.detail.price
-//     }));
+  return (
+    <div className="container mt-4">
+      <h3>Quản lý đơn hàng</h3>
+      <table className="table table-bordered mt-3">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Người nhận</th>
+            <th>SĐT</th>
+            <th>Ngày đặt</th>
+            <th>Địa chỉ</th>
+            <th>Tổng tiền</th>
+            <th>Phương thức</th>
+            <th>trạng thái</th>
+            <th>Ghi chú</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((order) => (
+            <tr key={order.order_id}>
+              <td>{order.order_id}</td>
+              <td>{order.fullname}</td>
+              <td>{order.phone}</td>
+              <td>{new Date(order.order_date).toLocaleString()}</td>
+              <td>{order.shipping_address}</td>
+              <td>{order.total_amount.toLocaleString()}₫</td>
+              <td>
+                {order.shipping_method} / {order.payment_method}
+              </td>
+              <td>{order.status}</td>
+              <td>{order.note}</td>
+              <td>
+                <button
+                  className="btn btn-info btn-sm me-2"
+                  onClick={() => navigate(`/orders/${order.order_id}`)}
+                >
+                  Chi tiết
+                </button>
+                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
 
-//     const res = await fetch("/api/orders", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ order, details })
-//     });
+                <button
+                  className="btn btn-success btn-sm me-2"
+                  onClick={() => navigate(`/orders/${order.order_id}`)}
+                >
+                  Xác nhận
+                </button>
+                ) : (null)}
 
-//     if (res.ok) {
-//       localStorage.removeItem("checkout_cart");
-//       navigate("/order/success");
-//     } else {
-//       alert("Có lỗi xảy ra khi đặt hàng.");
-//     }
-//   };
+                {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+                  <button
+                    className="btn btn-warning btn-sm"
+                    onClick={() => handleCancel(order.order_id)}
+                  >
+                    Huỷ
+                  </button>
+                ) : (null)}
 
-//   return (
-//     <Container className="mt-4">
-//       <h3>Thông tin giao hàng</h3>
-//       <Form>
-//         <Form.Group>
-//           <Form.Label>Họ và tên</Form.Label>
-//           <Form.Control value={formData.fullname} onChange={(e) => setFormData({ ...formData, fullname: e.target.value })} />
-//         </Form.Group>
-//         <Form.Group>
-//           <Form.Label>Số điện thoại</Form.Label>
-//           <Form.Control value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-//         </Form.Group>
-//         <Form.Group>
-//           <Form.Label>Địa chỉ giao hàng</Form.Label>
-//           <Form.Control value={formData.shipping_address} onChange={(e) => setFormData({ ...formData, shipping_address: e.target.value })} />
-//         </Form.Group>
-//         <Form.Group>
-//           <Form.Label>Ghi chú</Form.Label>
-//           <Form.Control as="textarea" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} />
-//         </Form.Group>
-//         <Button className="mt-3" onClick={handleSubmit}>Xác nhận đặt hàng</Button>
-//       </Form>
-//     </Container>
-//   );
-// };
+              </td>
+            </tr>
+          ))}
+          {orders.length === 0 && (
+            <tr>
+              <td colSpan={9} className="text-center">
+                Không có đơn hàng nào
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
-// export default OrderPage;
+export default OrderManagement;

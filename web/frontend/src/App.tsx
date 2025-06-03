@@ -18,13 +18,18 @@ import ProductManagementPage from './pages/admin/Product/ProductManagementPage';
 import UserManagementPage from './pages/admin/User/UserManagementPage';
 import Footer from './components/layout/Footer';
 import DetailProductPage from './pages/user/Product/ProductDetailPage';
-import UserUpdate from './components/sections/admin/User/edit/[id]/page';
 import CategoryManagementPage from './pages/admin/Category/CategoryManagementPage';
 import OrderManagementPage from './pages/admin/Order/OrderManagementPage';
 import ProducerManagementPage from './pages/admin/Producer/ProducerManagementPage';
 import VoucherManagementPage from './pages/admin/Voucher/VoucherManagementPage';
 import OrderPage from './pages/user/Order/OrderPage';
 import OrderSuccess from './pages/user/Order/Success';
+import CreateProductPage from './pages/admin/Product/create/page';
+import ProductDetailPage from './pages/admin/ProductDetail/page';
+import CreateProductDetailPage from './pages/admin/ProductDetail/create/page';
+import UpdateUserPage from './pages/admin/User/update/page';
+import UpdateUserDetailPage from './pages/user/User/page';
+import UpdateProductDetailPage from './pages/admin/ProductDetail/update/page';
 
 
 function App() {
@@ -39,18 +44,29 @@ function App() {
               <Route path="/" element={<UserHomePage />} />
               <Route path="/home" element={<UserHomePage />} />
               <Route path="/update/category" element={<CategoryManagementPage />} />
+
               <Route path="/update/order" element={<OrderManagementPage />} />
+
               <Route path="/update/producer" element={<ProducerManagementPage />} />
+
+              <Route path="/create/product" element={<CreateProductPage />} />
               <Route path="/update/product" element={<ProductManagementPage />} />
+
               <Route path="/update/user" element={<UserManagementPage />} />
+
               <Route path="/update/voucher" element={<VoucherManagementPage />} />
+
+              <Route path="/productdetail/create/:id" element={<CreateProductDetailPage />} />
+              <Route path="/productdetail/update/:id" element={<UpdateProductDetailPage />} />
+              <Route path="/productdetail/:id" element={<ProductDetailPage />} />
               <Route path="/product/:id" element={<DetailProductPage />} />
 
+              <Route path="/user/:id" element={<UpdateUserDetailPage />} />
               <Route path="/cart/:id" element={<CartPage />} />
               <Route path="/order/:id" element={<OrderPage />} />
               <Route path="/order/success" element={<OrderSuccess />} />
 
-              <Route path="/user/edit/:id" element={<UserUpdate />} />
+              <Route path="/user/update/:id" element={<UpdateUserPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/login" element={<LoginPage />} />
             </Routes>

@@ -33,14 +33,14 @@ export const getOrderDetails = async (orderId: string) => {
 };
 
 export const cancelOrder = async (orderId: string) => {
-  const response = await axios.put(`/api/orders/cancel/${orderId}`, {}, {
+  const response = await axios.put(`/api/orders/${orderId}/cancel`, {}, {
     headers: getAuthHeaders()
   });
   return response.data;
 };
 
 export const getAllOrders = async () => {
-  const response = await axios.get('/api/order/all', {
+  const response = await axios.get('/api/orders', {
     headers: getAuthHeaders()
   });
   return response.data;

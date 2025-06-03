@@ -270,10 +270,20 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 
 	userID := c.Param("id")
 
+	log.Print("user_id: ", userID)
 	var user model.User_KhachHang
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
-		return
+	if c.ContentType() == "application/json" {
+		if err := c.ShouldBindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
+			return
+		}
+	} else {
+		user.Email = c.PostForm("email")
+		Password := c.PostForm("password")
+		user.Password = HashPassword(Password)
+		user.Gender = c.PostForm("gender")
+		user.Birthday = c.PostForm("birthday")
+		user.Status = c.PostForm("status")
 	}
 
 	user.Updated_At = time.Now()
@@ -282,7 +292,7 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 	update := bson.M{
 		"$set": bson.M{
 			"email":      user.Email,
-			"password":   HashPassword(user.Password),
+			"password":   user.Password,
 			"birthday":   user.Birthday,
 			"gender":     user.Gender,
 			"role":       user.Role,
