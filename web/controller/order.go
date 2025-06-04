@@ -111,6 +111,16 @@ func (oc *OrderController) ConfirmOrder(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Đã xác nhận đơn hàng thành công"})
 }
+func (oc *OrderController) CompleteOrder(c *gin.Context) {
+	orderID := c.Param("order_id")
+	err := oc.OrderRepo.CompleteOrder(context.Background(), orderID)
+	if err != nil {
+		log.Print("error: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Xác nhận đơn hàng thất bại"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Đã xác nhận hoàn thành đơn hàng thành công"})
+}
 
 func (oc *OrderController) CancelOrder(c *gin.Context) {
 	orderID := c.Param("order_id")

@@ -24,6 +24,7 @@ type OrderRepo interface {
 	GetOrdersByUserID(ctx context.Context, userID string) ([]model.Order_DonHang, error)
 	GetOrderDetails(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error)
 	ConfirmOrder(ctx context.Context, orderID string) error
+	CompleteOrder(ctx context.Context, orderID string) error
 	CancelOrder(ctx context.Context, orderID string) error
 	GetOrderDetailsByOrderID(ctx context.Context, orderID string) ([]model.Order_Detail_ChiTietDonHang, error)
 	GetAllOrders(ctx context.Context) ([]model.Order_DonHang, error)
@@ -120,6 +121,26 @@ func (r *OrderRepoI) ConfirmOrder(ctx context.Context, orderID string) error {
 
 	filter := bson.M{"order_id": objID}
 	update := bson.M{"$set": bson.M{"status": "confirmed"}}
+
+	result, err := r.db.Collection("orders").UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Print("err: ", err)
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrOrderNotFound
+	}
+	return nil
+}
+
+func (r *OrderRepoI) CompleteOrder(ctx context.Context, orderID string) error {
+	objID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"order_id": objID}
+	update := bson.M{"$set": bson.M{"status": "complete"}}
 
 	result, err := r.db.Collection("orders").UpdateOne(ctx, filter, update)
 	if err != nil {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { cancelOrder, confirmOrder, getAllOrders } from "../../../../services/orderService";
+import { cancelOrder, completeOrder, confirmOrder, getAllOrders } from "../../../../services/orderService";
 import { Order } from "../../../../types/order";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Row, Table } from "react-bootstrap";
@@ -34,6 +34,19 @@ const OrderManagement: React.FC = () => {
     }
   }
 
+  const handleComplete = async (orderId: string) => {
+    const confirm = window.confirm("Bạn có chắc chắn muốn xác nhận hoàn thành đơn hàng này?");
+    if (!confirm) return;
+
+    try {
+      await completeOrder(orderId);
+      alert("Đã xác nhận đơn hàng chờ vận chuyển.");
+      fetchOrders();
+    } catch (err) {
+      console.error("Lỗi khi xác nhận đơn hàng.", err);
+    }
+  }
+
   const handleCancel = async (orderId: string) => {
     const confirm = window.confirm("Bạn có chắc chắn muốn huỷ đơn hàng này?");
     if (!confirm) return;
@@ -46,6 +59,21 @@ const OrderManagement: React.FC = () => {
       console.error("Lỗi khi huỷ đơn hàng:", err);
     }
   };
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Đang xử lý";
+      case "confirmed":
+        return "Đã xác nhận";
+      case "complete":
+        return "Hoàn thành";
+      case "cancelled":
+        return "Đã huỷ";
+      default:
+        return "Không xác định";
+    }
+  };
+
 
   return (
     <Row className="mt-4">
@@ -82,7 +110,16 @@ const OrderManagement: React.FC = () => {
                     <td>
                       {order.shipping_method} / {order.payment_method}
                     </td>
-                    <td>{order.status}</td>
+                    <td>
+                      <span className={`badge ${order.status === "pending" ? "bg-warning" :
+                          order.status === "confirmed" ? "bg-primary" :
+                            order.status === "processing" ? "bg-success" :
+                              order.status === "cancelled" ? "bg-danger" : "bg-secondary"
+                        }`}>
+                        {getStatusLabel(order.status)}
+                      </span>
+                    </td>
+
                     <td>{order.note}</td>
                     <td>
                       <Button
@@ -109,6 +146,15 @@ const OrderManagement: React.FC = () => {
                           onClick={() => handleCancel(order.order_id)}
                         >
                           Huỷ
+                        </Button>
+                      ) : (null)}
+
+                      {order.status == "confirmed" ? (
+                        <Button
+                          variant="outline-primary"
+                          onClick={() => handleComplete(order.order_id)}
+                        >
+                          Hoàn thành
                         </Button>
                       ) : (null)}
 

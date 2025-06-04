@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getOrdersByUserId, cancelOrder } from "../../../../services/orderService";
 import { Order } from "../../../../types/order";
 import { useNavigate } from "react-router-dom";

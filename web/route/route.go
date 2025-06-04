@@ -121,6 +121,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.PUT("/orders/:order_id/status", orderController.UpdateOrderStatus)
 		auth.DELETE("/orders/:order_id", orderController.DeleteOrder)
 		auth.PUT("/orders/:order_id/confirm", orderController.ConfirmOrder)
+		auth.PUT("/orders/:order_id/complete", orderController.CompleteOrder)
 		auth.PUT("/orders/:order_id/cancel", orderController.CancelOrder)
 
 		// Logout route
