@@ -73,7 +73,7 @@ const OrderManagement: React.FC = () => {
                     >
                       Chi tiết
                     </button>
-                    {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+                    {order.status != "cancelled" ? (
 
                       <button
                         className="btn btn-success btn-sm me-2"
@@ -83,7 +83,7 @@ const OrderManagement: React.FC = () => {
                       </button>
                     ) : (null)}
 
-                    {order.status != "thanh toán thành công" && order.status != "Đã huỷ" ? (
+                    {order.status != "cancelled"? (
                       <button
                         className="btn btn-warning btn-sm"
                         onClick={() => handleCancel(order.order_id)}

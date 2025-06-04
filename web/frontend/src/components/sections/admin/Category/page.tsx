@@ -41,7 +41,7 @@ const CategoryManagement: React.FC = () => {
     );
 
     const handleEditCategory = (category: Category) => {
-        navigate(`/categories/edit/${category.category_id}`);
+        navigate(`/update/category/${category.category_id}`);
     };
 
     const handleDeleteCategory = async (id: string) => {
@@ -61,7 +61,7 @@ const CategoryManagement: React.FC = () => {
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <h4 className="mb-0">Quản lý loại sản phẩm</h4>
-                        <Button variant="primary" onClick={() => navigate("/categories/create")}>
+                        <Button variant="primary" onClick={() => navigate("/create/category")}>
                             Tạo loại sản phẩm
                         </Button>
                     </div>

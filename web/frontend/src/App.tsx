@@ -41,6 +41,7 @@ import CategoryPage from './pages/user/Category/[id]/page';
 import OrderUserPage from './pages/user/Order/OrderUser';
 import ProtectedRoute from './routes/AdminRoutes';
 import OrderDetailPage from './pages/user/Order/[id]/OrderDetailPage';
+import VoucherPage from './pages/user/Voucher/page';
 
 
 function App() {
@@ -70,7 +71,7 @@ function App() {
 
               <Route path="/update/user" element={<ProtectedRoute allowedRoles={['Admin']}><UserManagementPage /></ProtectedRoute>} />
 
-              <Route path="/creare/voucher" element={<ProtectedRoute allowedRoles={['Admin']}><CreateVoucherPage /></ProtectedRoute>} />
+              <Route path="/create/voucher" element={<ProtectedRoute allowedRoles={['Admin']}><CreateVoucherPage /></ProtectedRoute>} />
               <Route path="/update/voucher/:id" element={<ProtectedRoute allowedRoles={['Admin']}><UpdateVoucherPage /></ProtectedRoute>} />
               <Route path="/update/voucher" element={<ProtectedRoute allowedRoles={['Admin']}><VoucherManagementPage /></ProtectedRoute>} />
 
@@ -81,6 +82,7 @@ function App() {
 
               <Route path="/product/:id" element={<DetailProductPage />} />
               <Route path="/category/:id" element={<CategoryPage />} />
+              <Route path="/voucher" element={<VoucherPage />} />
 
               <Route path="/user/:id" element={<UpdateUserDetailPage />} />
               <Route path="/cart/:id" element={<CartPage />} />

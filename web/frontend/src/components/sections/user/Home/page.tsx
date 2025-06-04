@@ -86,7 +86,7 @@ const UserHome: React.FC = () => {
               <Col key={product.product_id}>
                 <Card className="h-100 shadow-sm">
                   {imageUrl ? (
-                    <Card.Img variant="top" src={imageUrl} alt={product.name} style={{ height: 400, objectFit: 'cover' }} />
+                    <Card.Img onClick={() => handleDetailClick(product.product_id)} variant="top" src={imageUrl} alt={product.name} style={{ height: 400, objectFit: 'cover' }} />
                   ) : (
                     <div style={{ height: 200, backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#999' }}>
                       Không tìm thấy ảnh
@@ -110,14 +110,6 @@ const UserHome: React.FC = () => {
                         className="flex-fill"
                       >
                         <i className="fa fa-eye me-1"></i> chi tiết
-                      </Button>
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={() => handleDetailClick(product.product_id)}
-                        className="flex-fill"
-                      >
-                        <i className="fa fa-shopping-cart me-1"></i> Thêm vào giỏ hàng
                       </Button>
                     </div>
                   </Card.Body>

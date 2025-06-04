@@ -60,7 +60,7 @@ export default function UpdateCategory({ id }: UpdateCategoryProps) {
   if (loading) return <div>Đang tải dữ liệu...</div>;
 
   return (
-    <div className="d-flex justify-content-center">
+    <div className="d-flex ps-3">
       <form onSubmit={handleSubmit} className="m-3" style={{ width: "400px" }}>
         <h4 className="mb-4">Cập nhật loại sản phẩm</h4>
 
@@ -85,13 +85,13 @@ export default function UpdateCategory({ id }: UpdateCategoryProps) {
             required
           >
             <option value="">-- Chọn trạng thái --</option>
-            <option value="Hiển thị">Hiển thị</option>
-            <option value="Ẩn">Ẩn</option>
+            <option value="active">Hiển thị</option>
+            <option value="inactive">Ẩn</option>
           </select>
         </div>
 
         <button type="submit" className="btn btn-primary me-2">Cập nhật</button>
-        <button type="button" className="btn btn-secondary" onClick={() => navigate("/category")}>Quay lại</button>
+        <button type="button" className="btn btn-secondary" onClick={() => navigate("/update/category")}>Quay lại</button>
       </form>
     </div>
   );

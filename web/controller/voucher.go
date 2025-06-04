@@ -53,6 +53,27 @@ func (vc *VoucherController) GetVoucherByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, voucher)
 }
+func (vc *VoucherController) ApplyVoucher(c *gin.Context) {
+	var request struct {
+		UserID string `json:"user_id"`
+		Code   string `json:"code"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dữ liệu không hợp lệ"})
+		return
+	}
+
+	voucher, err := vc.VoucherRepo.FindValidVoucher(c.Request.Context(), request.Code)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"voucher": voucher,
+	})
+}
 
 func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 	var voucher model.Voucher_MaGiamGia
@@ -64,7 +85,13 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 		}
 	} else {
 		voucher.Code = c.PostForm("code")
-		voucher.Value = c.PostForm("value")
+		valueStr := c.PostForm("value")
+		value, err := strconv.Atoi(valueStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid value: must be a number"})
+			return
+		}
+		voucher.Value = value
 
 		minOrderStr := c.PostForm("min_order_value")
 		minOrderVal, err := strconv.Atoi(minOrderStr)
@@ -119,7 +146,13 @@ func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 		}
 	} else {
 		voucher.Code = c.PostForm("code")
-		voucher.Value = c.PostForm("value")
+		valueStr := c.PostForm("value")
+		value, err := strconv.Atoi(valueStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid value: must be a number"})
+			return
+		}
+		voucher.Value = value
 
 		minOrderStr := c.PostForm("min_order_value")
 		minOrderVal, err := strconv.Atoi(minOrderStr)

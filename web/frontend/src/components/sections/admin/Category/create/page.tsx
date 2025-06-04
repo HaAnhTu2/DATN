@@ -35,7 +35,7 @@ export default function CreateCategory() {
   };
 
   return (
-    <div className="d-flex justify-content-center">
+    <div className="d-flex ps-3">
       <form onSubmit={handleSubmit} className="m-3" style={{ width: "400px" }}>
         <h4 className="mb-4">Tạo loại sản phẩm mới</h4>
 
@@ -60,13 +60,13 @@ export default function CreateCategory() {
             required
           >
             <option value="">-- Chọn trạng thái --</option>
-            <option value="Hiển thị">Hiển thị</option>
-            <option value="Ẩn">Ẩn</option>
+            <option value="active">Hiển thị</option>
+            <option value="inactive">Ẩn</option>
           </select>
         </div>
 
         <button type="submit" className="btn btn-success me-2">Tạo mới</button>
-        <button type="button" className="btn btn-secondary" onClick={() => navigate("/category")}>Quay lại</button>
+        <button type="button" className="btn btn-secondary" onClick={() => navigate("/update/category")}>Quay lại</button>
       </form>
     </div>
   );

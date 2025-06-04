@@ -4,6 +4,7 @@ import (
 	"DoAnToiNghiep/model"
 	"DoAnToiNghiep/reponsitory"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -14,16 +15,18 @@ import (
 )
 
 type OrderController struct {
-	OrderRepo reponsitory.OrderRepo
-	CartRepo  reponsitory.CartRepo
-	DB        *mongo.Database
+	OrderRepo  reponsitory.OrderRepo
+	DetailRepo reponsitory.ProductDetailRepo
+	CartRepo   reponsitory.CartRepo
+	DB         *mongo.Database
 }
 
-func NewOrderController(orderRepo reponsitory.OrderRepo, cartRepo reponsitory.CartRepo, db *mongo.Database) *OrderController {
+func NewOrderController(orderRepo reponsitory.OrderRepo, detailRepo reponsitory.ProductDetailRepo, cartRepo reponsitory.CartRepo, db *mongo.Database) *OrderController {
 	return &OrderController{
-		OrderRepo: orderRepo,
-		CartRepo:  cartRepo,
-		DB:        db,
+		OrderRepo:  orderRepo,
+		DetailRepo: detailRepo,
+		CartRepo:   cartRepo,
+		DB:         db,
 	}
 }
 
@@ -62,6 +65,17 @@ func (oc *OrderController) CreateOrder(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo chi tiết đơn hàng"})
 		return
+	}
+	for _, detail := range req.Details {
+		log.Print(detail.ID_Product_Detail)
+		err := oc.DetailRepo.DecreaseProductDetailQuantity(context.Background(), detail.ID_Product_Detail, detail.Quantity)
+		log.Print("err: ", err)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Không thể cập nhật số lượng cho sản phẩm %s", detail.ID_Product_Detail),
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Tạo đơn hàng thành công", "order_id": orderID})

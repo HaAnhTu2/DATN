@@ -90,17 +90,7 @@ const Header: React.FC = () => {
                   </Link>
                 </div>
               </div>
-              <a
-                className="col-md-9 text-decoration-none d-flex align-items-center gap-2"
-                style={{ color: "white", fontSize: "16px", cursor: "pointer", justifyContent: "flex-end" }}
-                data-toggle="dropdown"
-                aria-expanded="true"
-              >
-                <Link to={`/userorder/${user?.user_id}`} className='text-decoration-none text-white'>
-                <i className="fa fa-list-alt fa-lg"></i> Đơn hàng
-                </Link>
-
-              </a>
+              
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ import (
 type Voucher_MaGiamGia struct {
 	Voucher_ID      primitive.ObjectID `bson:"voucher_id,omitempty" json:"voucher_id,omitempty"`
 	Code            string             `bson:"code" json:"code"`
-	Value           string             `bson:"value" json:"value"`
+	Value           int                `bson:"value" json:"value"`
 	Min_Order_Value int                `bson:"min_order_value" json:"min_order_value"`
 	Exprired_Time   time.Time          `bson:"exprired_time" json:"exprired_time"`
 	Description     string             `bson:"description" json:"description"`

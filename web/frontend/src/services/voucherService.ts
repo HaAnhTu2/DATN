@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Voucher } from "../types/voucher";
+import { ApplyVoucherRequest, ApplyVoucherResponse, Voucher } from "../types/voucher";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -9,16 +9,23 @@ const getAuthHeaders = () => {
   };
 };
 export const getVouchers = async (): Promise<Voucher[]> => {
-    const response = await axios.get('/api/voucher/all');
-    return response.data.vouchers;
+  const response = await axios.get('/api/voucher/all');
+  return response.data.vouchers;
 };
 
-export const getProducerById = async (id: string): Promise<Voucher> => {
-    const response = await axios.get(`/api/voucher/${id}`, {
-        headers: getAuthHeaders()
-    });
-    return response.data;
+export const getVoucherById = async (id: string): Promise<Voucher> => {
+  const response = await axios.get(`/api/voucher/${id}`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
 };
+export const applyVoucher = async (payload: ApplyVoucherRequest): Promise<Voucher> => {
+  const response = await axios.post<ApplyVoucherResponse>("/api/voucher/apply", payload, {
+    headers: getAuthHeaders()
+  });
+  return response.data.voucher;
+};
+
 
 export const createVoucher = async (form: FormData): Promise<Voucher> => {
   const response = await axios.post('/api/voucher/create', form, { headers: getAuthHeaders() });

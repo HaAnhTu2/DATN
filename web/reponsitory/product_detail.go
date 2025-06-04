@@ -3,6 +3,7 @@ package reponsitory
 import (
 	"DoAnToiNghiep/model"
 	"context"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,6 +14,7 @@ type ProductDetailRepo interface {
 	Create(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (*model.Product_Detail_ChiTietDonHang, error)
 	FindByID(ctx context.Context, id string) (*model.Product_Detail_ChiTietDonHang, error)
 	FindByProductID(ctx context.Context, productID string) ([]model.Product_Detail_ChiTietDonHang, error)
+	DecreaseProductDetailQuantity(ctx context.Context, productDetailID string, quantity int) error
 	Update(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (model.Product_Detail_ChiTietDonHang, error)
 	Delete(ctx context.Context, id string) error
 }
@@ -66,6 +68,31 @@ func (r *ProductDetailRepoI) FindByProductID(ctx context.Context, productID stri
 		details = append(details, detail)
 	}
 	return details, nil
+}
+
+func (r *ProductDetailRepoI) DecreaseProductDetailQuantity(ctx context.Context, productDetailID string, quantity int) error {
+	objID, err := primitive.ObjectIDFromHex(productDetailID)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"product_detail_id": objID}
+	update := bson.M{
+		"$inc": bson.M{
+			"quantity": -quantity,
+		},
+	}
+
+	result, err := r.DB.Collection("product_details").UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return errors.New("Không tìm thấy sản phẩm chi tiết")
+	}
+
+	return nil
 }
 
 func (r *ProductDetailRepoI) Update(ctx context.Context, detail model.Product_Detail_ChiTietDonHang) (model.Product_Detail_ChiTietDonHang, error) {

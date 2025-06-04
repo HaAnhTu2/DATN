@@ -104,6 +104,7 @@ export default function ProductCategory({ id }: ProductCategoryProps) {
                   {imageUrl ? (
                     <Card.Img
                       variant="top"
+                      onClick={() => handleDetailClick(product.product_id)}
                       src={imageUrl}
                       alt={product.name}
                       style={{ height: 400, objectFit: 'cover' }}
@@ -131,14 +132,6 @@ export default function ProductCategory({ id }: ProductCategoryProps) {
                         className="flex-fill"
                       >
                         <i className="fa fa-eye me-1"></i> Chi tiết
-                      </Button>
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={() => handleDetailClick(product.product_id)}
-                        className="flex-fill"
-                      >
-                        <i className="fa fa-shopping-cart me-1"></i> Thêm vào giỏ hàng
                       </Button>
                     </div>
                   </Card.Body>

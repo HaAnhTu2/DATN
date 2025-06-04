@@ -74,6 +74,18 @@ const Navigation: React.FC = () => {
                     </Link>
                   </li>
                 ))}
+                <div className='main-nav' style={{ marginLeft: "auto", display: "flex", gap: "0px" }}>
+                  <li>
+                    <Link to={`/voucher`} className='text-decoration-none'>
+                      Mã giảm giá
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to={`/userorder/${user?.user_id}`} className='text-decoration-none'>
+                      Đơn hàng
+                    </Link>
+                  </li>
+                </div>
               </>
             )}
 

@@ -3,6 +3,7 @@ package reponsitory
 import (
 	"DoAnToiNghiep/model"
 	"context"
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +14,7 @@ import (
 type VoucherRepo interface {
 	GetAll(ctx context.Context) ([]model.Voucher_MaGiamGia, error)
 	GetByID(ctx context.Context, id primitive.ObjectID) (model.Voucher_MaGiamGia, error)
+	FindValidVoucher(ctx context.Context, code string) (model.Voucher_MaGiamGia, error)
 	Create(ctx context.Context, voucher model.Voucher_MaGiamGia) (model.Voucher_MaGiamGia, error)
 	Update(ctx context.Context, voucher model.Voucher_MaGiamGia) (model.Voucher_MaGiamGia, error)
 	Delete(ctx context.Context, voucherID primitive.ObjectID) error
@@ -35,6 +37,25 @@ func (v *VoucherRepoI) GetByID(ctx context.Context, id primitive.ObjectID) (mode
 		return model.Voucher_MaGiamGia{}, err
 	}
 	return voucher, nil
+}
+
+func (v *VoucherRepoI) FindValidVoucher(ctx context.Context, code string) (model.Voucher_MaGiamGia, error) {
+	var voucher model.Voucher_MaGiamGia
+	filter := bson.M{
+		"code":          code,
+		"status":        "active",
+		"exprired_time": bson.M{"$gt": time.Now()},
+	}
+
+	err := v.db.Collection("vouchers").FindOne(ctx, filter).Decode(&voucher)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Voucher_MaGiamGia{}, errors.New("voucher không hợp lệ hoặc đã hết hạn")
+		}
+		return model.Voucher_MaGiamGia{}, err
+	}
+	return voucher, nil
+
 }
 
 func (v *VoucherRepoI) GetAll(ctx context.Context) ([]model.Voucher_MaGiamGia, error) {

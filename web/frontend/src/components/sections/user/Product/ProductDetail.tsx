@@ -200,7 +200,6 @@ const GetProductDetail: React.FC = () => {
                                 className="form-control"
                                 style={{ width: 400 }}
                             >
-                                <option value="">-- Chọn màu & kích thước --</option>
                                 {productDetail.map((detail) => (
                                     <option key={detail.product_detail_id} value={detail.product_detail_id}>
                                         {detail.color} / {detail.size} - SL: {detail.quantity}
@@ -223,7 +222,7 @@ const GetProductDetail: React.FC = () => {
 
                         {selectedDetail ? (
                             <div>
-                                <h3 className="product-price">${selectedDetail.price}</h3>
+                                <h3 className="product-price">{selectedDetail.price}đ</h3>
                                 <span className="product-available">SL còn: {selectedDetail.quantity}</span>
                             </div>
                         ) : (

@@ -27,7 +27,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 	cartController := controller.NewCartController(CartRepo, DB)
 
 	OrderRepo := reponsitory.NewOrderRepo(client.Database(os.Getenv("DB_NAME")))
-	orderController := controller.NewOrderController(OrderRepo, CartRepo, DB)
+	orderController := controller.NewOrderController(OrderRepo, ProductDetailRepo, CartRepo, DB)
 
 	CategoryRepo := reponsitory.NewCategoryRepo(client.Database(os.Getenv("DB_NAME")))
 	categoryController := controller.NewCategoryController(CategoryRepo, DB)
@@ -102,6 +102,7 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 
 		// Voucher routes
 		auth.POST("/voucher/create", voucherController.CreateVoucher)
+		auth.POST("/voucher/apply", voucherController.ApplyVoucher)
 		auth.PUT("/voucher/update/:voucher_id", voucherController.UpdateVoucher)
 		auth.DELETE("/voucher/delete/:voucher_id", voucherController.DeleteVoucher)
 
