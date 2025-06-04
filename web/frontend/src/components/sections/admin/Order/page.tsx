@@ -69,7 +69,7 @@ const OrderManagement: React.FC = () => {
                   <td>
                     <button
                       className="btn btn-info btn-sm me-2"
-                      onClick={() => navigate(`/orders/${order.order_id}`)}
+                      onClick={() => navigate(`/order/detail/${order.order_id}`)}
                     >
                       Chi tiết
                     </button>
