@@ -51,7 +51,7 @@ const UserHome: React.FC = () => {
     navigate(`/product/${id}`);
   };
 
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = products?.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -74,11 +74,11 @@ const UserHome: React.FC = () => {
         />
       </Form>
 
-      {filteredProducts.length === 0 ? (
+      {filteredProducts?.length === 0 ? (
         <p>Không tìm thấy sản phẩm nào.</p>
       ) : (
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-          {filteredProducts.map(product => {
+          {filteredProducts?.map(product => {
             const detail = productDetails.find(d => d.id_product === product.product_id);
             const imageUrl = detail ? `http://localhost:3000/image/${detail.image}` : null;
 
@@ -88,7 +88,7 @@ const UserHome: React.FC = () => {
                   {imageUrl ? (
                     <Card.Img onClick={() => handleDetailClick(product.product_id)} variant="top" src={imageUrl} alt={product.name} style={{ height: 400, objectFit: 'cover' }} />
                   ) : (
-                    <div style={{ height: 200, backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#999' }}>
+                    <div style={{ height: 200, width:"auto", backgroundColor: '#eee', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#999' }}>
                       Không tìm thấy ảnh
                     </div>
                   )}

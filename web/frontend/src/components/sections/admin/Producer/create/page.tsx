@@ -27,7 +27,7 @@ export default function ProducerCreate() {
     try {
       await createProducer(newProducer);
       alert("Tạo nhà sản xuất thành công!");
-      navigate("/producers");
+      navigate("/update/producer");
     } catch (error) {
       alert("Tạo nhà sản xuất thất bại!");
       console.error(error);

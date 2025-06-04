@@ -23,7 +23,6 @@ func NewCartController(cartRepo reponsitory.CartRepo, db *mongo.Database) *CartC
 	}
 }
 
-// Thêm sản phẩm vào giỏ hàng
 func (cc *CartController) AddToCart(c *gin.Context) {
 	var cart model.Cart_GioHang
 	if err := c.ShouldBindJSON(&cart); err != nil {
@@ -40,7 +39,6 @@ func (cc *CartController) AddToCart(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Thêm vào giỏ hàng thành công"})
 }
 
-// Lấy giỏ hàng của người dùng
 func (cc *CartController) GetCartByUserID(c *gin.Context) {
 	userID := c.Param("user_id")
 	carts, err := cc.CartRepo.GetByUserID(context.Background(), userID)
@@ -51,7 +49,6 @@ func (cc *CartController) GetCartByUserID(c *gin.Context) {
 	c.JSON(http.StatusOK, carts)
 }
 
-// Cập nhật số lượng sản phẩm trong giỏ hàng
 func (cc *CartController) UpdateQuantity(c *gin.Context) {
 	var body struct {
 		UserID   string `json:"id_user"`
@@ -73,7 +70,6 @@ func (cc *CartController) UpdateQuantity(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật thành công"})
 }
 
-// Xoá sản phẩm khỏi giỏ hàng
 func (cc *CartController) DeleteCartItem(c *gin.Context) {
 	userID := c.Param("user_id")
 	detailID := c.Param("product_detail_id")
@@ -87,7 +83,6 @@ func (cc *CartController) DeleteCartItem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Xoá sản phẩm thành công"})
 }
 
-// Xoá toàn bộ giỏ hàng
 func (cc *CartController) ClearCart(c *gin.Context) {
 	userID := c.Param("user_id")
 

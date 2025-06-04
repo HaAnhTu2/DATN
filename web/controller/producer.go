@@ -83,10 +83,6 @@ func (pc *ProducerController) CreateProducer(c *gin.Context) {
 // Update producer
 func (pc *ProducerController) UpdateProducer(c *gin.Context) {
 	id := c.Param("producer_id")
-	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Thiếu producer_id"})
-		return
-	}
 
 	producerID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -100,24 +96,14 @@ func (pc *ProducerController) UpdateProducer(c *gin.Context) {
 		return
 	}
 
-	var updateData struct {
-		Name   string `json:"name"`
-		Status string `json:"status"`
+	if producerName := c.PostForm("name"); producerName != "" {
+		producer.Name = producerName
 	}
-
-	if err := c.ShouldBindJSON(&updateData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if updateData.Name != "" {
-		producer.Name = updateData.Name
-	}
-	if updateData.Status != "" {
-		producer.Status = updateData.Status
+	if producerStatus := c.PostForm("status"); producerStatus != "" {
+		producer.Status = producerStatus
 	}
 	producer.Updated_At = time.Now()
-
+	log.Print(producer)
 	updated, err := pc.ProducerRepo.Update(c.Request.Context(), producer)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật nhà sản xuất"})

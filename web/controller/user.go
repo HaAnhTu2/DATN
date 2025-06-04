@@ -62,7 +62,7 @@ func (u *UserController) Login(c *gin.Context) {
 	user, err := u.UserRepo.FindByEmail(c.Request.Context(), auth.Email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Invalid credentials",
+			"error": "Thông tin xác thực không hợp lệ",
 		})
 		return
 	}
@@ -70,7 +70,7 @@ func (u *UserController) Login(c *gin.Context) {
 	if valid, _ := VerifyPassword(auth.Password, user.Password); valid {
 		token, err := u.UserRepo.SaveToken(&user)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Không tạo được mã thông báo"})
 			return
 		}
 		cookie := http.Cookie{
@@ -85,7 +85,7 @@ func (u *UserController) Login(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Invalid credentials",
+			"error": "Thông tin xác thực không hợp lệ",
 		})
 	}
 }
@@ -98,7 +98,7 @@ func (u *UserController) Logout(c *gin.Context) {
 		MaxAge: -1,
 	})
 	c.JSON(http.StatusOK, gin.H{
-		"data": "Logout successful!",
+		"data": "Đăng xuất thành công!",
 	})
 }
 
@@ -119,7 +119,7 @@ func (u *UserController) GetByID(c *gin.Context) {
 	userId := c.Param("id")
 	user, err := u.UserRepo.FindByID(c.Request.Context(), userId)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy người dùng"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -148,7 +148,7 @@ func (u *UserController) CreateUser(c *gin.Context) {
 
 	_, err := u.DB.Collection("users").InsertOne(context.Background(), user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể chèn người dùng"})
 		return
 	}
 
@@ -165,7 +165,7 @@ func (u *UserController) SignUp(c *gin.Context) {
 	var user model.User_KhachHang
 	if c.ContentType() == "application/json" {
 		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON body: " + err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "JSON không hợp lệ: " + err.Error()})
 			return
 		}
 	} else {
@@ -185,11 +185,11 @@ func (u *UserController) SignUp(c *gin.Context) {
 
 	count, err := u.DB.Collection("users").CountDocuments(ctx, bson.M{"email": user.Email})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking email: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi kiểm tra email: " + err.Error()})
 		return
 	}
 	if count > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User with this email already exists"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Người dùng có email này đã tồn tại"})
 		return
 	}
 
@@ -203,12 +203,12 @@ func (u *UserController) SignUp(c *gin.Context) {
 
 	_, err = u.UserRepo.Create(ctx, user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không tạo được người dùng: " + err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Successfully Signed Up!!",
+		"message": "Đã đăng ký thành công!!",
 		"user":    user,
 	})
 }
@@ -216,7 +216,7 @@ func (u *UserController) SignUp(c *gin.Context) {
 func (u *UserController) GetUserByToken(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token is required"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Mã thông báo ủy quyền là bắt buộc"})
 		return
 	}
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
@@ -227,13 +227,13 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 	})
 
 	if err != nil || !token.Valid {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Mã thông báo không hợp lệ hoặc đã hết hạn"})
 		return
 	}
 
 	email, ok := claims["sub"].(string)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email not found in token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Không tìm thấy email trong mã thông báo"})
 		return
 	}
 
@@ -245,9 +245,9 @@ func (u *UserController) GetUserByToken(c *gin.Context) {
 	err = u.DB.Collection("users").FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy người dùng"})
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Đã xảy ra lỗi"})
 		}
 		return
 	}
@@ -276,7 +276,7 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 	// Xử lý JSON
 	if c.ContentType() == "application/json" {
 		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON: " + err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "JSON không hợp lệ: " + err.Error()})
 			return
 		}
 		// Gộp dữ liệu vào updateFields nếu có
@@ -338,11 +338,11 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 
 	_, err := u.DB.Collection("users").UpdateOne(ctx, filter, update)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Update failed: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Cập nhật không thành công: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật không thành công"})
 }
 
 func (u *UserController) DeleteUser(c *gin.Context) {
@@ -353,8 +353,8 @@ func (u *UserController) DeleteUser(c *gin.Context) {
 
 	_, err := u.DB.Collection("users").DeleteOne(ctx, bson.M{"user_id": userID})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không xóa được người dùng: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Người dùng đã xóa thành công"})
 }

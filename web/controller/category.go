@@ -28,7 +28,7 @@ func (ctrl *CategoryController) GetCategories(c *gin.Context) {
 
 	categories, err := ctrl.CategoryRepo.GetAllCategories(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get categories"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lấy được danh mục"})
 		return
 	}
 
@@ -43,9 +43,9 @@ func (ctrl *CategoryController) GetCategoryByID(c *gin.Context) {
 
 	category, err := ctrl.CategoryRepo.FindByID(ctx, id)
 	if err != nil {
-		if err.Error() == "category not found" {
+		if err.Error() == "không tìm thấy danh mục" {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy loại sản phẩm"})
-		} else if err.Error() == "invalid category ID" {
+		} else if err.Error() == "ID danh mục không hợp lệ" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi server khi tìm category"})
@@ -73,7 +73,7 @@ func (ca *CategoryController) CreateCategory(c *gin.Context) {
 	category.Updated_At = time.Now()
 	category, err := ca.CategoryRepo.Create(c.Request.Context(), category)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể chèn người dùng"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -85,7 +85,7 @@ func (ca *CategoryController) UpdateCategory(c *gin.Context) {
 	categoryID := c.Param("category_id")
 	category, err := ca.CategoryRepo.FindByID(c.Request.Context(), categoryID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy danh mục"})
 		return
 	}
 	if categoryName := c.PostForm("name"); categoryName != "" {
@@ -98,7 +98,7 @@ func (ca *CategoryController) UpdateCategory(c *gin.Context) {
 	updateCategory, err := ca.CategoryRepo.Update(c.Request.Context(), category)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not update category",
+			"error": "Không thể cập nhật danh mục",
 			"err":   err.Error(),
 		})
 		return
@@ -113,7 +113,7 @@ func (ca *CategoryController) DeleteCategory(c *gin.Context) {
 	id := c.Param("category_id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid argument id",
+			"error": "id đối số không hợp lệ",
 		})
 		return
 	}
@@ -126,6 +126,6 @@ func (ca *CategoryController) DeleteCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Category deleted successfully",
+		"message": "Đã xóa danh mục thành công",
 	})
 }

@@ -74,19 +74,16 @@ func (p *ProducerRepoI) Create(ctx context.Context, producer model.Producer_NhaS
 	return producer, nil
 }
 func (p *ProducerRepoI) Update(ctx context.Context, producer model.Producer_NhaSanXuat) (model.Producer_NhaSanXuat, error) {
-	producer.Updated_At = time.Now()
-
 	update := bson.M{
-		"name":       producer.Name,
-		"status":     producer.Status,
-		"updated_at": producer.Updated_At,
-	}
+		"$set": bson.M{
+			"name":   producer.Name,
+			"status": producer.Status,
+		}}
 
 	result, err := p.db.Collection("producers").UpdateOne(
 		ctx,
 		bson.M{"producer_id": producer.Producer_ID},
-		bson.M{"$set": update},
-	)
+		update)
 	if err != nil {
 		return model.Producer_NhaSanXuat{}, err
 	}

@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const UserHomePage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const imageList = ["shop03.png", "shop02.png", "shop01.png"]; // ảnh cố định
+  const imageList = ["shop03.png", "shop05.jpg", "shop01.png"]; 
 
   const navigate = useNavigate();
 

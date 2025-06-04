@@ -80,7 +80,7 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 
 	if c.ContentType() == "application/json" {
 		if err := c.ShouldBindJSON(&voucher); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON input: " + err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Đầu vào JSON không hợp lệ: " + err.Error()})
 			return
 		}
 	} else {
@@ -88,7 +88,7 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 		valueStr := c.PostForm("value")
 		value, err := strconv.Atoi(valueStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid value: must be a number"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Giá trị không hợp lệ: phải là một số"})
 			return
 		}
 		voucher.Value = value
@@ -96,7 +96,7 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 		minOrderStr := c.PostForm("min_order_value")
 		minOrderVal, err := strconv.Atoi(minOrderStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid min_order_value: must be a number"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "min_order_value không hợp lệ: phải là một số"})
 			return
 		}
 		voucher.Min_Order_Value = minOrderVal
@@ -104,7 +104,7 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 		expiredStr := c.PostForm("exprired_time")
 		expiredTime, err := time.Parse("2006-01-02", expiredStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid exprired_time: must be in YYYY-MM-DD format"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Exprired_time không hợp lệ: phải theo định dạng YYYY-MM-DD"})
 			return
 		}
 		voucher.Exprired_Time = expiredTime
@@ -119,7 +119,7 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 
 	createdVoucher, err := vc.VoucherRepo.Create(c.Request.Context(), voucher)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create voucher: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo chứng từ: " + err.Error()})
 		return
 	}
 
@@ -129,19 +129,19 @@ func (vc *VoucherController) CreateVoucher(c *gin.Context) {
 func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 	id := c.Param("voucher_id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "voucher_id is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "voucher_id là bắt buộc"})
 		return
 	}
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid voucher_id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "voucher_id không hợp lệ"})
 		return
 	}
 
 	var voucher model.Voucher_MaGiamGia
 	if c.ContentType() == "application/json" {
 		if err := c.ShouldBind(&voucher); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Đầu vào không hợp lệ: " + err.Error()})
 			return
 		}
 	} else {
@@ -149,7 +149,7 @@ func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 		valueStr := c.PostForm("value")
 		value, err := strconv.Atoi(valueStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid value: must be a number"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Giá trị không hợp lệ: phải là một số"})
 			return
 		}
 		voucher.Value = value
@@ -157,14 +157,14 @@ func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 		minOrderStr := c.PostForm("min_order_value")
 		minOrderVal, err := strconv.Atoi(minOrderStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid min_order_value: must be a number"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "min_order_value không hợp lệ: phải là một số"})
 			return
 		}
 		voucher.Min_Order_Value = minOrderVal
 		expiredStr := c.PostForm("exprired_time")
 		expiredTime, err := time.Parse("2006-01-02", expiredStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid exprired_time: must be in YYYY-MM-DD format"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Exprired_time không hợp lệ: phải theo định dạng YYYY-MM-DD"})
 			return
 		}
 		voucher.Exprired_Time = expiredTime
@@ -177,7 +177,7 @@ func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 
 	updatedVoucher, err := vc.VoucherRepo.Update(c.Request.Context(), voucher)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update voucher: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật chứng từ: " + err.Error()})
 		return
 	}
 
@@ -187,20 +187,20 @@ func (vc *VoucherController) UpdateVoucher(c *gin.Context) {
 func (vc *VoucherController) DeleteVoucher(c *gin.Context) {
 	id := c.Param("voucher_id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "voucher_id is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "voucher_id là bắt buộc"})
 		return
 	}
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid voucher_id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "chứng từ_id không hợp lệ"})
 		return
 	}
 
 	err = vc.VoucherRepo.Delete(c.Request.Context(), objectID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete voucher: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể xóa chứng từ: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Voucher deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Đã xóa thành công chứng từ"})
 }

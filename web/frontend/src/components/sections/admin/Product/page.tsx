@@ -60,7 +60,7 @@ const ProductManagement: React.FC = () => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = products?.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -115,9 +115,9 @@ const ProductManagement: React.FC = () => {
           <Table striped bordered hover responsive className="align-middle text-center">
             <thead className="table-light">
               <tr>
-                <th>Tên sản phẩm</th>
+                <th style={{ width: '200px' }}>Tên sản phẩm</th>
                 <th>Trạng thái</th>
-                <th>Thông tin</th>
+                <th style={{ width: '300px' }}>Thông tin</th>
                 <th>Giá</th>
                 <th>Ảnh</th>
                 <th>Mô tả</th>
@@ -125,12 +125,12 @@ const ProductManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.length === 0 && (
+              {filteredProducts?.length === 0 && (
                 <tr>
                   <td colSpan={7}>Không tìm thấy sản phẩm nào.</td>
                 </tr>
               )}
-              {filteredProducts.map(product => (
+              {filteredProducts?.map(product => (
                 <tr key={product.product_id}>
                   <td>{product.name}</td>
                   <td>{product.status === "active" ? "Hoạt động" : "Ngưng hoạt động"}</td>
@@ -144,7 +144,7 @@ const ProductManagement: React.FC = () => {
                         style={{ width: "100px", height: "auto", borderRadius: '5px' }}
                       />
                     ) : (
-                      <span>No Image</span>
+                      <span>không có ảnh</span>
                     )}
                   </td>
                   <td>{product.description}</td>

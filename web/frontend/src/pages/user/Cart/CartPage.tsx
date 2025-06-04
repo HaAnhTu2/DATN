@@ -21,7 +21,7 @@ const CartPage: React.FC = () => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("No token found. Please log in.");
+        setError("Không tìm thấy mã thông báo. Vui lòng đăng nhập.");
         setLoading(false);
         return;
       }
@@ -30,8 +30,8 @@ const CartPage: React.FC = () => {
         const fetchedUser = await getUserByToken(token);
         setUser(fetchedUser.user);
       } catch (err) {
-        console.error("Error fetching user:", err);
-        setError("Failed to fetch user information.");
+        console.error("Lỗi tìm người dùng:", err);
+        setError("Không thể lấy thông tin người dùng.");
         setLoading(false);
       }
     };
@@ -58,7 +58,7 @@ const CartPage: React.FC = () => {
 
         setCartItems(cartProducts);
       } catch (err) {
-        console.error("Failed to fetch cart or product details:", err);
+        console.error("Không thể lấy thông tin giỏ hàng hoặc sản phẩm:", err);
       } finally {
         setLoading(false);
       }

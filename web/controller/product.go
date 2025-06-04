@@ -96,40 +96,40 @@ func (p *ProductController) CreateProduct(c *gin.Context) {
 	// 2. Save Product
 	newProduct, err := p.ProductRepo.Create(c.Request.Context(), product)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert product"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể chèn sản phẩm"})
 		return
 	}
 
 	// 3. Upload image
 	file, header, err := c.Request.FormFile("image")
 	if err != nil || file == nil || header == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Image upload failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Tải hình ảnh lên không thành công"})
 		return
 	}
 	defer file.Close()
 
 	bucket, err := gridfs.NewBucket(p.DB, options.GridFSBucket().SetName("products"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create GridFS bucket"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không tạo được thùng GridFS"})
 		return
 	}
 
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read image"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không đọc được hình ảnh"})
 		return
 	}
 
 	filename := time.Now().Format("20060102150405") + "_" + header.Filename
 	uploadStream, err := bucket.OpenUploadStream(filename)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open GridFS upload stream"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không mở được luồng tải lên GridFS"})
 		return
 	}
 	defer uploadStream.Close()
 
 	if _, err := uploadStream.Write(buf.Bytes()); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write to GridFS"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể ghi vào GridFS"})
 		return
 	}
 
@@ -149,18 +149,18 @@ func (p *ProductController) CreateProduct(c *gin.Context) {
 
 	detail.Quantity, err = strconv.Atoi(c.PostForm("quantity"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "số lượng không hợp lệ"})
 		return
 	}
 	detail.Price, err = strconv.Atoi(c.PostForm("price_detail"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid detail price"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Giá chi tiết không hợp lệ"})
 		return
 	}
 
 	createdDetail, err := p.ProductDetailRepo.Create(c.Request.Context(), detail)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not insert product detail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể chèn sản phẩm detail"})
 		return
 	}
 
@@ -205,7 +205,7 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 	// 1. Tìm sản phẩm
 	product, err := p.ProductRepo.FindByID(c.Request.Context(), productID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy sản phẩm"})
 		return
 	}
 
@@ -232,7 +232,7 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 		if price, err := strconv.Atoi(val); err == nil {
 			product.Price = price
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Giá không hợp lệ"})
 			return
 		}
 	}
@@ -240,7 +240,7 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 
 	updatedProduct, err := p.ProductRepo.Update(c.Request.Context(), product)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật sản phẩm"})
 		return
 	}
 
@@ -251,7 +251,7 @@ func (p *ProductController) DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid argument id",
+			"error": "id đối số không hợp lệ",
 		})
 		return
 	}

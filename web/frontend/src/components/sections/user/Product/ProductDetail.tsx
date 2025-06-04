@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getProductById, getProductDetailsByProductId } from '../../../../services/productService';
 import { getUserByToken } from '../../../../services/authService';
 import { addToCart } from '../../../../services/cartService';
@@ -24,6 +24,7 @@ const GetProductDetail: React.FC = () => {
     const [feedbackImage, setFeedbackImage] = useState<File | null>(null);
     const [userEmails, setUserEmails] = useState<{ [userId: string]: string }>({});
     const [loadingFeedbacks, setLoadingFeedbacks] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchFeedbacksAndUsers = async () => {
@@ -109,7 +110,8 @@ const GetProductDetail: React.FC = () => {
 
     const handleAddToCart = async () => {
         if (!selectedDetailId || !user) {
-            alert("Vui lòng chọn phiên bản sản phẩm và đăng nhập.");
+            alert("Vui lòng đăng nhập.");
+            navigate(`/login`);
             return;
         }
 
@@ -157,7 +159,7 @@ const GetProductDetail: React.FC = () => {
             setFeedbackRate('5');
             setFeedbackDescription('');
             setFeedbackImage(null);
-            window.location.reload(); 
+            window.location.reload();
         } catch (error) {
             console.error('Lỗi khi gửi feedback:', error);
             alert('Gửi feedback thất bại!');
@@ -178,7 +180,7 @@ const GetProductDetail: React.FC = () => {
                                     <img
                                         src={imageUrl}
                                         alt={product.name}
-                                        style={{ width: "250px", height: "250px" }}
+                                        style={{ width: "auto", height: "250px" }}
                                     />
                                 </div>
                             ) : (
@@ -231,7 +233,7 @@ const GetProductDetail: React.FC = () => {
                             </div>
                         )}
 
-                        <p>{product.description}</p>
+                        <h5>{product.description}</h5>
 
                         <div className="add-to-cart">
                             <button className="add-to-cart-btn" onClick={handleAddToCart}>
@@ -314,7 +316,7 @@ const GetProductDetail: React.FC = () => {
                 <div className="col-md-1 col-md-pull-5"></div>
 
                 <div className="col-md-5">
-                    {product.information}
+                    <h5>{product.information}</h5>
                 </div>
             </div>
         </div>

@@ -78,7 +78,7 @@ const UserManagement: React.FC = () => {
                                 <th>Ngày sinh</th>
                                 <th>Trạng thái</th>
                                 <th>Quyền</th>
-                                <th style={{ width: "140px" }}>Actions</th>
+                                <th style={{ width: "140px" }}></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,9 +92,9 @@ const UserManagement: React.FC = () => {
                                 filteredUsers.map(user => (
                                     <tr key={user.user_id}>
                                         <td>{user.email}</td>
-                                        <td>{user.gender}</td>
+                                        <td>{user.gender=== "male" ? "Nam" : "Nữ"}</td>
                                         <td>{user.birthday}</td>
-                                        <td>{user.status}</td>
+                                        <td>{user.status === "active" ? "Hoạt động" : "Ngưng hoạt động"}</td>
                                         <td>{user.role}</td>
                                         <td>
                                             <Button

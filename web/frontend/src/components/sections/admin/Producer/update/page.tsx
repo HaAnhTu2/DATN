@@ -41,7 +41,7 @@ export default function ProducerUpdate({ id }: UpdateProducerProps) {
         try {
             await updateProducer(id, form);
             alert("Cập nhật thành công!");
-            navigate("/producers");
+            navigate("/update/producer");
         } catch (err) {
             alert("Cập nhật thất bại!");
         }

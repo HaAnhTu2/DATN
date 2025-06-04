@@ -50,7 +50,7 @@ export default function UpdateCategory({ id }: UpdateCategoryProps) {
 
       await updateCategory(id, form);
       alert("✅ Cập nhật thành công!");
-      navigate("/category");
+      navigate("/update/category");
     } catch (error) {
       console.error("❌ Lỗi khi cập nhật:", error);
       alert("❌ Cập nhật thất bại!");

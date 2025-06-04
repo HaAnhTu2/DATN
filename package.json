@@ -19,6 +19,7 @@
     "@mui/x-data-grid": "^7.10.0",
     "bootstrap": "^5.3.3",
     "concurrently": "^8.2.2",
+    "qrcode.react": "^4.2.0",
     "react-feather": "^2.0.10",
     "theme-colors": "^0.1.0"
   }

@@ -57,12 +57,6 @@ const OrderPage: React.FC = () => {
   );
 
   const finalAmount = totalAmount - discountAmount > 0 ? totalAmount - discountAmount : 0;
-  const handleRemoveItem = (indexToRemove: number) => {
-    const updatedCart = [...cartItems];
-    updatedCart.splice(indexToRemove, 1);
-    setCartItems(updatedCart);
-    localStorage.setItem("checkout_cart", JSON.stringify(updatedCart));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +77,7 @@ const OrderPage: React.FC = () => {
       };
 
       const details: OrderDetail[] = cartItems.map((item) => ({
-        id_order: "", // backend sẽ tự gán
+        id_order: "",
         id_product_detail: item.detail.product_detail_id,
         quantity: item.cartQuantity,
         price: item.detail.price
@@ -91,7 +85,6 @@ const OrderPage: React.FC = () => {
 
       await createOrder(order, details);
 
-      // Xóa localStorage và chuyển trang
       localStorage.removeItem("checkout_cart");
       localStorage.removeItem("checkout_user_id");
       localStorage.removeItem("checkout_discount");
@@ -104,11 +97,13 @@ const OrderPage: React.FC = () => {
     }
   };
 
+
   return (
     <Container className="d-flex ps-3">
       <div className="d-flex gap-4">
         <Form className="m-3" style={{ flex: 1, width: "800px" }} onSubmit={handleSubmit}>
           <h3>Thông tin giao hàng</h3>
+
           <Form.Group className="mb-3">
             <Form.Label>Họ và tên</Form.Label>
             <Form.Control
@@ -118,6 +113,7 @@ const OrderPage: React.FC = () => {
               required
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Số điện thoại</Form.Label>
             <Form.Control
@@ -128,6 +124,7 @@ const OrderPage: React.FC = () => {
               required
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Địa chỉ giao hàng</Form.Label>
             <Form.Control
@@ -138,6 +135,7 @@ const OrderPage: React.FC = () => {
               required
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Phương thức giao hàng</Form.Label>
             <Form.Select
@@ -150,6 +148,7 @@ const OrderPage: React.FC = () => {
               <option value="express">Nhanh</option>
             </Form.Select>
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Phương thức thanh toán</Form.Label>
             <Form.Select
@@ -172,55 +171,41 @@ const OrderPage: React.FC = () => {
               }
             />
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>
-              Tổng tiền: {totalAmount}đ
+              Tổng tiền: {totalAmount.toLocaleString()}đ
             </Form.Label>
             {discountAmount > 0 && (
               <div style={{ color: "green" }}>
-                Đã giảm: {discountAmount}đ (Voucher: {voucherCode})
+                Đã giảm: {discountAmount.toLocaleString()}đ (Voucher: {voucherCode})
               </div>
             )}
             <div>
-              <strong>Tổng tiền cần thanh toán: {finalAmount}đ</strong>
+              <strong>Tổng thanh toán: {finalAmount.toLocaleString()}đ</strong>
             </div>
           </Form.Group>
+
           <Button className="m-4" type="submit">
             Xác nhận đặt hàng
           </Button>
         </Form>
-      </div>
-      {/* <div className="m-3" style={{width: "500px" }}>
-        <h3>Giỏ hàng</h3>
-        {cartItems.map((item, index) => (
-          <div key={index} className="border rounded p-3 mb-3 bg-light">
-            <div className="d-flex align-items-center">
-              <div style={{ marginRight: "16px" }}>
-                <img
-                  src={`http://localhost:3000/image/${item.detail.image}`}
-                  alt=""
-                  style={{ width: "100px", height: "auto", objectFit: "cover", borderRadius: "5px" }}
-                />
+        <div className="m-3" style={{ width: "500px" }}>
+          {formData.payment_method === "bank" && (
+            <div className="mb-3 text-center">
+              <h4>Quét mã QR để chuyển khoản:</h4>
+              <img src={`https://api.vietqr.io/image/970407-19036388272010-hf2xjZk.jpg?amount=${finalAmount}&accountName=HAANHTU&addInfo=thanh%20toan%20don%20hang`} />
+              <div className="mt-2" style={{ fontSize: "14px", color: "#555" }}>
+                <p>Ngân hàng: Techcombank</p>
+                <p>Số tài khoản: 19036388272010</p>
+                <p>Chủ tài khoản: Hà Anh Tú</p>
+                <p>Nội dung: Thanh toán đơn hàng</p>
+                <p>Số tiền: {finalAmount.toLocaleString()}đ</p>
               </div>
-
-              <div style={{ flex: 1 }}>
-                <p className="mb-1"><strong>Màu - Size:</strong> {item.detail.color} - {item.detail.size}</p>
-                <p className="mb-1"><strong>Số lượng:</strong> {item.cartQuantity}</p>
-                <p className="mb-1"><strong>Đơn giá:</strong> {item.detail.price.toLocaleString()}đ</p>
-                <p className="mb-0"><strong>Thành tiền:</strong> {(item.cartQuantity * item.detail.price).toLocaleString()}đ</p>
-              </div>
-              <Button
-                variant="outline-danger"
-                size="sm"
-                className="ms-3"
-                onClick={() => handleRemoveItem(index)}
-              >
-                Xóa
-              </Button>
             </div>
-          </div>
-        ))}
-      </div> */}
+          )}
+        </div>
+      </div>
     </Container>
   );
 };

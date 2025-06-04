@@ -31,7 +31,7 @@ const Header: React.FC = () => {
 
   const handleCartClick = () => {
     if (!user) {
-      console.error('User not found. Redirecting to login.');
+      console.error('Không tìm thấy người dùng. Đang chuyển hướng đến mục đăng nhập.');
       navigate('/login');
       return;
     }
@@ -47,7 +47,7 @@ const Header: React.FC = () => {
       navigate('/login');
       window.location.reload();
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error('Lỗi đăng xuất:', error);
     }
   };
 

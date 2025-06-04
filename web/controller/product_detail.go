@@ -38,13 +38,13 @@ func (ctrl *ProductDetailController) CreateProductDetail(c *gin.Context) {
 	detail.ID_Product = c.Param("id")
 	detail.Quantity, err = strconv.Atoi(c.PostForm("quantity"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "số lượng không hợp lệ"})
 		return
 	}
 
 	detail.Price, err = strconv.Atoi(c.PostForm("price"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Giá không hợp lệ"})
 		return
 	}
 
@@ -54,7 +54,7 @@ func (ctrl *ProductDetailController) CreateProductDetail(c *gin.Context) {
 		defer file.Close()
 		bucket, err := gridfs.NewBucket(ctrl.DB, options.GridFSBucket().SetName("products"))
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create GridFS bucket"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo thùng GridFS"})
 			return
 		}
 
@@ -64,7 +64,7 @@ func (ctrl *ProductDetailController) CreateProductDetail(c *gin.Context) {
 		filename := time.Now().Format("20060102150405") + "_" + header.Filename
 		uploadStream, err := bucket.OpenUploadStream(filename)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not open upload stream"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể mở luồng tải lên"})
 			return
 		}
 		defer uploadStream.Close()
@@ -78,7 +78,7 @@ func (ctrl *ProductDetailController) CreateProductDetail(c *gin.Context) {
 
 	createdDetail, err := ctrl.DetailRepo.Create(c.Request.Context(), detail)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create product detail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo chi tiết sản phẩm"})
 		return
 	}
 
@@ -89,7 +89,7 @@ func (pdc *ProductDetailController) GetDetailByID(c *gin.Context) {
 	id := c.Param("id")
 	detail, err := pdc.DetailRepo.FindByID(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Detail not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy chi tiết"})
 		return
 	}
 	c.JSON(http.StatusOK, detail)
@@ -98,13 +98,13 @@ func (pdc *ProductDetailController) GetDetailByID(c *gin.Context) {
 func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 	detailID := c.Param("id")
 	if detailID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing detail ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Thiếu ID chi tiết"})
 		return
 	}
 
 	detail, err := ctrl.DetailRepo.FindByID(c.Request.Context(), detailID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Product detail not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy chi tiết sản phẩm"})
 		return
 	}
 
@@ -122,7 +122,7 @@ func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 		if qty, err := strconv.Atoi(val); err == nil {
 			detail.Quantity = qty
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": " số lượng không hợp lệ"})
 			return
 		}
 	}
@@ -130,7 +130,7 @@ func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 		if price, err := strconv.Atoi(val); err == nil {
 			detail.Price = price
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Giá không hợp lệ"})
 			return
 		}
 	}
@@ -141,7 +141,7 @@ func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 		defer file.Close()
 		bucket, err := gridfs.NewBucket(ctrl.DB, options.GridFSBucket().SetName("products"))
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create GridFS bucket"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo thùng GridFS"})
 			return
 		}
 		buf := bytes.NewBuffer(nil)
@@ -150,7 +150,7 @@ func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 		filename := time.Now().Format("20060102150405") + "_" + header.Filename
 		uploadStream, err := bucket.OpenUploadStream(filename)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not open upload stream"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể mở luồng tải lên"})
 			return
 		}
 		defer uploadStream.Close()
@@ -164,7 +164,7 @@ func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 	// Lưu cập nhật
 	updatedDetail, err := ctrl.DetailRepo.Update(c.Request.Context(), *detail)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update product detail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật chi tiết sản phẩm"})
 		return
 	}
 
@@ -174,17 +174,17 @@ func (ctrl *ProductDetailController) UpdateProductDetail(c *gin.Context) {
 func (ctrl *ProductDetailController) DeleteProductDetail(c *gin.Context) {
 	detailID := c.Param("id")
 	if detailID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing product detail ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Thiếu ID chi tiết sản phẩm"})
 		return
 	}
 
 	err := ctrl.DetailRepo.Delete(c.Request.Context(), detailID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete product detail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không xóa được chi tiết sản phẩm"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Product detail deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Chi tiết sản phẩm đã được xóa thành công"})
 }
 
 func (ctrl *ProductDetailController) GetProductDetailsByProductID(c *gin.Context) {
@@ -195,13 +195,13 @@ func (ctrl *ProductDetailController) GetProductDetailsByProductID(c *gin.Context
 		productid = productID
 	}
 	if productID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing product ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Thiếu ID sản phẩm"})
 		return
 	}
 
 	details, err := ctrl.DetailRepo.FindByProductID(c.Request.Context(), productid)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve product details"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lấy thông tin chi tiết sản phẩm"})
 		return
 	}
 

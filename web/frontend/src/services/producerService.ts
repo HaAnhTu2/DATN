@@ -28,7 +28,7 @@ export const createProducer = async (newProducer: FormData): Promise<Producer> =
 
 export const updateProducer = async (id: string, form: FormData): Promise<Producer> => {
   const response = await axios.put(`/api/producer/update/${id}`, form, { headers: getAuthHeaders() });
-  return response.data;
+  return response.data.producer;
 };
 
 export const deleteProducer = async (id: string): Promise<void> => {

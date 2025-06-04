@@ -14,9 +14,7 @@ export const getCategories = async (): Promise<Category[]> => {
 };
 
 export const getCategoryById = async (id: string): Promise<Category> => {
-    const response = await axios.get(`/api/category/${id}`, {
-        headers: getAuthHeaders()
-    });
+    const response = await axios.get(`/api/category/${id}`);
     return response.data;
 };
 

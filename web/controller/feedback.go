@@ -44,7 +44,7 @@ func (f *FeedbackController) GetFeedbackByProductID(c *gin.Context) {
 
 	productID := c.Param("id")
 	if productID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID sản phẩm là bắt buộc"})
 		return
 	}
 
@@ -76,14 +76,14 @@ func (fc *FeedbackController) CreateFeedback(c *gin.Context) {
 	// 3. Upload image
 	file, header, err := c.Request.FormFile("image")
 	if err != nil || file == nil || header == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Image upload failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Tải hình ảnh lên không thành công"})
 		return
 	}
 	defer file.Close()
 
 	bucket, err := gridfs.NewBucket(fc.DB, options.GridFSBucket().SetName("feedback"))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create GridFS bucket"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không tạo được thùng GridFS"})
 		return
 	}
 
@@ -96,13 +96,13 @@ func (fc *FeedbackController) CreateFeedback(c *gin.Context) {
 	filename := time.Now().Format("20060102150405") + "_" + header.Filename
 	uploadStream, err := bucket.OpenUploadStream(filename)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open GridFS upload stream"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không mở được luồng tải lên GridFS"})
 		return
 	}
 	defer uploadStream.Close()
 
 	if _, err := uploadStream.Write(buf.Bytes()); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write to GridFS"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể ghi vào GridFS"})
 		return
 	}
 
@@ -113,7 +113,7 @@ func (fc *FeedbackController) CreateFeedback(c *gin.Context) {
 	feedback.Image = imageID
 	created, err := fc.FeedbackRepo.Create(c.Request.Context(), feedback)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create feedback"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo phản hồi"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"feedback": created})
@@ -129,7 +129,7 @@ func (fc *FeedbackController) UpdateFeedback(c *gin.Context) {
 
 	updated, err := fc.FeedbackRepo.Update(c.Request.Context(), feedback)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update feedback"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể cập nhật phản hồi"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"feedback": updated})
@@ -139,15 +139,15 @@ func (fc *FeedbackController) DeleteFeedback(c *gin.Context) {
 	idUser := c.Param("id_user")
 	idProduct := c.Param("id_product")
 	if idUser == "" || idProduct == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing id_user or id_product"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Thiếu id_user hoặc id_product"})
 		return
 	}
 	err := fc.FeedbackRepo.Delete(c.Request.Context(), idUser, idProduct)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete feedback"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể xóa phản hồi"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Feedback deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Đã xóa phản hồi thành công"})
 }
 
 func (fc *FeedbackController) ServeImageFeedback(c *gin.Context) {

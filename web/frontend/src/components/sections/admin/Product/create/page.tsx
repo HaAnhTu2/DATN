@@ -5,6 +5,7 @@ import { Category } from "../../../../../types/category";
 import { getCategories } from "../../../../../services/categoryService";
 import { Producer } from "../../../../../types/producer";
 import { getAllProducers } from "../../../../../services/producerService";
+import { useNavigate } from "react-router-dom";
 
 interface CreateFormProductProps {
     setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -14,6 +15,7 @@ interface CreateFormProductProps {
 const CreateFormProduct: React.FC<CreateFormProductProps> = ({ setProducts, setMessage }) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [producers, setProducers] = useState<Producer[]>([]);
+    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
 
@@ -82,6 +84,7 @@ const CreateFormProduct: React.FC<CreateFormProductProps> = ({ setProducts, setM
 
             const created = await createProduct(formData);
             setMessage("Tạo sản phẩm thành công");
+            navigate(`/update/product`);
             setProducts(prev => [...prev, created]);
 
             // Reset form
@@ -137,7 +140,7 @@ const CreateFormProduct: React.FC<CreateFormProductProps> = ({ setProducts, setM
                     <input type="text" className="form-control mb-2" value={description} onChange={(e) => setDescription(e.target.value)} required />
 
                     <label>Thông tin sản phẩm:</label>
-                    <input type="text" className="form-control mb-2" value={information} onChange={(e) => setInformation(e.target.value)} required />
+                    <textarea className="form-control mb-2" value={information} onChange={(e) => setInformation(e.target.value)} required />
 
                     <label>Trạng thái</label>
                     <select
@@ -147,7 +150,6 @@ const CreateFormProduct: React.FC<CreateFormProductProps> = ({ setProducts, setM
                         className="form-select"
                         required
                     >
-                        <option value="">-- Chọn trạng thái --</option>
                         <option value="active">Hoạt động</option>
                         <option value="inactive">Không hoại động</option>
                     </select>
@@ -159,8 +161,16 @@ const CreateFormProduct: React.FC<CreateFormProductProps> = ({ setProducts, setM
                     <input type="text" className="form-control mb-2" value={size} onChange={(e) => setSize(e.target.value)} required />
 
                     <label>Trạng thái của chi tiết sản phẩm:</label>
-                    <input type="text" className="form-control mb-2" value={statusDetail} onChange={(e) => setStatusDetail(e.target.value)} required />
-
+                    <select
+                        name="status_detail"
+                        value={statusDetail}
+                        onChange={(e) => setStatusDetail(e.target.value)}
+                        className="form-select"
+                        required
+                    >
+                        <option value="instock">Còn hàng</option>
+                        <option value="outstock">Hết hàng</option>
+                    </select>
                     <label>Số lượng:</label>
                     <input type="number" className="form-control mb-2" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} required />
 
@@ -172,10 +182,10 @@ const CreateFormProduct: React.FC<CreateFormProductProps> = ({ setProducts, setM
 
                     <label>Ảnh:</label>
                     <input type="file" className="form-control mb-3" accept="image/*" onChange={handleImageChange} required />
-                            <div className="col-auto">
-                                <button type="submit" className="btn btn-outline-dark" style={{ margin: '10px' }}>{'Tạo sản phẩm'}</button>
+                    <div className="col-auto">
+                        <button type="submit" className="btn btn-outline-dark" style={{ margin: '10px' }}>{'Tạo sản phẩm'}</button>
 
-                            </div>
+                    </div>
 
                 </div>
             </div>
