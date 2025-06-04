@@ -120,8 +120,8 @@ func Route(r *gin.Engine, DB *mongo.Database) {
 		auth.POST("/orders/create", orderController.CreateOrder)
 		auth.PUT("/orders/:order_id/status", orderController.UpdateOrderStatus)
 		auth.DELETE("/orders/:order_id", orderController.DeleteOrder)
-		auth.PUT("/orders/:order_id/cancel", orderController.CancelOrder) // huỷ đơn hàng
-		// auth.POST("/order/checkout/:userID", orderController.CreateOrderFromCart)
+		auth.PUT("/orders/:order_id/confirm", orderController.ConfirmOrder)
+		auth.PUT("/orders/:order_id/cancel", orderController.CancelOrder)
 
 		// Logout route
 		auth.DELETE("/logout", userController.Logout)

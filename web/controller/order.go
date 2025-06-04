@@ -101,6 +101,17 @@ func (oc *OrderController) GetOrderDetails(c *gin.Context) {
 	c.JSON(http.StatusOK, details)
 }
 
+func (oc *OrderController) ConfirmOrder(c *gin.Context) {
+	orderID := c.Param("order_id")
+	err := oc.OrderRepo.ConfirmOrder(context.Background(), orderID)
+	if err != nil {
+		log.Print("error: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Xác nhận đơn hàng thất bại"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Đã xác nhận đơn hàng thành công"})
+}
+
 func (oc *OrderController) CancelOrder(c *gin.Context) {
 	orderID := c.Param("order_id")
 	err := oc.OrderRepo.CancelOrder(context.Background(), orderID)

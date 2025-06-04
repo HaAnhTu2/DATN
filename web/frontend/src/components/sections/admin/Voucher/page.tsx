@@ -59,7 +59,7 @@ const VoucherManagement: React.FC = () => {
       <Card className="w-100 shadow-sm">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4 className="mb-0">Quản lý mã giảm giá</h4>
+            <h4 className="mb-0" style={{ fontSize: '2rem' }}>Quản lý mã giảm giá</h4>
             <Button variant="primary" onClick={() => navigate("/create/voucher")}>
               Tạo mã giảm giá
             </Button>

@@ -133,7 +133,7 @@ const CartList: React.FC<CartListProps> = ({ userId, cartItems }) => {
           <h4 className="mb-0">Giỏ hàng</h4>
           <InputGroup style={{ maxWidth: 300 }}>
             <Form.Control
-              placeholder="Nhập mã voucher"
+              placeholder="Nhập mã giảm giá"
               value={voucherCode}
               onChange={e => setVoucherCode(e.target.value)}
             />

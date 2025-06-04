@@ -60,7 +60,7 @@ const CategoryManagement: React.FC = () => {
             <Card className="w-100 shadow-sm">
                 <Card.Body>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h4 className="mb-0">Quản lý loại sản phẩm</h4>
+                        <h4 className="mb-0" style={{ fontSize: '2rem' }}>Quản lý loại sản phẩm</h4>
                         <Button variant="primary" onClick={() => navigate("/create/category")}>
                             Tạo loại sản phẩm
                         </Button>
@@ -68,7 +68,7 @@ const CategoryManagement: React.FC = () => {
                     <Form className="mb-3">
                         <Form.Control
                             type="search"
-                            placeholder="Search categories"
+                            placeholder="Tìm tên loại sản phẩm"
                             value={searchTerm}
                             onChange={handleSearch}
                         />
@@ -77,7 +77,7 @@ const CategoryManagement: React.FC = () => {
                         <thead className="table-light">
                             <tr>
                                 <th>Tên</th>
-                                <th>Mô tải</th>
+                                <th>Trạng thái</th>
                                 <th style={{ width: "140px" }}></th>
                             </tr>
                         </thead>
@@ -85,7 +85,7 @@ const CategoryManagement: React.FC = () => {
                             {filteredCategories.length === 0 ? (
                                 <tr>
                                     <td colSpan={3} className="text-center text-muted">
-                                        No categories found.
+                                        Không tìm thấy loại sản phẩm nào.
                                     </td>
                                 </tr>
                             ) : (

@@ -91,7 +91,7 @@ const ProductManagement: React.FC = () => {
     <div>
       <Row className="mb-3 align-items-center">
         <Col md={4}>
-          <h4>Quản lý sản phẩm</h4>
+          <h4 style={{ fontSize: '2rem' }}>Quản lý sản phẩm</h4>
         </Col>
         <Col md={5}>
           <InputGroup>

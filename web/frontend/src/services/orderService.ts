@@ -32,6 +32,13 @@ export const getOrderDetails = async (orderId: string) => {
   return response.data;
 };
 
+export const confirmOrder = async (orderId: string) => {
+  const response = await axios.put(`/api/orders/${orderId}/confirm`, {}, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
 export const cancelOrder = async (orderId: string) => {
   const response = await axios.put(`/api/orders/${orderId}/cancel`, {}, {
     headers: getAuthHeaders()

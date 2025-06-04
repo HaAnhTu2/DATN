@@ -49,7 +49,7 @@ export default function UserDetailUpdate({ id }: UpdateUserDetailProps) {
 
     try {
       await updateUser(user.user_id, { ...user, ...formData });
-      alert("✅ Cập nhật người dùng thành công!");
+      alert("✅ Cập nhật thông tin cá nhân thành công!");
       navigate("/home");
     } catch (err) {
       console.error("❌ Lỗi cập nhật:", err);
@@ -60,9 +60,9 @@ export default function UserDetailUpdate({ id }: UpdateUserDetailProps) {
   if (!user) return <div>Không tìm thấy người dùng.</div>;
 
   return (
-    <div className="d-flex justify-content-center">
+    <div className="d-flex ps-3">
       <form onSubmit={handleSubmit} className="m-3" style={{ width: "400px" }}>
-        <h4 className="mb-4">Cập nhật người dùng</h4>
+        <h4 className="mb-4">Thông tin cá nhân</h4>
 
         <div className="mb-3">
           <label>Email</label>

@@ -60,7 +60,7 @@ const Navigation: React.FC = () => {
             {user?.role !== 'Admin' && (
               <>
                 <li>
-                  <Link to="/home" className="text-decoration-none text-dark">
+                  <Link to="/home" className="text-decoration-none">
                     Trang chủ
                   </Link>
                 </li>
@@ -68,7 +68,7 @@ const Navigation: React.FC = () => {
                   <li key={category.category_id}>
                     <Link
                       to={`/category/${category.category_id}`}
-                      className="text-decoration-none text-dark"
+                      className="text-decoration-none"
                     >
                       {category.name}
                     </Link>
