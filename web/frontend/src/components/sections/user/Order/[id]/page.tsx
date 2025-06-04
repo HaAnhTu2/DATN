@@ -17,9 +17,6 @@ interface OrderInfoProps {
 export default function OrderInfo({ id }: OrderInfoProps) {
   const [items, setItems] = useState<FullOrderItem[]>([]);
   const [loading, setLoading] = useState(true);
-  console.log("items: ", items);
-  console.log("id: ", id);
-
 
   useEffect(() => {
     const fetchDetails = async () => {

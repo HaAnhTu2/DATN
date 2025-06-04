@@ -22,8 +22,6 @@ const CreateFormUser: React.FC<CreateFormUserProps> = ({ setUsers, setMessage })
             newUser.append('password', password);
             newUser.append('birthday', birthday);
             newUser.append('gender', gender);
-            console.log(gender);
-            
 
             const createdUser = await signup(newUser);
             setMessage('User created successfully!');

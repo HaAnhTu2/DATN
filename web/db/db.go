@@ -26,16 +26,3 @@ func ConnectDB() *mongo.Client {
 	log.Println("Connected to MongoDB")
 	return client
 }
-
-// var Client *mongo.Client = ConnectDB()
-
-// func UserData(client *mongo.Client, CollectionName string) *mongo.Collection {
-// 	var collection *mongo.Collection = client.Database("DoAnToiNghiep").Collection(CollectionName)
-// 	return collection
-
-// }
-
-// func ProductData(client *mongo.Client, CollectionName string) *mongo.Collection {
-// 	var productcollection *mongo.Collection = client.Database("DoAnToiNghiep").Collection(CollectionName)
-// 	return productcollection
-// }

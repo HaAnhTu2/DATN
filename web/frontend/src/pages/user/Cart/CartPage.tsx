@@ -45,8 +45,6 @@ const CartPage: React.FC = () => {
 
       try {
         const fetchedCart = await getCartByUserId(user?.user_id);
-        console.log(fetchedCart);
-
 
         const cartProducts: CartProduct[] = await Promise.all(
           fetchedCart.map(async (cartItem) => {

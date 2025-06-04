@@ -269,7 +269,6 @@ func (u *UserController) UpdateUser(c *gin.Context) {
 	defer cancel()
 
 	userID := c.Param("id")
-	log.Print("user_id: ", userID)
 
 	var user model.User_KhachHang
 	updateFields := bson.M{}

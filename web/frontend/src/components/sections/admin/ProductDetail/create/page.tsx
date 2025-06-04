@@ -35,12 +35,8 @@ export default function CreateProductDetail({ id }: CreateProductDetailFormProps
     }
     formData.append("status", status);
 
-    console.log(id);
-
-
     try {
-      const res = await createProductDetail(id, formData); // ✅ đã sửa hàm gọi API
-      console.log("Created:", res);
+      const res = await createProductDetail(id, formData);
       navigate(`/productdetail/${id}`);
     } catch (err: any) {
       console.error(err);

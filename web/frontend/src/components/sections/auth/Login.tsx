@@ -23,8 +23,6 @@ const Login: React.FC<LoginUserProps> = ({ setLogin, setError }) => {
             setLocalError('');
             const user = await getUsers();
             setLogin(user);
-            console.log(token)
-            console.log(user)
             navigate('/home')
             window.location.reload(); 
         } catch (error) {

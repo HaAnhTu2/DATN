@@ -4,8 +4,6 @@ import UpdateProductDetail from "../../../../components/sections/admin/ProductDe
 
 const UpdateProductDetailPage: React.FC = () => {
     const { id } = useParams();
-    console.log("id: ",id);
-    
     return (
         <div className="section">
             <header className="container">
