@@ -80,9 +80,6 @@ const Footer: React.FC = () => {
 								<ul className="footer-links">
 									<li><Link to={`/user/${user?.user_id}`} className='text-decoration-none'> Tài khoản của tôi</Link></li>
 									<li><Link to={`/cart/${user?.user_id}`} className='text-decoration-none' onClick={handleCartClick}> Giỏ hàng</Link></li>
-									<li><a href="#">Wishlist</a></li>
-									<li><a href="#">Track My Order</a></li>
-									<li><a href="#">Help</a></li>
 								</ul>
 							</div>
 						</div>
