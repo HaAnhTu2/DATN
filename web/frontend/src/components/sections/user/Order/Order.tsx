@@ -36,6 +36,40 @@ export default function OrderUser({ id }: OrderUserProps) {
       console.error("Lỗi khi huỷ đơn hàng:", err);
     }
   };
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Đang xử lý";
+      case "confirmed":
+        return "Đã xác nhận";
+      case "complete":
+        return "Hoàn thành";
+      case "cancelled":
+        return "Đã huỷ";
+      default:
+        return "Không xác định";
+    }
+  };
+  const getShippingMethod = (shipping_method: string) => {
+    switch (shipping_method) {
+      case "standard":
+        return "Tiêu chuẩn";
+      case "express":
+        return "Nhanh";
+      default:
+        return "Không xác định";
+    }
+  }
+  const getPaymentMethod = (payment_method: string) => {
+    switch (payment_method) {
+      case "cod":
+        return "Thanh toán khi nhận hàng";
+      case "bank":
+        return "Chuyển khoản ngân hàng";
+      default:
+        return "Không xác định";
+    }
+  }
 
   return (
     <div className="container mt-4">
@@ -65,9 +99,17 @@ export default function OrderUser({ id }: OrderUserProps) {
               <td>{order.shipping_address}</td>
               <td>{order.total_amount.toLocaleString()}₫</td>
               <td>
-                {order.shipping_method} / {order.payment_method}
+                {getShippingMethod(order.shipping_method)} / {getPaymentMethod(order.payment_method)}
               </td>
-              <td>{order.status}</td>
+              <td>
+                <span className={`badge ${order.status === "pending" ? "bg-warning" :
+                  order.status === "confirmed" ? "bg-primary" :
+                    order.status === "processing" ? "bg-success" :
+                      order.status === "cancelled" ? "bg-danger" : "bg-secondary"
+                  }`}>
+                  {getStatusLabel(order.status)}
+                </span>
+              </td>
               <td>{order.note}</td>
               <td>
                 <button
@@ -76,7 +118,7 @@ export default function OrderUser({ id }: OrderUserProps) {
                 >
                   Chi tiết
                 </button>
-                {order.status != "cancelled" ? (
+                {order.status != "cancelled" && order.status != "confirmed" ? (
                   <button
                     className="btn btn-warning btn-sm"
                     onClick={() => handleCancel(order.order_id)}
